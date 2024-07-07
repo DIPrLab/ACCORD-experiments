@@ -1,0 +1,73 @@
+body {
+    background-color: #f8f9fa;
+    font-family: Arial, sans-serif;
+}
+.container {
+    max-width: 1200px;
+    margin: 50px auto;
+    background-color: #ffffff;
+    padding: 30px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+}
+.menu-tabs {
+    margin-bottom: 30px;
+}
+.menu-tabs .nav-link {
+    color: #333;
+    font-weight: 500;
+    border: none;
+    border-bottom: 3px solid transparent;
+    border-radius: 0;
+    padding: 10px 20px;
+    margin-right: 10px;
+    transition: all 0.3s ease;
+}
+.menu-tabs .nav-link.active {
+    border-bottom-color: #007bff;
+}
+.menu-content {
+    display: none;
+}
+.menu-content.active {
+    display: block;
+}
+#log-table {
+    margin-top: 20px;
+    border-collapse: collapse;
+    width: 100%;
+}
+#log-table th, #log-table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+}
+#log-table th {
+    background-color: #f2f2f2;
+}
+.loader {
+    display: none;
+    text-align: center;
+    margin-top: 20px;
+}
+#fetch-message {
+    display: none;
+    font-weight: bold;
+    color: red;
+    margin-bottom: 10px;
+}
+.pagination {
+    margin-top: 20px;
+    text-align: center;
+}
+.pagination .page-link {
+    color: #007bff;
+    background-color: #ffffff;
+    border: 1px solid #dee2e6;
+}
+.pagination .page-item.active .page-link {
+    z-index: 3;
+    color: #fff;
+    background-color: #007bff;
+    border-color: #007bff;
+}

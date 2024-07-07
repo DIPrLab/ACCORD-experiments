@@ -1,0 +1,60 @@
+#showConstraints {
+    background-color: #007BFF;  /* Vibrant blue background */
+    color: white;              /* White text for contrast */
+    padding: 10px 20px;        /* Adequate padding for better clickability */
+    margin: 10px 0;            /* Margin for spacing around the button */
+    border: none;              /* No border for a cleaner look */
+    border-radius: 5px;        /* Slightly rounded corners */
+    cursor: pointer;           /* Cursor indicates the button is clickable */
+    transition: background-color 0.3s, transform 0.2s; /* Smooth transition for color and transformation */
+    font-size: 16px;           /* Font size is large enough for readability */
+    font-weight: bold;         /* Bold text for better visibility */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); /* Subtle shadow for 3D effect */
+}
+
+#showConstraints:hover {
+    background-color: #0056b3; /* Darker blue on hover for interactive feedback */
+    transform: translateY(-2px); /* Slight raise effect on hover for tactile feel */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); /* Increased shadow on hover for more depth */
+}
+
+
+#constraintsTable {
+    width: 100%;
+    border-collapse: collapse;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);  /* Adds a subtle shadow around the table for depth */
+    font-family: Arial, sans-serif; /* Ensures the font is professional and readable */
+}
+
+#constraintsTable, #constraintsTable th, #constraintsTable td {
+    border: 1px solid #ccc; /* Lighter border color */
+    text-align: left;
+    padding: 12px 15px; /* More space inside cells for better readability */
+}
+
+#constraintsTable th {
+    background-color: #4CAF50; /* A green shade for headers */
+    color: white; /* White text for contrast */
+    font-size: 16px; /* Slightly larger font size for headers */
+}
+
+#constraintsTable td {
+    color: #333; /* Dark grey text for readability */
+    font-size: 14px; /* Appropriate font size for table data */
+}
+
+#constraintsTable tr:nth-child(even) {
+    background-color: #f8f8f8; /* Very light grey for even rows */
+}
+
+#constraintsTable tr:hover {
+    background-color: #e2e2e2; /* Light grey background on row hover */
+}
+
+/* Additional styling for the status message to match the table style */
+#statusMessage {
+    font-family: Arial, sans-serif;
+    margin-top: 12px;
+    color: #333;
+    font-size: 14px;
+}
