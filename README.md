@@ -42,10 +42,10 @@ ACCORD Conflict Detection is a Flask-based web application designed to manage an
 
 ## Running the Application
 1. After installing all the packages, configuring the database and setting up access tokens, exuecute following command to run app:
-```bash
-python app.py
+   ```bash
+   python app.py
 2. Open a web browser and goto:
-```bash
-http://127.0.0.1:5000
+   ```bash
+   http://127.0.0.1:5000
 
 This README.md provides an overview of the ACCORD Conflict Detection project, installation and configuration instructions, descriptions of application routes, details about the index page menu tabs, and an explanation of how detection time is calculated.
