@@ -27,7 +27,9 @@ ACCORD Conflict Detection is a Flask-based web application designed to manage an
 
 ## index.html
 1. **Fetch Logs Tab:** Allows users to select a date and fetch activity logs from a specified date. It includes a table to display fetched logs, a loader for indicating data fetching, and a button to detect conflicts based on the fetched logs.
+![Fetch Logs Tab](static/img/fetchLog.png)
 2. **Action Constrains Tab:** Enables users to view and manage action constraints associated with logged activities. It includes a form to select a date, a button to display action constraints for that date, and a table to show detailed constraints including timestamps, target resources, and owners.
+![Fetch Logs Tab](static/img/actionConstraint.png)
 
 ## Conflict Detection Algorithm: Detection Time Calculation
 1. Extarct activity logs from database.
