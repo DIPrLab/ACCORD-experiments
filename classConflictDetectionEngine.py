@@ -1,6 +1,12 @@
 
 # The detection engine class is used to detecct he conflict based on Activity handler and the Action constraints
 class ConflictDetectionEngine:
+    '''Detect whether an activity is a conflict.
+
+    Attributes:
+        conflictCount: int, number of conflicts detected
+        conflictDetectionHandler: ConflictDetectionHandler, head of handler chain
+    '''
     def __init__(self):
         self.conflictCount = 0
         targetHandler = DetectTargetHandler()
@@ -9,6 +15,14 @@ class ConflictDetectionEngine:
         self.conflictDetectionHandler = actionHandler
 
     def checkConflict(self, ActivityHandler, ActionConstraint):
+        '''Detect if activity is a conflict using ConflictDetectionHandler chain
+
+        Args:
+            ActivityHandler: ActivityHandlerInterface, specifc activity info
+            ActionConstraint: ActionConstraints, constraints for activity's document
+
+        Returns: boolean
+        '''
         isConflict = self.conflictDetectionHandler.detectConflict(ActivityHandler, ActionConstraint)
         if(isConflict):
             self.conflictCount = self.conflictCount + 1
@@ -17,15 +31,18 @@ class ConflictDetectionEngine:
 
 # The handler interface will allow us to handle conflict detections in a flexible way
 class ConflictDetectionHandler:
+    '''Interface for handlers in ConflictDetectionHandler chain'''
     def detectConflict(self, ActivityHandler, ActionConstraint):
         pass
 
 # Check for Correponding action in the Action Constraints    
 class DetectActionHandler(ConflictDetectionHandler):
+    '''Detect conflict based on action.'''
     def __init__(self, next):
         self.next = next
 
     def detectConflict(self, ActivityHandler, ActionConstraint):
+        '''Return False if no action constraints match action'''
         try:
             actionConstraints = ActionConstraint.actionConstraints
             if(ActivityHandler.action in actionConstraints):
@@ -43,10 +60,12 @@ class DetectActionHandler(ConflictDetectionHandler):
 
 # Check for Correponding actionTypes in the Actions   
 class DetectActionTypeHandler(ConflictDetectionHandler):
+    '''Detect conflict based on action type.'''
     def __init__(self, next):
         self.next = next
 
     def detectConflict(self, ActivityHandler, actionTypes):
+        '''Return False if no action constraints match action type'''
         try:
             if(ActivityHandler.actiontype in actionTypes):
                 targetList = actionTypes[ActivityHandler.actiontype]
@@ -63,8 +82,9 @@ class DetectActionTypeHandler(ConflictDetectionHandler):
 
 # Check for Correponding target in the Action Types  
 class DetectTargetHandler(ConflictDetectionHandler):
-
+    '''Detect conflict based on target'''
     def detectConflict(self, ActivityHandler, targetList):
+        '''Identify conflict by comparing target and activity's true value'''
         try:
             if(ActivityHandler.target in targetList):
                 value = targetList[ActivityHandler.target][0]

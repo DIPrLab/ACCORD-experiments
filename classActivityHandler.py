@@ -2,6 +2,15 @@
 
 # The activity handler fetches fine details of different activities
 class ActivityHandler:
+    '''Encapsulates a chain of ActivityHandlerInterface
+
+    Each Handler in the chain, if its type matches the activity type,
+    extracts further details and returns itself. If it doesn't match,
+    it returns the result of the next Handler in the chain.
+
+    Attributes:
+        activityHandler: ActivityHandlerInterface, first Handler in chain
+    '''
     def __init__(self):
         defaultHandler = DefaultHandler()
         renameHandler = RenameHandler(defaultHandler)
@@ -18,11 +27,13 @@ class ActivityHandler:
 
 # Acitivity handler interface base class
 class ActivityHandlerInterface:
+    '''Interface for handlers in ActivityHandler chain'''
     def handle(self, ActivityObject):
         pass
 
 # Activity Handler to deal with PERMISSION CHANGE ACTIVITY
 class PermissionChangeHandler(ActivityHandlerInterface):
+    '''Handler for Permission Change activities: add, update, remove'''
     def __init__(self,next):
         self.next = next
 
@@ -66,6 +77,7 @@ class PermissionChangeHandler(ActivityHandlerInterface):
 
 # Activity Handler to deal with EDIT ACTIVITY
 class EditHandler(ActivityHandlerInterface):
+    '''Handler for Edit activity'''
     def __init__(self,next):
         self.next = next
 
@@ -91,6 +103,7 @@ class EditHandler(ActivityHandlerInterface):
 
 # Activity Handler to deal with MOVE ACTIVITY
 class MoveHandler(ActivityHandlerInterface):
+    '''Handler for Move activity'''
     def __init__(self,next):
         self.next = next
 
@@ -116,6 +129,7 @@ class MoveHandler(ActivityHandlerInterface):
 
 # Activity Handler to deal with CREATE ACTIVITY
 class CreateHandler(ActivityHandlerInterface):
+    '''Handler for Create activity'''
     def __init__(self,next):
         self.next = next
 
@@ -140,6 +154,7 @@ class CreateHandler(ActivityHandlerInterface):
 
 # Activity Handler to deal with DELETE ACTIVITY
 class DeleteHandler(ActivityHandlerInterface):
+    '''Handler for Delete activity'''
     def __init__(self,next):
         self.next = next
 
@@ -164,6 +179,7 @@ class DeleteHandler(ActivityHandlerInterface):
 
 # Activity Handler to deal with RENAME ACTIVITY
 class RenameHandler(ActivityHandlerInterface):
+    '''Handler for Rename activity'''
     def __init__(self,next):
         self.next = next
 
@@ -176,6 +192,7 @@ class RenameHandler(ActivityHandlerInterface):
 
 
 # Default Activity Handler to deal 
-class DefaultHandler(ActivityHandlerInterface): 
+class DefaultHandler(ActivityHandlerInterface):
+    '''Handler for all remaining activities, which aren't supported'''
     def handle(self, ActivityObject):
         return "Activity cannot be handled to detect the conflicts"
