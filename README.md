@@ -8,10 +8,9 @@ ACCORD Conflict Detection is a Flask-based web application designed to manage an
    ```bash
    pip install --upgrade google-api-python-client google-auth-httplib2 google-auth-oauthlib
    ```
-2. **Install Flask and related libraries:**
+2. **Install Flask:**
    ```bash
    pip install Flask
-   pip install Flask-WTF Flask-SQLAlchemy Flask-Migrate
    ```
 3. **Install other necessary libraries**
    ```bash
@@ -53,10 +52,13 @@ ACCORD Conflict Detection is a Flask-based web application designed to manage an
 ## Running the Application
 
 1. After installing all the packages, configuring the database and setting up access tokens, execute following command to run app:
+
    ```bash
    python3 app.py
    ```
+
    or
+
    ```bash
    flask run
    ```

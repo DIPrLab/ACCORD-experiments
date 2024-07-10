@@ -1,9 +1,8 @@
-from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify
+from flask import Flask, render_template, request, session, flash, jsonify
 from flask_mysqldb import MySQL
-import yaml, hashlib, os, time, random, re
+import yaml, os, time
 from datetime import datetime
 from math import floor
-from functools import wraps
 from serviceAPI import create_reportsAPI_service
 from conflictDetctionAlgorithm import detectmain
 from sqlconnector import DatabaseQuery

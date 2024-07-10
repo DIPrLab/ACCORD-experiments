@@ -1,6 +1,6 @@
 from sqlconnector import DatabaseQuery
 from logextraction import extractDriveLog
-from datetime import datetime, timedelta
+from datetime import datetime
 
 class Logupdater():
     '''Fetch logs and update database.
