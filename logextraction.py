@@ -2,6 +2,7 @@ from __future__ import print_function
 
 # Extract the Document ID from the JSON
 def get_doc_id(parameterList):
+    '''Extract id from event parameters dict'''
     for item in parameterList:
         if 'doc_id' == item['name']:
             return item['value']
@@ -9,6 +10,7 @@ def get_doc_id(parameterList):
 
 # Extract the Document Title from the JSON
 def get_doc_title(parameterList):
+    '''Extract document name from event parameters dict'''
     for item in parameterList:
         if 'doc_title' == item['name']:
             return item['value']
@@ -16,6 +18,7 @@ def get_doc_title(parameterList):
 
 # Extrac the required value from the JSON result
 def get_value(paramerterList, value_requried, value):
+    '''Extract any value from event parameters dict'''
     for item in paramerterList:
         if value_requried == item['name']:
             return item[value]
@@ -23,6 +26,14 @@ def get_value(paramerterList, value_requried, value):
 
 
 def extractDriveLog(lastLogTime, service):
+    '''Fetch drive activity logs from API since provided time
+
+    Args:
+        lastLogTime: str, formatted date: "%Y-%m-%dT%H:%M:%S.%fZ"
+        service: googleapiclient.discovery.Resource, for Admin SDK Reports API
+
+    Returns: list, formatted strings representing logs, first string has field labels
+    '''
     try:
         # Call the Admin SDK Reports API
         results = service.activities().list(
@@ -127,7 +138,7 @@ def extractDriveLog(lastLogTime, service):
                 logString.append(logActivity)
                 
 
-        return logString   
+        return logString
 
         ############# Format of each item in log String #############
         # [timestamp, action, doc_id, doc_name, actor_id, actor_name]
