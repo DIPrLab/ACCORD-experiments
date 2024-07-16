@@ -52,91 +52,58 @@ def extractDriveLog(lastLogTime, service):
             #print('Activity Logs:')
             for activity in activities:
                 activityTime = activity['id']['time']
-                eventDetails = activity['events'][0]
                 actorID = list(activity['actor'].values())
-                eventName = eventDetails['name']
-                if(activity['events'][0]['name'] == 'change_user_access'):
-                    eventName = 'Permission Change'
 
-                # Extract Activity Parameters
-                parameterList = eventDetails['parameters']
-                doc_id = get_doc_id(parameterList)
-                doc_name = get_doc_title(parameterList)
+                for eventDetails in reversed(activity['events']):
+                    # Extract Activity Parameters
+                    parameterList = eventDetails['parameters']
+                    doc_id = get_doc_id(parameterList)
+                    doc_name = get_doc_title(parameterList)
+                    eventName = eventDetails['name']
 
-                # For create action
-                if(eventName == 'create'):
-                    eventName = "Create"
-                    logActivity = activityTime + "\t*\t" + eventName + "\t*\t" + str(doc_id) + "\t*\t" + str(doc_name) + "\t*\t" + str(actorID[1]) + "\t*\t" + str(actorID[0])
+                    # Extract action-specific details
+                    # For create action
+                    if eventName == 'create':
+                        eventName = "Create"
+                        logActivity = activityTime + "\t*\t" + eventName + "\t*\t" + str(doc_id) + "\t*\t" + str(doc_name) + "\t*\t" + str(actorID[1]) + "\t*\t" + str(actorID[0])
 
-                # For delete or trash action
-                elif(eventName == 'delete' or eventName == 'trash'):
-                    eventName = "Delete"
+                    # For delete (for non-owners) or trash (for owners) action
+                    elif eventName == 'delete' or eventName == 'trash':
+                        eventName = "Delete"
+                        logActivity = activityTime + "\t*\t" + eventName + "\t*\t" + str(doc_id) + "\t*\t"  + str(doc_name) + "\t*\t" + str(actorID[1]) + "\t*\t" + str(actorID[0])
+
+                    # For edit action
+                    elif eventName == 'edit':
+                        eventName = "Edit"
+
+                    # For rename (edit event will also be logged as a non-primary event)
+                    elif eventName == 'rename':
+                        eventName = "Rename"
+
+                    # For permission change action
+                    elif eventName == 'change_user_access':
+                        eventName = 'Permission Change'
+                        target_user = get_value(parameterList, 'target_user', 'value')
+                        if not target_user:
+                            target_user = 'None'
+                        old_permissions = get_value(parameterList, 'old_value', 'multiValue')
+                        old_permission = ",".join(old_permissions)
+                        new_permissions = get_value(parameterList, 'new_value', 'multiValue')
+                        new_permission = ",".join(new_permissions)
+                        eventName = "Permission Change-to:" + new_permission + "-from:" + old_permission + "-for:" + target_user
+
+                    # For move action
+                    elif(eventName == 'move'):
+                        srcFolderID = get_value(parameterList, 'source_folder_id', 'multiValue')[0]
+                        dstFolderID = get_value(parameterList, 'destination_folder_id', 'multiValue')[0]
+                        eventName = "Move:" + str(srcFolderID) + ":" + str(dstFolderID)
+
+                    # Actions not logged: "acl_change: change_acl_editors"
+                    else:
+                        continue
+
                     logActivity = activityTime + "\t*\t" + eventName + "\t*\t" + str(doc_id) + "\t*\t"  + str(doc_name) + "\t*\t" + str(actorID[1]) + "\t*\t" + str(actorID[0])
-
-                # For edit action changes
-                elif(eventName == 'edit'):            
-                    eventName = "Edit"
-
-                    # Change User Access (PermissionChange) and Rename actions are logged
-                    if(len(activity['events']) != 1):
-                        # Permission Change event
-                    
-                        if(activity['events'][1]['type'] == 'acl_change'):
-                            permissionChange = activity['events'][1]['parameters']
-                            
-                            if 'value' in permissionChange[3]:
-                                target_user = permissionChange[3]['value']
-                            else:
-                                target_user = 'None'
-                            eventName = 'Permission Change'
-                            old_permissions = get_value(permissionChange, 'old_value', 'multiValue')
-                            new_permissions = get_value(permissionChange, 'new_value', 'multiValue')
-                            old_permission = ""
-                            new_permission = ""
-
-                            for item in old_permissions:
-                                old_permission = old_permission + item
-
-                            for item in new_permissions:
-                                new_permission = new_permission + item
-
-                            eventName = eventName + "-to:" + new_permission + "-from:" + old_permission + "-for:" + target_user
-                        else:
-                            
-                            eventName = 'Rename'
-                    
-                    logActivity = activityTime + "\t*\t" + eventName + "\t*\t" + str(doc_id) + "\t*\t"  + str(doc_name) + "\t*\t" + str(actorID[1]) + "\t*\t" + str(actorID[0])
-
-                # For Access permission change action
-                elif(eventName == 'Permission Change'):               
-                    target_user = parameterList[3]['value']
-                    old_permissions = parameterList[4]['multiValue']
-                    new_permissions = parameterList[5]['multiValue']
-                    old_permission = ""
-                    new_permission = ""
-
-                    for item in old_permissions:
-                        old_permission = old_permission + item
-
-                    for item in new_permissions:
-                        new_permission = new_permission + item
-
-                    eventName = eventName + "-to:" + new_permission + "-from:" + old_permission + "-for:" + target_user
-                    logActivity = activityTime + "\t*\t" + eventName + "\t*\t" + str(doc_id) + "\t*\t" + str(doc_name) + "\t*\t" + str(actorID[1]) + "\t*\t" + str(actorID[0])
-
-                # For move action
-                elif(eventName == 'move'):
-                    eventName = "Move"
-                    srcFolderID = parameterList[3]['multiValue'][0]
-                    dstFolderID = parameterList[5]['multiValue'][0]
-
-                    eventName = eventName + ":" + str(srcFolderID) + ":" + str(dstFolderID)
-                    logActivity = activityTime + "\t*\t" + eventName + "\t*\t" + str(doc_id) + "\t*\t" + str(doc_name) + "\t*\t" + str(actorID[1]) + "\t*\t" + str(actorID[0])
-                else:
-                    continue
-
-                logString.append(logActivity)
-                
+                    logString.append(logActivity)
 
         return logString
 
