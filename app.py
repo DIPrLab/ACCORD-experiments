@@ -44,20 +44,29 @@ def process_logs(logV):
         return f'{actor} has Deleted a resource'
     elif action == "Edi":
         return f'{actor} has Edited a resource'
+    elif action == "Ren":
+        return f'{actor} has Renamed a resource'
     elif action == "Mov":
-        return f'{actor} has Moved a resource'
-    else:
+        _, src, dest = logV[1].split(':')
+        return f'{actor} has Moved a resource from {src} to {dest}'
+    elif action == "Per":
         sub_parts = logV[1].split(':')
         first_sub_part = sub_parts[1].split('-')[0] if len(sub_parts) > 1 else ""
         second_sub_part = sub_parts[2].split('-')[0] if len(sub_parts) > 2 else ""
         user = sub_parts[3].split('@')[0].capitalize() if len(sub_parts) > 3 else ""
-
+        permissions = { 'can_edit': '"Editor"',
+                        'can_comment,can_view': '"Commenter"',
+                        'can_view,can_comment': '"Commenter"',
+                        'can_view': '"Viewer"',
+                        'owner': '"Owner"' }
         if second_sub_part == "none":
-            return f'{actor} has added a user {user} to the resource'
+            return f'{actor} has given {user} {permissions.get(first_sub_part)} permissions'
         elif first_sub_part == "none":
-            return f'{actor} has removed a user {user} from the resource'
+            return f'{actor} has removed {permissions.get(second_sub_part)} permissions for {user}'
         else:
-            return f'{actor} has updated user {user} permissions for the resource'
+            return f'{actor} has updated permissions for {user} from {permissions.get(second_sub_part)} to {permissions.get(first_sub_part)}'
+    else:
+        return " ".join(logV)
 
 @app.route('/')
 def index():

@@ -54,7 +54,7 @@ def extractDriveLog(lastLogTime, service):
                 activityTime = activity['id']['time']
                 actorID = list(activity['actor'].values())
 
-                for eventDetails in reversed(activity['events']):
+                for eventDetails in activity['events']:
                     # Extract Activity Parameters
                     parameterList = eventDetails['parameters']
                     doc_id = get_doc_id(parameterList)
@@ -94,9 +94,9 @@ def extractDriveLog(lastLogTime, service):
 
                     # For move action
                     elif(eventName == 'move'):
-                        srcFolderID = get_value(parameterList, 'source_folder_id', 'multiValue')[0]
-                        dstFolderID = get_value(parameterList, 'destination_folder_id', 'multiValue')[0]
-                        eventName = "Move:" + str(srcFolderID) + ":" + str(dstFolderID)
+                        srcFolderName = get_value(parameterList, 'source_folder_title', 'multiValue')[0]
+                        dstFolderName = get_value(parameterList, 'destination_folder_title', 'multiValue')[0]
+                        eventName = "Move:" + str(srcFolderName) + ":" + str(dstFolderName)
 
                     # Actions not logged: "acl_change: change_acl_editors"
                     else:
