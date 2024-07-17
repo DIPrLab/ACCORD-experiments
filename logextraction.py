@@ -1,6 +1,5 @@
 from __future__ import print_function
 
-# Extract the Document ID from the JSON
 def get_doc_id(parameterList):
     '''Extract id from event parameters dict'''
     for item in parameterList:
@@ -8,7 +7,6 @@ def get_doc_id(parameterList):
             return item['value']
     return None
 
-# Extract the Document Title from the JSON
 def get_doc_title(parameterList):
     '''Extract document name from event parameters dict'''
     for item in parameterList:
@@ -16,14 +14,12 @@ def get_doc_title(parameterList):
             return item['value']
     return None
 
-# Extrac the required value from the JSON result
 def get_value(paramerterList, value_requried, value):
     '''Extract any value from event parameters dict'''
     for item in paramerterList:
         if value_requried == item['name']:
             return item[value]
     return None
-
 
 def extractDriveLog(lastLogTime, service):
     '''Fetch drive activity logs from API since provided time
@@ -49,7 +45,6 @@ def extractDriveLog(lastLogTime, service):
         if not activities:
             print('No activities found.')
         else:
-            #print('Activity Logs:')
             for activity in activities:
                 activityTime = activity['id']['time']
                 actorID = list(activity['actor'].values())
@@ -107,10 +102,6 @@ def extractDriveLog(lastLogTime, service):
 
         return logString
 
-        ############# Format of each item in log String #############
-        # [timestamp, action, doc_id, doc_name, actor_id, actor_name]
-        #############################################################
-
     except LookupError as le:
         return "Error in the key or index !!\n" + str(le)
     except ValueError as ve:
@@ -118,9 +109,5 @@ def extractDriveLog(lastLogTime, service):
     except OSError as oe:
         return "Error! " + str(oe)
 
-
-
-###########################################################################################################
-### Uncomment the following script for debugging purpose
-
+# Uncomment the following script for debugging purpose
 #print(extractDriveLog('2022-10-20T16:16:35.282Z'))

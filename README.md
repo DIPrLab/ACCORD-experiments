@@ -27,10 +27,8 @@ ACCORD Conflict Detection is a Flask-based web application designed to manage an
 1. **/ (index):** Renders the main page (index.html) and initializes the Google Drive Reports API service for the admin user
 2. **/refresh_logs (POST):** Updates the local database with the latest Google Drive activity logs retrieved using the Reports API.
 3. **/detect_conflicts_demo (POST):** Handles the demonstration of conflict detection. Retrieves logs and action constraints from the database, runs the detection algorithm (detectmain), and returns detected conflicts with detection time metrics.
-4. **/addActionConstraints (POST):** Receives JSON data containing user-defined action constraints, processes them, and adds them to the database (log_details) for future conflict detection.
-5. **/fetch_actionConstraints (POST):** Retrieves action constraints from the database based on a specified date, processes them into a structured format, and returns them as JSON for display.
-6. **/fetch_drive_log (GET):** Retrieves Google Drive activity logs from the Reports API based on a specified start time (startTime) and updates the local log database (log_details).
-7. **/get_action_constraints (POST):** Retrieves specific action constraints from the database (log_details) based on document ID, action type, and constraint target, and returns them as JSON.
+4. **/fetch_actionConstraints (POST):** Retrieves action constraints from the database based on a specified date, processes them into a structured format, and returns them as JSON for display.
+5. **/fetch_drive_log (GET):** Retrieves Google Drive activity logs from the Reports API based on a specified start time (startTime) and updates the local log database (log_details).
 
 ## index.html
 

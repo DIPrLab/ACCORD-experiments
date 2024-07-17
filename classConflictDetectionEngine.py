@@ -1,5 +1,4 @@
 
-# The detection engine class is used to detecct he conflict based on Activity handler and the Action constraints
 class ConflictDetectionEngine:
     '''Detect whether an activity is a conflict.
 
@@ -29,13 +28,13 @@ class ConflictDetectionEngine:
 
         return isConflict
 
-# The handler interface will allow us to handle conflict detections in a flexible way
+
 class ConflictDetectionHandler:
     '''Interface for handlers in ConflictDetectionHandler chain'''
     def detectConflict(self, ActivityHandler, ActionConstraint):
         pass
 
-# Check for Correponding action in the Action Constraints    
+
 class DetectActionHandler(ConflictDetectionHandler):
     '''Detect conflict based on action.'''
     def __init__(self, next):
@@ -58,7 +57,7 @@ class DetectActionHandler(ConflictDetectionHandler):
         except TypeError as te:
             return "Error in Type matching !!\n" + str(te) 
 
-# Check for Correponding actionTypes in the Actions   
+
 class DetectActionTypeHandler(ConflictDetectionHandler):
     '''Detect conflict based on action type.'''
     def __init__(self, next):
@@ -80,7 +79,7 @@ class DetectActionTypeHandler(ConflictDetectionHandler):
         except TypeError as te:
             return "Error in Type matching !!\n" + str(te)
 
-# Check for Correponding target in the Action Types  
+
 class DetectTargetHandler(ConflictDetectionHandler):
     '''Detect conflict based on target'''
     def detectConflict(self, ActivityHandler, targetList):

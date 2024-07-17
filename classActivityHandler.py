@@ -1,6 +1,3 @@
-
-
-# The activity handler fetches fine details of different activities
 class ActivityHandler:
     '''Encapsulates a chain of ActivityHandlerInterface
 
@@ -25,13 +22,12 @@ class ActivityHandler:
         return self.activityHandler.handle(ActivityObject)
 
 
-# Acitivity handler interface base class
 class ActivityHandlerInterface:
     '''Interface for handlers in ActivityHandler chain'''
     def handle(self, ActivityObject):
         pass
 
-# Activity Handler to deal with PERMISSION CHANGE ACTIVITY
+
 class PermissionChangeHandler(ActivityHandlerInterface):
     '''Handler for Permission Change activities: add, update, remove'''
     def __init__(self,next):
@@ -75,7 +71,7 @@ class PermissionChangeHandler(ActivityHandlerInterface):
         except TypeError as te:
             return "Error in Type matching !!\n" + str(te)               
 
-# Activity Handler to deal with EDIT ACTIVITY
+
 class EditHandler(ActivityHandlerInterface):
     '''Handler for Edit activity'''
     def __init__(self,next):
@@ -101,7 +97,7 @@ class EditHandler(ActivityHandlerInterface):
         except TypeError as te:
             return "Error in Type matching !!\n" + str(te)
 
-# Activity Handler to deal with MOVE ACTIVITY
+
 class MoveHandler(ActivityHandlerInterface):
     '''Handler for Move activity'''
     def __init__(self,next):
@@ -127,7 +123,6 @@ class MoveHandler(ActivityHandlerInterface):
             return "Error in Type matching !!\n" + str(te)
 
 
-# Activity Handler to deal with CREATE ACTIVITY
 class CreateHandler(ActivityHandlerInterface):
     '''Handler for Create activity'''
     def __init__(self,next):
@@ -152,7 +147,7 @@ class CreateHandler(ActivityHandlerInterface):
         except TypeError as te:
             return "Error in Type matching !!\n" + str(te)
 
-# Activity Handler to deal with DELETE ACTIVITY
+
 class DeleteHandler(ActivityHandlerInterface):
     '''Handler for Delete activity'''
     def __init__(self,next):
@@ -177,7 +172,7 @@ class DeleteHandler(ActivityHandlerInterface):
         except TypeError as te:
             return "Error in Type matching !!\n" + str(te)
 
-# Activity Handler to deal with RENAME ACTIVITY
+
 class RenameHandler(ActivityHandlerInterface):
     '''Handler for Rename activity'''
     def __init__(self,next):
@@ -191,7 +186,6 @@ class RenameHandler(ActivityHandlerInterface):
             return self.next.handle(ActivityObject)
 
 
-# Default Activity Handler to deal 
 class DefaultHandler(ActivityHandlerInterface):
     '''Handler for all remaining activities, which aren't supported'''
     def handle(self, ActivityObject):

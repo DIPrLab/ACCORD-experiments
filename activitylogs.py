@@ -26,7 +26,6 @@ class Logupdater():
             Number of added activity logs.
         '''
         try:
-            # Create DB connection
             db = DatabaseQuery(self.mysql.connection, self.mysql.connection.cursor())
 
             # Extract last log date from the database
@@ -35,10 +34,8 @@ class Logupdater():
             
             if(last_log_date != None):
                 # Extract the activity logs from the Google cloud from lastlog Date
-            
                 activity_logs = extractDriveLog(last_log_date, self.reportsAPI_service)
-                
-                activity_logs.pop(0)
+                activity_logs.pop(0) # Remove header row
 
                 # Update the log Database table when the new activities are recorded
                 if(len(activity_logs) > 1):
@@ -48,7 +45,7 @@ class Logupdater():
                     date_format = "%Y-%m-%dT%H:%M:%S.%fZ"
                     log_datetime = datetime.strptime(new_log_date, date_format)
 
-                    # Subtract 4 hours
+                    # Subtract 4 hours to convert to EDT time zone
                     updated_datetime = log_datetime
 
                     # Format it back to a string if needed
@@ -59,7 +56,6 @@ class Logupdater():
                     totalLogs = len(activity_logs)-1
 
             del db
-
             return totalLogs
 
         except LookupError as le:
