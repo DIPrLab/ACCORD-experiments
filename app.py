@@ -76,10 +76,13 @@ def add_no_cache(response):
 
 @app.route('/')
 def index():
-    reportsAPI_service = create_reportsAPI_service()
     session['username'] = 'admin@accord.foundation'
     # Store services in the global services dictionary
-    user_services[session['username']] = {'reports': reportsAPI_service}
+    reportsAPI_service = create_reportsAPI_service()
+    if reportsAPI_service:
+        user_services[session['username']] = {'reports': reportsAPI_service}
+    else:
+        return "<h1>Unabled to connect to Google Reports API</h1>", 400
 
     return render_template('index.html')
 

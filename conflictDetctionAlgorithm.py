@@ -19,18 +19,10 @@ class Activity:
             activity: list of activity event data strings
                 [activityTime, action, documentID, actorName]
         '''
-        try:
-            self.activityTime = activity[0]
-            self.action = activity[1]
-            self.documentID = activity[2]
-            self.actorName = activity[5]
-
-        except LookupError as le:
-            return "Error in the key or index !!\n" + str(le)
-        except ValueError as ve:
-            return "Error in Value Entered !!\n" + str(ve)
-        except TypeError as te:
-            return "Error in Type matching !!\n" + str(te)
+        self.activityTime = activity[0]
+        self.action = activity[1]
+        self.documentID = activity[2]
+        self.actorName = activity[5]
 
 
 def detectmain(logdata, actionConstraints):
@@ -45,27 +37,18 @@ def detectmain(logdata, actionConstraints):
     Returns: list of booleans equal in length to logdata, indicating if each
         activity was a conflict
     '''
-    try:
-        # Initialize conflict detection engine
-        conflictDetectionEngine = ConflictDetectionEngine()
+    # Initialize conflict detection engine
+    conflictDetectionEngine = ConflictDetectionEngine()
 
-        result = []
-        # Create an Activity and ActivityHandler for each activity and check for the conflict
-        for activity in logdata:
-            activityObject = Activity(activity)
-            Handler = ActivityHandler()
-            activityHandler = Handler.handleActivity(activityObject)
-            actionConstraintsObj = ActionConstraints(activityObject, actionConstraints)
+    # Create an Activity and ActivityHandler for each activity and check for a conflict
+    result = []
+    for activity in logdata:
+        activityObject = Activity(activity)
+        Handler = ActivityHandler()
+        activityHandler = Handler.handleActivity(activityObject)
+        actionConstraintsObj = ActionConstraints(activityObject, actionConstraints)
 
-            # Detect Conflict for the activity
-            result.append(conflictDetectionEngine.checkConflict(activityHandler, actionConstraintsObj)) 
+        # Detect Conflict for the activity
+        result.append(conflictDetectionEngine.checkConflict(activityHandler, actionConstraintsObj))
 
-        return result
-
-    except LookupError as le:
-        return "Error in the key or index !!\n" + str(le)
-    except ValueError as ve:
-        return "Error in Value Entered !!\n" + str(ve)
-    except TypeError as te:
-        return "Error in Type matching !!\n" + str(te)
-
+    return result

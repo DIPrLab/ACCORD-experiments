@@ -84,38 +84,30 @@ class DetectTargetHandler(ConflictDetectionHandler):
     '''Detect conflict based on target'''
     def detectConflict(self, ActivityHandler, targetList):
         '''Identify conflict by comparing target and activity's true value'''
-        try:
-            if(ActivityHandler.target in targetList):
-                value = targetList[ActivityHandler.target][0]
-                comparator =targetList[ActivityHandler.target][1]
-                true_values = targetList[ActivityHandler.target][2]
+        if(ActivityHandler.target in targetList):
+            value = targetList[ActivityHandler.target][0]
+            comparator =targetList[ActivityHandler.target][1]
+            true_values = targetList[ActivityHandler.target][2]
 
-                if(value == "TRUE"):
-                    if comparator == "eq":
-                        if ActivityHandler.trueValue not in true_values:
-                            return True
-                    if comparator == "lt":
-                        if true_values[0] < ActivityHandler.trueValue:
-                            return True
-                    if comparator == "gt":
-                        if true_values[0] > ActivityHandler.trueValue:
-                            return True
-                else:
-                    if comparator == "eq":
-                        if value != ActivityHandler.value:
-                            return True
-                    if comparator == "lt":
-                        if value < ActivityHandler.value:
-                            return True
-                    if comparator == "gt":
-                        if value > ActivityHandler.value:
-                            return True
-            
-            return False
+            if(value == "TRUE"):
+                if comparator == "eq":
+                    if ActivityHandler.trueValue not in true_values:
+                        return True
+                if comparator == "lt":
+                    if true_values[0] < ActivityHandler.trueValue:
+                        return True
+                if comparator == "gt":
+                    if true_values[0] > ActivityHandler.trueValue:
+                        return True
+            else:
+                if comparator == "eq":
+                    if value != ActivityHandler.value:
+                        return True
+                if comparator == "lt":
+                    if value < ActivityHandler.value:
+                        return True
+                if comparator == "gt":
+                    if value > ActivityHandler.value:
+                        return True
 
-        except LookupError as le:
-            return "Error in the key or index !!\n" + str(le)
-        except ValueError as ve:
-            return "Error in Value Entered !!\n" + str(ve)
-        except TypeError as te:
-            return "Error in Type matching !!\n" + str(te) 
+        return False

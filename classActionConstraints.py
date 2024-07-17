@@ -38,29 +38,21 @@ class ActionConstraints:
             actionConstraints: Dict[documentID: str, constraints: list],
                 all action constraints to filter
         '''
-        try:
-            if documentID in actionConstraints:
-                constraintsList = actionConstraints[documentID]
-                for cons in constraintsList:
-                    action = cons[2]
-                    action_type = cons[3]
-                    action_target = cons[4]
-                    action_val = cons[5]
-                    action_comparator = cons[6]
-                    action_trueValues = cons[8].split(',')
-                    valtarget = {action_target:[action_val, action_comparator, action_trueValues]}
+        if documentID in actionConstraints:
+            constraintsList = actionConstraints[documentID]
+            for cons in constraintsList:
+                action = cons[2]
+                action_type = cons[3]
+                action_target = cons[4]
+                action_val = cons[5]
+                action_comparator = cons[6]
+                action_trueValues = cons[8].split(',')
+                valtarget = {action_target:[action_val, action_comparator, action_trueValues]}
 
-                    if action not in self.actionConstraints:
-                        self.actionConstraints[action] = {action_type: valtarget}
+                if action not in self.actionConstraints:
+                    self.actionConstraints[action] = {action_type: valtarget}
+                else:
+                    if action_type not in self.actionConstraints[action]:
+                        self.actionConstraints[action][action_type] = valtarget
                     else:
-                        if action_type not in self.actionConstraints[action]:
-                            self.actionConstraints[action][action_type] = valtarget
-                        else:
-                            self.actionConstraints[action][action_type][action_target] = [action_val, action_comparator, action_trueValues]
-
-        except LookupError as le:
-            return "Error in the key or index !!\n" + str(le)
-        except ValueError as ve:
-            return "Error in Value Entered !!\n" + str(ve)
-        except TypeError as te:
-            return "Error in Type matching !!\n" + str(te)
+                        self.actionConstraints[action][action_type][action_target] = [action_val, action_comparator, action_trueValues]
