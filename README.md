@@ -7,14 +7,20 @@ ACCORD Conflict Detection is a Flask-based web application designed to manage an
 1. **Install Google Client Library for Access Activity Logs via Reports API:**
    ```bash
    pip install --upgrade google-api-python-client google-auth-httplib2 google-auth-oauthlib
+    ```
 2. **Install Flask and related librarires:**
    ```bash
    pip install Flask
    pip install Flask-WTF Flask-SQLAlchemy Flask-Migrate
+    ```
 
 ## Configuration
-1. **Database Setup (MySQL Workbench locally):** Database dump can be provided on request.
-2. **API access tokens for reports API in token.json and tokens directory contains drive api tokens**: json files and access tokens can be provided to authroized personnel on request.
+1. Install as Python package locally (necessary so Python can find files in all subdirectories) by running the following in project root:
+    ```bash
+    pip install -e .
+    ```
+2. **Database Setup (MySQL Workbench locally):** Database dump can be provided on request.
+3. **API access tokens for reports API in token.json and tokens directory contains drive api tokens**: json files and access tokens can be provided to authroized personnel on request.
 
 ## Application routes (app.py)
 1. **/ (index):** Renders the main page (index.html) and initializes the Google Drive Reports API service for the admin user

@@ -1,5 +1,5 @@
-from sqlconnector import DatabaseQuery
-from logextraction import extractDriveLog
+from .sqlconnector import DatabaseQuery
+from .logextraction import extractDriveLog
 from datetime import datetime, timedelta
 
 # Method to update Activity Logs in the database
