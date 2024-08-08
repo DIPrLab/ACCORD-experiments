@@ -1,6 +1,6 @@
-from .classActivityHandler import ActivityHandler
-from .classActionConstraints import ActionConstraints
-from .classConflictDetectionEngine import ConflictDetectionEngine
+from src.classActivityHandler import ActivityHandler
+from src.classActionConstraints import ActionConstraints
+from src.classConflictDetectionEngine import ConflictDetectionEngine
 
 # The class defines all the content of an event activity
 class Activity:

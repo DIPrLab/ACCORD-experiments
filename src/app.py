@@ -4,17 +4,17 @@ import yaml, hashlib, os, time, random, re
 from datetime import datetime
 from math import floor
 from functools import wraps
-from serviceAPI import create_reportsAPI_service
-from conflictDetctionAlgorithm import detectmain
-from sqlconnector import DatabaseQuery
-from activitylogs import Logupdater
-from logextraction import extractDriveLog
+from src.serviceAPI import create_reportsAPI_service
+from src.conflictDetctionAlgorithm import detectmain
+from src.sqlconnector import DatabaseQuery
+from src.activitylogs import Logupdater
+from src.logextraction import extractDriveLog
 
 
 # Dictionary to store the user services
 user_services = {}
 
-app = Flask(__name__, static_folder='static')
+app = Flask(__name__, static_folder='../static', template_folder='../templates')
 app.secret_key = os.urandom(24)
 
 # Load database configuration
