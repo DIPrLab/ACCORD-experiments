@@ -2,6 +2,7 @@ from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
+from google.auth.exceptions import MutualTLSChannelError, UserAccessTokenError
 import os.path
 
 def get_creds(SCOPES, filename):
@@ -44,11 +45,28 @@ def create_reportsAPI_service():
     try:
         creds = get_creds(SCOPES, 'token.json')
         service = build('admin', 'reports_v1', credentials=creds)
-    except google.auth.exceptions.MutualTLSChannelError:
+    except MutualTLSChannelError:
         print("Unable to create Reports API service")
     except ValueError as ve:
         print("Credentials file incorrectly formatted: " + str(ve))
-    except google.auth.exceptions.UserAccessTokenError as uate:
+    except UserAccessTokenError as uate:
+        print("User access token refresh failed: " + str(uate))
+    finally:
+        return service
+
+def create_user_driveAPI_service(token_path):
+    '''Create Drive API v3 service with user's credentials'''
+    # If modifying these scopes, delete the file token.json.
+    SCOPES = ['https://www.googleapis.com/auth/drive']
+    service = None
+    try:
+        creds = get_creds(SCOPES, token_path)
+        service = build('drive', 'v3', credentials=creds)
+    except MutualTLSChannelError:
+        print("Unable to create Drive API service for user")
+    except ValueError as ve:
+        print("Credentials file incorrectly formatted: " + str(ve))
+    except UserAccessTokenError as uate:
         print("User access token refresh failed: " + str(uate))
     finally:
         return service
