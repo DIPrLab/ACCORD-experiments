@@ -82,6 +82,29 @@ class UserSubject():
             new_name = resource.name.split(',')[0] + ',' + str(datetime.now())
             self.drive.files().update(fileId=resource.id, body={"name": new_name}).execute()
 
+    def add_permission(self, resource, user, role):
+        '''Attempt to add another user to a resource
+
+        Only checks that user has sharing permissions.
+
+        Args:
+            resource: resource to add permission to
+            user: UserSubject without access to resource
+            role: new role for user, can only be owner if this has owner permissions
+        '''
+        if not resource.capabilities["canShare"]:
+            raise ActionNotPermitted("Insufficient permissions to change sharing")
+
+        new_permission = {
+            "type": "user",
+            "role" : role,
+            "emailAddress": user.email,
+        }
+        if role != "owner":
+            self.drive.permissions().create(fileId=resource.id, body=new_permission, sendNotificationEmail=False).execute()
+        else:
+            self.drive.permissions().create(fileId=resource.id, body=new_permission, transferOwnership=True).execute()
+
     def update_permission(self, resource, user, role):
         '''Attempt to change another user's permission level on a resource.
 
@@ -96,7 +119,7 @@ class UserSubject():
         if not resource.capabilities["canShare"]:
             raise ActionNotPermitted("Insufficient permissions to change sharing")
 
-        new_permission = {'role' : role }
+        new_permission = {"role" : role}
         if role != "owner":
             self.drive.permissions().update(fileId=resource.id, permissionId=user.id, body=new_permission).execute()
         else:
