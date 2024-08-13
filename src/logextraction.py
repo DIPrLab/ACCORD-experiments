@@ -41,7 +41,7 @@ def extractDriveLog(lastLogTime, service):
         raise Exception("Admin SDK Reports API call failed: " + str(e))
 
     activities = results.get('items', [])
-    logString = ["Activity_Time\t*\tAction\t*\tDoc_ID\t*\tDoc_Name\t*\tActor_ID\t*\tActor_Name"]
+    logString = ["Activity_Time,Action,Doc_ID,Doc_Name,Actor_ID,Actor_Name"]
 
     for activity in activities:
         activityTime = activity['id']['time']
@@ -58,12 +58,12 @@ def extractDriveLog(lastLogTime, service):
             # For create action
             if eventName == 'create':
                 eventName = "Create"
-                logActivity = activityTime + "\t*\t" + eventName + "\t*\t" + str(doc_id) + "\t*\t" + str(doc_name) + "\t*\t" + str(actorID[1]) + "\t*\t" + str(actorID[0])
+                logActivity = activityTime + "," + eventName + "," + str(doc_id) + "," + str(doc_name) + "," + str(actorID[1]) + "," + str(actorID[0])
 
             # For delete (for non-owners) or trash (for owners) action
             elif eventName == 'delete' or eventName == 'trash':
                 eventName = "Delete"
-                logActivity = activityTime + "\t*\t" + eventName + "\t*\t" + str(doc_id) + "\t*\t"  + str(doc_name) + "\t*\t" + str(actorID[1]) + "\t*\t" + str(actorID[0])
+                logActivity = activityTime + "," + eventName + "," + str(doc_id) + ","  + str(doc_name) + "," + str(actorID[1]) + "," + str(actorID[0])
 
             # For edit action
             elif eventName == 'edit':
@@ -95,7 +95,7 @@ def extractDriveLog(lastLogTime, service):
             else:
                 continue
 
-            logActivity = activityTime + "\t*\t" + eventName + "\t*\t" + str(doc_id) + "\t*\t"  + str(doc_name) + "\t*\t" + str(actorID[1]) + "\t*\t" + str(actorID[0])
+            logActivity = activityTime + "," + eventName + "," + str(doc_id) + ","  + str(doc_name) + "," + str(actorID[1]) + "," + str(actorID[0])
             logString.append(logActivity)
 
     return logString

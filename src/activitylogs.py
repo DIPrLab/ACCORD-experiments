@@ -40,7 +40,7 @@ class Logupdater():
 
                 # Update the log Database table when the new activities are recorded
                 if(len(activity_logs) > 1):
-                    new_log_date = activity_logs[0].split('\t*\t')[0]
+                    new_log_date = activity_logs[0].split(',')[0]
 
                     # Parse the string into a datetime object
                     date_format = "%Y-%m-%dT%H:%M:%S.%fZ"

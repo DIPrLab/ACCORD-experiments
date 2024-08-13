@@ -32,10 +32,10 @@ class DatabaseQuery:
         '''Parse logs and insert into activity_log table.
 
         Args:
-            logs: str list, with activity fields separated by "\t*\t"
+            logs: str list, with activity fields separated by ","
         '''
         for log in reversed(logs):
-            log = log.split('\t*\t')
+            log = log.split(',')
             if len(log) < 6:
                 continue
 
