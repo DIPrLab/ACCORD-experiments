@@ -41,12 +41,7 @@ for i in range(100):
         if resources:
             target_res = random.choice(resources)
             actions += user.file_actions(target_res)
-        if "Delete" in actions:
-            actions.remove("Delete")
-        if "Remove" in actions:
-            actions.remove("Remove")
-        if "Move" in actions:
-            actions.remove("Move")
+        actions = [a for a in actions if a != "Delete" and a != "Remove" and a != "Move"]
 
         if not actions:
             continue # Attempt with another user and document if no actions
@@ -55,6 +50,7 @@ for i in range(100):
         print(action)
         if action == "Edit":
             user.edit(target_res)
+
         elif action == "AddPermission":
             permissions = user.list_permissions(target_res)
             if len(permissions) == total_users:
@@ -69,11 +65,16 @@ for i in range(100):
                 possible_roles = [role for role in all_roles if role != "owner"]
             new_role = random.choice(possible_roles)
 
-            print(user, target_user, new_role, target_res.name)
             user.add_permission(target_res, target_user, new_role)
 
         elif action == "RemovePermission":
-            pass
+            permissions = user.list_permissions(target_res)
+            if len(permissions) < 2:
+                continue
+
+            target_id = random.choice([u for u, v in permissions.items() if v != "owner"])
+            user.remove_permission(target_res, users_by_id[target_id])
+
         elif action == "UpdatePermission":
             permissions = user.list_permissions(target_res)
             if len(permissions) < 2:

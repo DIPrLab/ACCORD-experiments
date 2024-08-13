@@ -88,7 +88,7 @@ class UserSubject():
         Only checks that user has sharing permissions.
 
         Args:
-            resource: resource to add permission to
+            resource: Resource, resource to add permission to
             user: UserSubject without access to resource
             role: new role for user, can only be owner if this has owner permissions
         '''
@@ -104,6 +104,20 @@ class UserSubject():
             self.drive.permissions().create(fileId=resource.id, body=new_permission, sendNotificationEmail=False).execute()
         else:
             self.drive.permissions().create(fileId=resource.id, body=new_permission, transferOwnership=True).execute()
+
+    def remove_permission(self, resource, user):
+        '''Attempt to remove a user's permission on a resource.
+
+        Only checks that user has sharing permissions.
+
+        Args:
+            resource: Resource
+            user: UserSubject, must have permission on Resource and not be owner
+        '''
+        if not resource.capabilities["canShare"]:
+            raise ActionNotPermitted("Insufficient permissions to change sharing")
+
+        self.drive.permissions().delete(fileId=resource.id, permissionId=user.id).execute()
 
     def update_permission(self, resource, user, role):
         '''Attempt to change another user's permission level on a resource.
