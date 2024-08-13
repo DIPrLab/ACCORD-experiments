@@ -14,10 +14,10 @@ def get_doc_title(parameterList):
             return item['value']
     return None
 
-def get_value(paramerterList, value_requried, value):
+def get_value(paramerterList, value_required, value):
     '''Extract any value from event parameters dict'''
     for item in paramerterList:
-        if value_requried == item['name']:
+        if value_required == item['name']:
             return item[value]
     return None
 
@@ -58,15 +58,13 @@ def extractDriveLog(lastLogTime, service):
             # For create action
             if eventName == 'create':
                 eventName = "Create"
-                logActivity = activityTime + "," + eventName + "," + str(doc_id) + "," + str(doc_name) + "," + str(actorID[1]) + "," + str(actorID[0])
 
             # For delete (for non-owners) or trash (for owners) action
             elif eventName == 'delete' or eventName == 'trash':
                 eventName = "Delete"
-                logActivity = activityTime + "," + eventName + "," + str(doc_id) + ","  + str(doc_name) + "," + str(actorID[1]) + "," + str(actorID[0])
 
             # For edit action
-            elif eventName == 'edit':
+            elif eventName == 'edit' and get_value(parameterList, 'primary_event', 'boolValue') == True:
                 eventName = "Edit"
 
             # For rename (edit event will also be logged as a non-primary event)
@@ -80,9 +78,9 @@ def extractDriveLog(lastLogTime, service):
                 if not target_user:
                     target_user = 'None'
                 old_permissions = get_value(parameterList, 'old_value', 'multiValue')
-                old_permission = ",".join(old_permissions)
+                old_permission = "/".join(old_permissions)
                 new_permissions = get_value(parameterList, 'new_value', 'multiValue')
-                new_permission = ",".join(new_permissions)
+                new_permission = "/".join(new_permissions)
                 eventName = "Permission Change-to:" + new_permission + "-from:" + old_permission + "-for:" + target_user
 
             # For move action

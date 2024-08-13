@@ -113,7 +113,7 @@ def fetch_drive_log():
         if(len(activity_logs) > 1):
             activity_logs.pop(0)
             for logitem in reversed(activity_logs):
-                logV = logitem.split('\t*\t')
+                logV = logitem.split(',')
                 totalLogs.append({'time':simplify_datetime(logV[0]), 'activity':process_logs(logV), 'actor': logV[5].split('@')[0].capitalize(), 'resource':logV[3]})
 
     return jsonify(totalLogs)
