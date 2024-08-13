@@ -8,28 +8,38 @@
 #   - Actions disallowed (to keep documents constant): Delete, Remove, Move
 
 import random
-import yaml
+import yaml, time
+from datetime import datetime, timezone
 
-from scripts.google_api_util import UserSubject, Resource
+from scripts.google_api_util import UserSubject
+from src.logextraction import extractDriveLog
+from src.serviceAPI import create_reportsAPI_service
 
 all_roles = ['owner', 'writer', 'commenter', 'reader']
+log_output_path = "results/expr_1/"
 
 # Initialize users
 with open('scripts/.user_info', 'r') as file:
     user_info = yaml.safe_load(file)
-users = list(map(lambda u: UserSubject(u['name'], u['email'], u['token'],), user_info))
+users = list(map(lambda u: UserSubject(u['name'], u['email'], u['token'],), user_info['users']))
 users_by_id = {u.id : u for u in users}
 user_set = set(users_by_id.keys())
 total_users = len(users)
 
-# Perform 100 random actions
-for i in range(100):
-    if i % 10 == 0:
-        print(i)
+# Initialize documents
+next_file = 0
+for user in users:
+    user.delete_all_resources()
+    user.create_resource("application/vnd.google-apps.document", "file" + str(next_file))
+    next_file += 1
 
-    # First randomly generated action may not be possible
-    action_completed = False
-    while not action_completed:
+# Initialize Reports API service and timestamp for logging
+reports_service = create_reportsAPI_service(user_info['admin']['token'])
+timestamp = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+
+# Perform 100 random actions
+total_actions = 2
+while total_actions > 0:
 
         # Choose user & target resource
         user = random.choice(users)
@@ -91,5 +101,14 @@ for i in range(100):
 
             user.update_permission(target_res, target_user, new_role)
 
-        action_completed = True
+        total_actions -= 1
         print("successful")
+
+end_timestamp = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+time.sleep(60)
+logs = extractDriveLog(timestamp, reports_service)
+print(logs)
+log_file = log_output_path + "activity-log_" + timestamp + "-" + end_timestamp
+with open(log_file, "w+") as f:
+    for line in logs:
+        f.write(line + "\n")

@@ -38,7 +38,7 @@ def extractDriveLog(lastLogTime, service):
             startTime = lastLogTime
             ).execute()
     except Exception as e:
-        raise Exception("Admin SDK Reports API call failed: " + print(e))
+        raise Exception("Admin SDK Reports API call failed: " + str(e))
 
     activities = results.get('items', [])
     logString = ["Activity_Time\t*\tAction\t*\tDoc_ID\t*\tDoc_Name\t*\tActor_ID\t*\tActor_Name"]

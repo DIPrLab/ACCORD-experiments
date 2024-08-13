@@ -15,6 +15,7 @@ class Resource():
     name: str
     capabilities: dict
     mime_type: dict
+    owned_by_me: bool
 
 class UserSubject():
     def __init__(self, name, email, token):
@@ -32,10 +33,16 @@ class UserSubject():
         '''Retrieve a list of all files and folders a user has access to.
 
         Returns: list[DriveResource]'''
-        res_files = self.drive.files().list(fields="files(id, name, capabilities, mimeType)", q="mimeType='application/vnd.google-apps.document' and trashed=false").execute()
-        res_folders = self.drive.files().list(fields="files(id, name, capabilities, mimeType)", q="mimeType='application/vnd.google-apps.folder' and trashed=false").execute()
+        res_files = self.drive.files().list(fields="files(id, name, capabilities, mimeType, ownedByMe)", q="mimeType='application/vnd.google-apps.document' and trashed=false").execute()
+        res_folders = self.drive.files().list(fields="files(id, name, capabilities, mimeType, ownedByMe)", q="mimeType='application/vnd.google-apps.folder' and trashed=false").execute()
         all_resources = res_files['files'] + res_folders['files']
-        parsed_resources = list(map(lambda item: Resource(item["id"], item["name"], item["capabilities"], item["mimeType"]), all_resources))
+        parsed_resources = list(map(lambda item: Resource(
+                                                            item["id"],
+                                                            item["name"],
+                                                            item["capabilities"],
+                                                            item["mimeType"],
+                                                            item["ownedByMe"],
+                                                        ), all_resources))
         return parsed_resources
 
     def list_permissions(self, resource):
@@ -138,6 +145,24 @@ class UserSubject():
             self.drive.permissions().update(fileId=resource.id, permissionId=user.id, body=new_permission).execute()
         else:
             self.drive.permissions().update(fileId=resource.id, permissionId=user.id, body=new_permission, transferOwnership=True).execute()
+
+    def delete_all_resources(self):
+        '''Delete all resources that user owns'''
+        resources = self.list_resources()
+        owned = list(filter(lambda res: res.owned_by_me, resources))
+        for resource in owned:
+            self.drive.files().delete(fileId=resource.id).execute()
+
+    def create_resource(self, mime_type, name, parent_id=None):
+        '''Attempt creation of file or folder.'''
+        file_metadata = {
+            'name': name,
+            'mimeType': mime_type,
+        }
+        if parent_id:
+            file_metadata['parents'] = parent_id
+
+        self.drive.files().create(body=file_metadata, media_body=None).execute()
 
     def __repr__(self):
         return self.name

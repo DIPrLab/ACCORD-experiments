@@ -37,13 +37,13 @@ def get_creds(SCOPES, filename):
 
     return creds
 
-def create_reportsAPI_service():
+def create_reportsAPI_service(token_file):
     '''Create Admin Reports API v1 service with admin's credentials'''
     # If modifying these scopes, delete the file token.json.
     SCOPES = ['https://www.googleapis.com/auth/admin.reports.audit.readonly']
     service = None
     try:
-        creds = get_creds(SCOPES, 'token.json')
+        creds = get_creds(SCOPES, token_file)
         service = build('admin', 'reports_v1', credentials=creds)
     except MutualTLSChannelError:
         print("Unable to create Reports API service")
