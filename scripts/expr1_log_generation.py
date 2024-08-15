@@ -41,7 +41,7 @@ reports_service = create_reportsAPI_service(user_info['admin']['token'])
 timestamp = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 
 # Perform 100 random actions
-total_actions = 10
+total_actions = 100
 while total_actions > 0:
 
     # Choose user & target resource
@@ -62,14 +62,17 @@ while total_actions > 0:
 
     print(action)
     if action == "Edit":
-        user.edit(target_res)
         if DEBUG:
             print(user, "editted", target_res.name)
+        user.edit(target_res)
 
     elif action == "AddPermission":
         permissions = user.list_permissions(target_res)
         if len(permissions) == total_users:
             continue
+
+        if DEBUG:
+            print(user, "added permission", new_role, "for", target_user.name, "on", target_res.name)
 
         target_id = random.choice(list(user_set.difference(permissions.keys())))
         target_user = users_by_id[target_id]
@@ -81,23 +84,25 @@ while total_actions > 0:
         new_role = random.choice(possible_roles)
 
         user.add_permission(target_res, target_user, new_role)
-        if DEBUG:
-            print(user, "added permission", new_role, "for", target_user.name, "on", target_res.name)
 
     elif action == "RemovePermission":
         permissions = user.list_permissions(target_res)
         if len(permissions) < 2:
             continue
 
-        target_id = random.choice([u for u, v in permissions.items() if v != "owner"])
-        user.remove_permission(target_res, users_by_id[target_id])
         if DEBUG:
             print(user, "removed permission for", users_by_id[target_id].name, "on", target_res.name)
+
+        target_id = random.choice([u for u, v in permissions.items() if v != "owner"])
+        user.remove_permission(target_res, users_by_id[target_id])
 
     elif action == "UpdatePermission":
         permissions = user.list_permissions(target_res)
         if len(permissions) < 2:
             continue # Try another action if there's only one user with access to the resource
+
+        if DEBUG:
+            print(user, "updated permission for", target_user.name, "on", target_res.name, "from", current_role, "to", new_role)
 
         target_id = random.choice([u for u, v in permissions.items() if v != "owner"])
         target_user = users_by_id[target_id]
@@ -109,8 +114,6 @@ while total_actions > 0:
         new_role = random.choice(possible_roles)
 
         user.update_permission(target_res, target_user, new_role)
-        if DEBUG:
-            print(user, "updated permission for", target_user.name, "on", target_res.name, "from", current_role, "to", new_role)
 
     total_actions -= 1
     print("successful")
