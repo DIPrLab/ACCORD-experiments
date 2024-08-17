@@ -79,7 +79,7 @@ def add_no_cache(response):
 def index():
     session['username'] = 'admin@accord.foundation'
     # Store services in the global services dictionary
-    reportsAPI_service = create_reportsAPI_service()
+    reportsAPI_service = create_reportsAPI_service("token.json")
     if reportsAPI_service:
         user_services[session['username']] = {'reports': reportsAPI_service}
     else:
