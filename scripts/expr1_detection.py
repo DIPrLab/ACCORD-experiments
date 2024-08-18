@@ -49,33 +49,7 @@ for activity in activities:
         if activity['Actor_Name'] not in doc_edit_timestamps[activity['Doc_ID']]:
             doc_edit_timestamps[activity['Doc_ID']][activity['Actor_Name']] = []
         doc_edit_timestamps[activity['Doc_ID']][activity['Actor_Name']].append(datetime.fromisoformat(activity['Activity_Time']))
-        # constraint_type = random.choice(["Time Limit Edit"])
-        # if constraint_type == "Time Limit Edit":
-        #     new_time = activity['Activity_Time'].split('.')
-        #     new_time = new_time[0] + ".000Z"
-        #     constraint = [
-        #             activity['Doc_Name'],
-        #             activity['Doc_ID'],
-        #             "Edit",
-        #             constraint_type,
-        #             activity['Actor_Name'],
-        #             "TRUE",
-        #             "lt",
-        #             None, # Owner email? Not used by engine
-        #             new_time,
-        #     ]
-        # else:
-        #     constraint = [
-        #             activity['Doc_Name'],
-        #             activity['Doc_ID'],
-        #             "Edit",
-        #             constraint_type,
-        #             activity['Actor_Name'],
-        #             "FALSE",
-        #             "eq",
-        #             None, # Owner email? Not used by engine
-        #             "-",
-        #     ]
+
     elif activity['Action'][0] == 'P': # Permission change
         action_details = activity['Action'].split("-")
         constraint_name = action_details[0]
