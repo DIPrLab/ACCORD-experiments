@@ -30,13 +30,12 @@ constraint_types = ["Time Limit Edit", "Add Permission", "Remove Permission", "U
 doc_ids = set()
 doc_names = {}
 actors = set()
-doc_edit_timestamps = {} # by user as well
-doc_last_edits = {}
+doc_edit_timestamps = {} # by doc id and then user
 
 duplicate_constraints = [] # Constraints causing more than one conflict
 conflict_constraints = {} # two-level, first key is docID, second is actor
 
-# Generate 15 action constraints that cause conflicts
+# Generate a set of action constraints that cause one conflict each
 for activity in activities:
     doc_ids.add(activity['Doc_ID'])
     doc_names[activity['Doc_ID']] = activity['Doc_Name']
@@ -101,8 +100,7 @@ for doc, user in doc_edit_timestamps.items():
         elif len(stamps) > 1:
             sorted_stamps = sorted([key for key in stamps])
             new_time = sorted_stamps[-2] + ((sorted_stamps[-1] - sorted_stamps[-2]) / 2)
-            print(sorted_stamps[-2], new_time, sorted_stamps[-1])
-            new_time = new_time.strftime("%Y-%m-%dT%H:%M:%SZ")
+            new_time = new_time.strftime("%Y-%m-%dT%H:%M:%S.%fZ")
 
         constraint = [
             doc_names[doc],
@@ -122,6 +120,7 @@ for doc, user in doc_edit_timestamps.items():
 
         conflict_constraints[constraint[1]][constraint[4]].append(constraint)
 
+# Randomly choose constraints to cause desired number of conflicts
 chosen_constraints = random.sample([cons for key in conflict_constraints
                                     for clist in conflict_constraints[key]
                                     for cons in conflict_constraints[key][clist]], num_conflicts)
@@ -136,8 +135,9 @@ for c in chosen_constraints:
 
 doc_ids = list(doc_ids)
 actors = list(actors)
-
 timelimit_stamp = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+
+# Generate random non-conflicting constraints up to 100 total
 remaining_constraints = total_constraints - num_conflicts
 while remaining_constraints > 0:
     resource = random.choice(doc_ids)
@@ -194,26 +194,24 @@ while remaining_constraints > 0:
     constraints[constraint[1]][constraint[4]].append(constraint)
     remaining_constraints -= 1
 
+# Run & time detection algorithm
 formatted_constraints = {}
 total = 0
 for k, v in constraints.items():
     formatted_constraints[k] = [cons for clist in v for cons in v[clist]]
     total += len(formatted_constraints[k])
 
-print(formatted_constraints)
 
 logs = logs[1:]
 T0 = time.time()
 result = detectmain(logs, formatted_constraints)
 T1 = time.time()
 
+# for res, log in zip(result, logs):
+#    if res:
+#        print(log)
 
 conflicts = sum(result)
-print(result, conflicts, num_conflicts)
-for res, log in zip(result, logs):
-    if res:
-        print(log)
-
 assert conflicts == num_conflicts
 
 print(T1 - T0)
