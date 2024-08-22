@@ -165,7 +165,9 @@ class UserSubject():
     def list_potential_parents(self, resource, resources):
         '''Filter user's resources to include only possilbe new parents for resource
 
-        Filters for folder mime type, removes resource itself, and current parent
+        Filters for folder mime type, removes resource itself, and current parent.
+        Precondition: self.driveid field has been populated externally. If not,
+        watch out for Nones in return value
 
         Args:
             resource: Resource, resource to move
@@ -208,6 +210,19 @@ class UserSubject():
             self.drive.files().update(fileId=resource.id, addParents=new_parent, removeParents=resource.parents).execute()
         except HttpError as e:
             raise ActionNotPermitted("Move:" + str(e))
+
+    def delete(self, resource):
+        '''Attempt deletion of resource
+
+        Only checks if user has permissions to trash resource.
+
+        Args:
+            resource: Resource resource to delete
+        '''
+        if not resource.capabilities["canDelete"]:
+            raise ActionNotPermitted("Insufficient permissions to delete file. Check if user is owner.")
+
+        self.drive.files().delete(fileId=resource.id).execute()
 
     def delete_all_resources(self):
         '''Delete all resources that user owns. Ignores "File not found"'''
