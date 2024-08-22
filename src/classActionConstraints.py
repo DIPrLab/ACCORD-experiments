@@ -44,10 +44,9 @@ class ActionConstraints:
                 action = cons[2]
                 action_type = cons[3]
                 action_target = cons[4]
-                action_val = cons[5]
                 action_comparator = cons[6]
-                action_trueValues = cons[8].split(',')
-                valtarget = {action_target:[action_val, action_comparator, action_trueValues]}
+                action_true_values = cons[8].split(',')
+                valtarget = {action_target:[action_comparator, action_true_values]}
 
                 if action not in self.actionConstraints:
                     self.actionConstraints[action] = {action_type: valtarget}
@@ -55,4 +54,4 @@ class ActionConstraints:
                     if action_type not in self.actionConstraints[action]:
                         self.actionConstraints[action][action_type] = valtarget
                     else:
-                        self.actionConstraints[action][action_type][action_target] = [action_val, action_comparator, action_trueValues]
+                        self.actionConstraints[action][action_type][action_target] = [action_comparator, action_true_values]

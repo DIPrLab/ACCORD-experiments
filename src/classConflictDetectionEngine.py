@@ -85,29 +85,24 @@ class DetectTargetHandler(ConflictDetectionHandler):
     def detectConflict(self, ActivityHandler, targetList):
         '''Identify conflict by comparing target and activity's true value'''
         if(ActivityHandler.target in targetList):
-            value = targetList[ActivityHandler.target][0]
-            comparator =targetList[ActivityHandler.target][1]
-            true_values = targetList[ActivityHandler.target][2]
+            comparator =targetList[ActivityHandler.target][0]
+            true_values = targetList[ActivityHandler.target][1]
 
-            if(value == "TRUE"):
-                if comparator == "eq":
-                    if ActivityHandler.trueValue not in true_values:
+            if not comparator:
+                return True
+            if comparator == "not in":
+                if ActivityHandler.trueValue not in true_values:
+                    return True
+            if comparator == "in":
+                if ActivityHandler.trueValue in true_values:
+                    return True
+            if comparator == "gt":
+                for val in true_values:
+                    if ActivityHandler.trueValue > val:
                         return True
-                if comparator == "lt":
-                    if true_values[0] < ActivityHandler.trueValue:
-                        return True
-                if comparator == "gt":
-                    if true_values[0] > ActivityHandler.trueValue:
-                        return True
-            else:
-                if comparator == "eq":
-                    if value != ActivityHandler.value:
-                        return True
-                if comparator == "lt":
-                    if value < ActivityHandler.value:
-                        return True
-                if comparator == "gt":
-                    if value > ActivityHandler.value:
+            if comparator == "lt":
+                for val in true_values:
+                    if ActivityHandler.trueValue < val:
                         return True
 
         return False
