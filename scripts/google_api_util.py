@@ -83,8 +83,9 @@ class UserSubject():
 
         # Users only get one of delete or remove; owners can delete and others remove
         if capabilities["canDelete"]:
+            print("can delete")
             actions.append("Delete")
-        elif capabilities["canRemoveMyDriveParent"]:
+        elif capabilities["canRemoveMyDriveParent"] and resource.parents != None:
             actions.append("Remove")
 
         return actions
@@ -220,9 +221,30 @@ class UserSubject():
             resource: Resource resource to delete
         '''
         if not resource.capabilities["canDelete"]:
-            raise ActionNotPermitted("Insufficient permissions to delete file. Check if user is owner.")
+            raise ActionNotPermitted("Insufficient permissions to delete resource. Check if user is owner.")
 
         self.drive.files().delete(fileId=resource.id).execute()
+
+    def remove(self, resource):
+        '''Attempt removal of resource
+
+        Remove does not delete a resource, but removes it from a shared folder.
+        Resource is moved to owner's root and permissions are adjusted. Only
+        available to non-owners with edit permissions on parent. This method
+        only checks if user has permissions to remove this resouce from their
+        drive.
+
+        Args:
+            resrouce: Resource resource to remove
+        '''
+        if resource.capabilities["canDelete"]:
+            raise ActionNotPermitted("User is owner.")
+        if resource.parents == None:
+            raise ActionNotPermitted("Removing item from Shared With Me not supported because it does not affect user's access.")
+        elif not resource.capabilities["canRemoveMyDriveParent"]:
+            raise ActionNotPermitted("Insufficient permissions to remove resource. Check user's permissions on parent.")
+
+        self.drive.files().update(fileId=resource.id, removeParents=resource.parents).execute()
 
     def delete_all_resources(self):
         '''Delete all resources that user owns. Ignores "File not found"'''
