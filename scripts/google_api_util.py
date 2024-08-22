@@ -1,10 +1,13 @@
 from collections import namedtuple
 from datetime import datetime
 from dataclasses import dataclass
-
 from googleapiclient.http import MediaInMemoryUpload
+from googleapiclient.errors import HttpError
 
 from src.serviceAPI import create_user_driveAPI_service
+
+MIMETYPE_FILE = 'application/vnd.google-apps.document'
+MIMETYPE_FOLDER = 'application/vnd.google-apps.folder'
 
 class ActionNotPermitted(Exception):
     '''Exception raised for resource operations not permitted by file system state'''
@@ -14,8 +17,10 @@ class Resource():
     id: str
     name: str
     capabilities: dict
-    mime_type: dict
+    mime_type: str
     owned_by_me: bool
+    permissions: dict
+    parents: str
 
 class UserSubject():
     def __init__(self, name, email, token):
@@ -28,28 +33,39 @@ class UserSubject():
         self.id = self.drive.about().get(fields="user").execute()["user"]["permissionId"]
         self.name = name
         self.email = name + "@accord.foundation"
+        self.driveid = None # Needs to be set later, as this needs to be gotten off a document
 
     def list_resources(self):
         '''Retrieve a list of all files and folders a user has access to.
 
-        Returns: list[DriveResource]'''
-        res_files = self.drive.files().list(fields="files(id, name, capabilities, mimeType, ownedByMe)", q="mimeType='application/vnd.google-apps.document' and trashed=false").execute()
-        res_folders = self.drive.files().list(fields="files(id, name, capabilities, mimeType, ownedByMe)", q="mimeType='application/vnd.google-apps.folder' and trashed=false").execute()
-        all_resources = res_files['files'] + res_folders['files']
-        parsed_resources = list(map(lambda item: Resource(
-                                                            item["id"],
-                                                            item["name"],
-                                                            item["capabilities"],
-                                                            item["mimeType"],
-                                                            item["ownedByMe"],
-                                                        ), all_resources))
-        return parsed_resources
+        Returns: list[Resource]'''
+        fields = "files(id,name,capabilities,mimeType,ownedByMe,parents,permissions)"
+        q = "mimeType='" + MIMETYPE_FILE + "' and trashed=false"
+        res_files = self.drive.files().list(fields=fields, q=q).execute()
+        q = "mimeType='" + MIMETYPE_FOLDER + "' and trashed=false"
+        res_folders = self.drive.files().list(fields=fields, q=q).execute()
 
-    def list_permissions(self, resource):
-        '''Get permissions for all users on a resource'''
-        res = self.drive.permissions().list(fileId=resource.id).execute()['permissions']
-        permissions = {p['id'] : p['role'] for p in res}
-        return permissions
+        all_resources = res_files['files'] + res_folders['files']
+        parsed_resources = []
+        for resource in all_resources:
+            if "parents" not in resource:
+                resource["parents"] = None
+            else:
+                resource["parents"] = resource["parents"][0] # Will only ever by one
+
+            permissions = {}
+            if "permissions" in resource:
+                permissions = {p['id'] : p['role'] for p in resource["permissions"]}
+            parsed_resources.append(Resource(
+                                        resource["id"],
+                                        resource["name"],
+                                        resource["capabilities"],
+                                        resource["mimeType"],
+                                        resource["ownedByMe"],
+                                        permissions,
+                                        resource["parents"],
+            ))
+        return parsed_resources
 
     def file_actions(self, resource):
         '''Get a list of actions user is permitted to take on this resource'''
@@ -62,13 +78,13 @@ class UserSubject():
             actions.append("Edit")
         if capabilities["canShare"]:
             actions += ["AddPermission", "RemovePermission", "UpdatePermission"]
-        if capabilities["canMoveItemWithinDrive"]:
+        if capabilities["canMoveItemWithinDrive"] and resource.parents != None:
             actions.append("Move")
 
         # Users only get one of delete or remove; owners can delete and others remove
         if capabilities["canDelete"]:
             actions.append("Delete")
-        elif capabilities["canMoveItemWithinDrive"]:
+        elif capabilities["canRemoveMyDriveParent"]:
             actions.append("Remove")
 
         return actions
@@ -78,13 +94,13 @@ class UserSubject():
         if not resource.capabilities["canEdit"]:
             raise ActionNotPermitted("Edit not permitted on this resource.")
 
-        if resource.mime_type == 'application/vnd.google-apps.document':
+        if resource.mime_type == MIMETYPE_FILE:
             # Add text to documents
             file_content = "Hello World! File has been edited on " + str(datetime.now())
-            media = MediaInMemoryUpload(file_content.encode(), mimetype='application/vnd.google-apps.document')
+            media = MediaInMemoryUpload(file_content.encode(), mimetype=MIMETYPE_FILE)
             self.drive.files().update(fileId=resource.id, media_body=media).execute()
 
-        elif resource.mime_type == 'application/vnd.google-apps.folder':
+        elif resource.mime_type == MIMETYPE_FOLDER:
             # Rename folders
             new_name = resource.name.split(',')[0] + ',' + str(datetime.now())
             self.drive.files().update(fileId=resource.id, body={"name": new_name}).execute()
@@ -146,12 +162,65 @@ class UserSubject():
         else:
             self.drive.permissions().update(fileId=resource.id, permissionId=user.id, body=new_permission, transferOwnership=True).execute()
 
+    def list_potential_parents(self, resource, resources):
+        '''Filter user's resources to include only possilbe new parents for resource
+
+        Filters for folder mime type, removes resource itself, and current parent
+
+        Args:
+            resource: Resource, resource to move
+            resources: list[Resource], current list of resources user has permissions on
+
+        Returns: list[Resource], possible parents that resource can be moved to
+        '''
+        possible_parents = []
+        for r in resources:
+            if r == resource: # Current resource
+                continue
+            if resource.parents == r.id: # Current parent
+                continue
+            if r.parents == resource.id: # Child
+                continue
+            if not r.capabilities["canAddChildren"]: # Always False on non-folders
+                continue
+
+            possible_parents.append(r.id)
+
+        if resource.owned_by_me and resource.parents != self.driveid:
+            possible_parents.append(self.driveid)
+        return possible_parents
+
+    def move(self, resource, new_parent):
+        '''Attempt to move a new resource to be a child of a new parent
+
+        Doesn't check any permissions or destination viability. May have side
+        effects such as sharing resource with other users. If destination results
+        in "Bad Request", e.g. moving folder into a grandchild, will raise
+        exception.
+
+        Args:
+            resource: resource to move
+            new_parent: str, id of resource with mimetype folder or my drive root id, destination parent
+
+        Raises: ActionNotPermitted if request fails
+        '''
+        try:
+            self.drive.files().update(fileId=resource.id, addParents=new_parent, removeParents=resource.parents).execute()
+        except HttpError as e:
+            raise ActionNotPermitted("Move:" + str(e))
+
     def delete_all_resources(self):
-        '''Delete all resources that user owns'''
+        '''Delete all resources that user owns. Ignores "File not found"'''
         resources = self.list_resources()
         owned = list(filter(lambda res: res.owned_by_me, resources))
         for resource in owned:
-            self.drive.files().delete(fileId=resource.id).execute()
+            try:
+                self.drive.files().delete(fileId=resource.id).execute()
+            except HttpError as e:
+                if "File not found" in str(e):
+                    continue
+                else:
+                    raise
 
     def create_resource(self, mime_type, name, parent_id=None):
         '''Attempt creation of file or folder.'''
@@ -162,7 +231,7 @@ class UserSubject():
         if parent_id:
             file_metadata['parents'] = parent_id
 
-        self.drive.files().create(body=file_metadata, media_body=None).execute()
+        return self.drive.files().create(body=file_metadata, media_body=None, fields="parents").execute()
 
     def __repr__(self):
         return self.name
