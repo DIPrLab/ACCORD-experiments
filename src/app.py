@@ -5,7 +5,7 @@ from datetime import datetime
 from math import floor
 from functools import wraps
 from src.serviceAPI import create_reportsAPI_service
-from src.conflictDetctionAlgorithm import detectmain
+from src.detection_alg import detectmain
 from src.sqlconnector import DatabaseQuery
 from src.activitylogs import Logupdater
 from src.logextraction import extractDriveLog
