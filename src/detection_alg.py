@@ -40,7 +40,7 @@ class Activity:
                 self.trueValue = None
 
 
-def detectmain(logdata, actionConstraints):
+def detectmain(logdata, action_constraints):
     '''Detect which activities in logs are conflicts.
 
     Args:
@@ -54,9 +54,9 @@ def detectmain(logdata, actionConstraints):
     '''
     # Create an Activity and ActivityHandler for each activity and check for a conflict
     constraint_tree = DocumentNode()
-    for docID in actionConstraints:
-        for constraint in actionConstraints[docID]:
-            constraint_tree.add_constraint(constraint)
+    for constraint in action_constraints:
+        print(constraint)
+        constraint_tree.add_constraint(constraint)
 
     results = []
     for log in logdata:

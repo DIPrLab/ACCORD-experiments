@@ -116,15 +116,14 @@ class ConflictDetectionEngine:
 
     Attributes:
         activityObj: Activity
-        actionConstraints: Dict[str, list]
+        actionConstraints: List[List[str]]
     '''
 
-    def __init__(self, actionConstraints):
+    def __init__(self, action_constraints):
         '''Extract relevant constraints and initialize ActionConstraints'''
         self.constraint_tree = DocumentNode()
-        for docID in actionConstraints:
-            for constraint in actionConstraints[docID]:
-                self.constraint_tree.add_constraint(constraint)
+        for constraint in action_constraints:
+            self.constraint_tree.add_constraint(constraint)
 
     def check_conflicts(self, activities):
         results = []
