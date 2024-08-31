@@ -54,6 +54,7 @@ class PermissionChangeHandler(ActivityHandlerInterface):
             else:
                 self.actiontype = "Update Permission"
 
+            self.doc_id = ActivityObject.documentID
             self.action = action
             self.actor = ActivityObject.actorName
             self.value = "TRUE"
@@ -70,6 +71,7 @@ class EditHandler(ActivityHandlerInterface):
 
     def handle(self, ActivityObject):
         if ActivityObject.action[0:3] == "Edi":
+            self.doc_id = ActivityObject.documentID
             self.action = "Edit"
             self.actiontype = "Time Limit Edit"
             self.actor = ActivityObject.actorName
@@ -86,6 +88,7 @@ class MoveHandler(ActivityHandlerInterface):
 
     def handle(self, ActivityObject):
         if ActivityObject.action[0:3] == "Mov":
+            self.doc_id = ActivityObject.documentID
             self.action = "Move"
             self.actiontype = "Can Move"
             self.actor = ActivityObject.actorName
@@ -103,6 +106,7 @@ class CreateHandler(ActivityHandlerInterface):
 
     def handle(self, ActivityObject):
         if ActivityObject.action[0:3] == "Cre":
+            self.doc_id = ActivityObject.documentID
             self.action = "Create"
             self.actiontype = "Can Create"
             self.actor = ActivityObject.actorName
@@ -120,6 +124,7 @@ class DeleteHandler(ActivityHandlerInterface):
 
     def handle(self, ActivityObject):
         if ActivityObject.action[0:3] == "Del":
+            self.doc_id = ActivityObject.documentID
             self.action = "Delete"
             self.actiontype = "Can Delete"
             self.actor = ActivityObject.actorName
@@ -137,7 +142,11 @@ class RenameHandler(ActivityHandlerInterface):
 
     def handle(self, ActivityObject):
         if ActivityObject.action[0:3] == "Ren":
+            self.doc_id = ActivityObject.documentID
+            self.actor = ActivityObject.actorName
+            self.actiontype = "Can Rename"
             self.action = "Rename"
+
             return self
         else:
             return self.next.handle(ActivityObject)
@@ -146,4 +155,4 @@ class RenameHandler(ActivityHandlerInterface):
 class DefaultHandler(ActivityHandlerInterface):
     '''Handler for all remaining activities, which aren't supported'''
     def handle(self, ActivityObject):
-        return "Activity cannot be handled to detect the conflicts"
+        return None
