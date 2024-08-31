@@ -55,7 +55,7 @@ class PermissionChangeHandler(ActivityHandlerInterface):
                 self.actiontype = "Update Permission"
 
             self.action = action
-            self.target = ActivityObject.actorName
+            self.actor = ActivityObject.actorName
             self.value = "TRUE"
             self.trueValue = activityAction[3].split(':')[1]
 
@@ -72,7 +72,7 @@ class EditHandler(ActivityHandlerInterface):
         if ActivityObject.action[0:3] == "Edi":
             self.action = "Edit"
             self.actiontype = "Time Limit Edit"
-            self.target = ActivityObject.actorName
+            self.actor = ActivityObject.actorName
             self.value = "TRUE"
             self.trueValue = ActivityObject.activityTime
             return self
@@ -88,7 +88,7 @@ class MoveHandler(ActivityHandlerInterface):
         if ActivityObject.action[0:3] == "Mov":
             self.action = "Move"
             self.actiontype = "Can Move"
-            self.target = ActivityObject.actorName
+            self.actor = ActivityObject.actorName
             self.value = "TRUE"
             self.trueValue = ActivityObject.action.split(':')[2]
             return self
@@ -105,7 +105,7 @@ class CreateHandler(ActivityHandlerInterface):
         if ActivityObject.action[0:3] == "Cre":
             self.action = "Create"
             self.actiontype = "Can Create"
-            self.target = ActivityObject.actorName
+            self.actor = ActivityObject.actorName
             self.value = "TRUE"
             self.trueValue = ""
             return self
@@ -122,7 +122,7 @@ class DeleteHandler(ActivityHandlerInterface):
         if ActivityObject.action[0:3] == "Del":
             self.action = "Delete"
             self.actiontype = "Can Delete"
-            self.target = ActivityObject.actorName
+            self.actor = ActivityObject.actorName
             self.value = "TRUE"
             self.trueValue = ""
             return self

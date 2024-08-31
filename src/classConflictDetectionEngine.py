@@ -8,8 +8,8 @@ class ConflictDetectionEngine:
     '''
     def __init__(self):
         self.conflictCount = 0
-        targetHandler = DetectTargetHandler()
-        actiontypeHandler = DetectActionTypeHandler(targetHandler)
+        conditionHandler = DetectConditionHandler()
+        actiontypeHandler = DetectActionTypeHandler(conditionHandler)
         actionHandler = DetectActionHandler(actiontypeHandler)
         self.conflictDetectionHandler = actionHandler
 
@@ -67,8 +67,8 @@ class DetectActionTypeHandler(ConflictDetectionHandler):
         '''Return False if no action constraints match action type'''
         try:
             if(ActivityHandler.actiontype in actionTypes):
-                targetList = actionTypes[ActivityHandler.actiontype]
-                return self.next.detectConflict(ActivityHandler, targetList)
+                actor_list = actionTypes[ActivityHandler.actiontype]
+                return self.next.detectConflict(ActivityHandler, actor_list)
             
             return False
         
@@ -80,13 +80,13 @@ class DetectActionTypeHandler(ConflictDetectionHandler):
             return "Error in Type matching !!\n" + str(te)
 
 
-class DetectTargetHandler(ConflictDetectionHandler):
-    '''Detect conflict based on target'''
-    def detectConflict(self, ActivityHandler, targetList):
-        '''Identify conflict by comparing target and activity's true value'''
-        if(ActivityHandler.target in targetList):
-            comparator =targetList[ActivityHandler.target][0]
-            true_values = targetList[ActivityHandler.target][1]
+class DetectConditionHandler(ConflictDetectionHandler):
+    '''Detect conflict based on actor and condition'''
+    def detectConflict(self, ActivityHandler, actor_list):
+        '''Identify conflict by comparing actor and constriant's condition'''
+        if(ActivityHandler.actor in actor_list):
+            comparator = actor_list[ActivityHandler.actor][0]
+            true_values = actor_list[ActivityHandler.actor][1]
 
             if not comparator:
                 return True
