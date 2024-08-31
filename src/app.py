@@ -128,16 +128,8 @@ def detect_conflicts_demo():
     db = DatabaseQuery(mysql.connection, mysql.connection.cursor())
     logs = db.extract_logs_date(currentDateTime)
 
-    actionConstraintsList = db.extract_action_constraints("LIKE '%'")
+    actionConstraints = db.extract_action_constraints("LIKE '%'")
     del db
-
-    # Create a Dictionary of action constraitns with key as documentID
-    actionConstraints = {}
-    for constraint in actionConstraintsList:
-        if(constraint[1] not in actionConstraints):
-            actionConstraints[constraint[1]] = [constraint]
-        else:
-            actionConstraints[constraint[1]].append(constraint)
 
     conflictID = []
     if(logs != None and len(logs)>1):
@@ -207,28 +199,27 @@ def fetch_action_constraints():
             constraint_dict = {
                 "TimeStamp": time_stamp,
                 "ConstraintOwner": constraint_owner,
-                "ConstraintTarget": constraint_target,
+                "ConstraintTarget": comparator + " " + constraint_target,
                 "File": doc_name
             }
 
             # Determine the Constraint value based on Action Value and Action Type
-            if action_value == "FALSE":
-                if action_type == "Add Permission":
-                    constraint_value = "Cannot Add users"
-                elif action_type == "Remove Permission":
-                    constraint_value = "Cannot Remove users"
-                elif action_type == "Update Permission":
-                    constraint_value = "Cannot Update user Permissions"
-                elif action_type == "Can Move":
-                    constraint_value = "Cannot Move file"
-                elif action_type == "Can Delete":
-                    constraint_value = "Cannot Delete the file"
-                elif action_type == "Can Edit":
-                    constraint_value = "Cannot Edit file"
-                else:
-                    constraint_value = "Undefined Action"  # Default message if no specific action type matched
+            if action_type == "Add Permission":
+                constraint_value = "Cannot Add users"
+            elif action_type == "Remove Permission":
+                constraint_value = "Cannot Remove users"
+            elif action_type == "Update Permission":
+                constraint_value = "Cannot Update user Permissions"
+            elif action_type == "Can Move":
+                constraint_value = "Cannot Move file"
+            elif action_type == "Can Delete":
+                constraint_value = "Cannot Delete the file"
+            elif action_type == "Can Edit":
+                constraint_value = "Cannot Edit file"
+            elif action_type == "Time Limit Edit":
+                constraint_value = "Time constraint on Edit"
             else:
-                constraint_value = "No restriction"  # Default message if action value is not "FALSE"
+                constraint_value = "Undefined Action"  # Default message if no specific action type matched
 
             # Set the 'Constraint' key in the dictionary
             constraint_dict['Constraint'] = constraint_value
