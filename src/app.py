@@ -199,7 +199,7 @@ def fetch_action_constraints():
             constraint_dict = {
                 "TimeStamp": time_stamp,
                 "ConstraintOwner": constraint_owner,
-                "ConstraintTarget": comparator + " " + constraint_target,
+                "ConstraintTarget": constraint_target,
                 "File": doc_name
             }
 
@@ -222,7 +222,7 @@ def fetch_action_constraints():
                 constraint_value = "Undefined Action"  # Default message if no specific action type matched
 
             # Set the 'Constraint' key in the dictionary
-            constraint_dict['Constraint'] = constraint_value
+            constraint_dict['Constraint'] = constraint_value + "," + comparator + "," + allowed_value
 
             # Append the constructed dictionary to the list
             processed_constraints.append(constraint_dict)
