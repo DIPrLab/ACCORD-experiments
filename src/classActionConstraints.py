@@ -31,7 +31,10 @@ class DocumentNode(ConstraintNode):
             self.constraints[constraint[1]].add_constraint(constraint)
 
     def check(self, activity):
-        pass
+        if activity.doc_id in self.constraints:
+            return self.constraints[activity.doc_id].check(activity)
+        else:
+            return False
 
 class ActionNode(ConstraintNode):
     def __init__(self, constraint=None):
@@ -46,7 +49,10 @@ class ActionNode(ConstraintNode):
             self.constraints[constraint[3]].add_constraint(constraint)
 
     def check(self, activity):
-        pass
+        if activity.actiontype in self.constraints:
+            return self.constraints[activity.actiontype].check(activity)
+        else:
+            return False
 
 class ActorNode(ConstraintNode):
     def __init__(self, constraint=None):
@@ -61,7 +67,10 @@ class ActorNode(ConstraintNode):
             self.constraints[constraint[4]] = ConditionNode(constraint)
 
     def check(self, activity):
-        pass
+        if activity.actor in self.constraints:
+            return self.constraints[activity.actor].check(activity)
+        else:
+            return False
 
 class ConditionNode(ConstraintNode):
     def __init__(self, constraint=None):
@@ -75,9 +84,30 @@ class ConditionNode(ConstraintNode):
         self.conditions.append([comparator, values])
 
     def check(self, activity):
-        pass
+        for condition in self.conditions:
+            comparator = condition[0]
+            true_values = condition[1]
 
-class ActionConstraints:
+            if not comparator:
+                return True
+            if comparator == "not in":
+                if activity.trueValue not in true_values:
+                    return True
+            if comparator == "in":
+                if activity.trueValue in true_values:
+                    return True
+            if comparator == "gt":
+                for val in true_values:
+                    if activity.trueValue > val:
+                        return True
+            if comparator == "lt":
+                for val in true_values:
+                    if activity.trueValue < val:
+                        return True
+
+        return False
+
+class ConflictDetectionEngine:
     '''Parse action constraints and store those matching an Activity's document id
 
     Attributes:
@@ -85,9 +115,16 @@ class ActionConstraints:
         actionConstraints: Dict[str, list]
     '''
 
-    def __init__(self,ActivityObject, actionConstraints):
+    def __init__(self, actionConstraints):
         '''Extract relevant constraints and initialize ActionConstraints'''
         self.constraint_tree = DocumentNode()
         for docID in actionConstraints:
             for constraint in actionConstraints[docID]:
                 self.constraint_tree.add_constraint(constraint)
+
+    def check_conflicts(self, activities):
+        results = []
+        for activity in activities:
+            results.append(self.constraint_tree.check(activity))
+
+        return results

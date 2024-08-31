@@ -1,6 +1,5 @@
 from src.classActivityHandler import ActivityHandler
-from src.classActionConstraints import ActionConstraints
-from src.classConflictDetectionEngine import ConflictDetectionEngine
+from src.classActionConstraints import DocumentNode
 
 class Activity:
     '''Data associated with an event activity
@@ -37,18 +36,17 @@ def detectmain(logdata, actionConstraints):
     Returns: list of booleans equal in length to logdata, indicating if each
         activity was a conflict
     '''
-    # Initialize conflict detection engine
-    conflictDetectionEngine = ConflictDetectionEngine()
-
     # Create an Activity and ActivityHandler for each activity and check for a conflict
-    result = []
+    constraint_tree = DocumentNode()
+    for docID in actionConstraints:
+        for constraint in actionConstraints[docID]:
+            constraint_tree.add_constraint(constraint)
+
+    results = []
     for activity in logdata:
         activityObject = Activity(activity)
         Handler = ActivityHandler()
         activityHandler = Handler.handleActivity(activityObject)
-        actionConstraintsObj = ActionConstraints(activityObject, actionConstraints)
+        results.append(constraint_tree.check(activityHandler))
 
-        # Detect Conflict for the activity
-        result.append(conflictDetectionEngine.checkConflict(activityHandler, actionConstraintsObj))
-
-    return result
+    return results
