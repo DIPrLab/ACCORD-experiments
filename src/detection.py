@@ -1,4 +1,5 @@
 from abc import abstractmethod
+from datetime import datetime
 class ConstraintNode:
     @abstractmethod
     def add_constraint(self, constraint):
@@ -85,6 +86,9 @@ class ConditionNode(ConstraintNode):
     def add_constraint(self, constraint):
         comparator = constraint[6]
         values = constraint[8].split(",")
+        values = [v for v in values if v] # Remove empty strings
+        if comparator and (constraint[3] == "Can Edit" or constraint[3] == "Time Limit Edit"):
+            values = [datetime.fromisoformat(v) for v in values]
         self.conditions.append([comparator, values])
 
     def check(self, activity):
@@ -166,7 +170,7 @@ class Activity:
         else:
             self.actiontype = "Can " + action
             if self.actiontype == "Can Edit":
-                self.trueValue = log[0] # Activity time
+                self.trueValue = datetime.fromisoformat(log[0]) # Activity time
             else:
                 self.trueValue = None
 
