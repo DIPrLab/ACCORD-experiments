@@ -115,26 +115,6 @@ class ConditionNode(ConstraintNode):
 
         return False
 
-class ConflictDetectionEngine:
-    '''Parse action constraints and store those matching an Activity's document id
-
-    Attributes:
-        activityObj: Activity
-        actionConstraints: List[List[str]]
-    '''
-
-    def __init__(self, action_constraints):
-        '''Extract relevant constraints and initialize ActionConstraints'''
-        self.constraint_tree = DocumentNode()
-        for constraint in action_constraints:
-            self.constraint_tree.add_constraint(constraint)
-
-    def check_conflicts(self, activities):
-        results = []
-        for activity in activities:
-            results.append(self.constraint_tree.check(activity))
-
-        return results
 class Activity:
     '''Data associated with an event activity
 
@@ -174,27 +154,40 @@ class Activity:
             else:
                 self.trueValue = None
 
+class ConflictDetectionEngine:
+    '''Store action constraints and check lists of activities against them
+
+    Attributes:
+        constraint_tree: ConstraintNode
+    '''
+
+    def __init__(self, action_constraints=[]):
+        '''Initialize internal data structures and store constraints'''
+        self.constraint_tree = DocumentNode()
+        self.load_constraints(action_constraints)
+
+    def load_constraints(self, action_constraints):
+        '''Parse and store an additional list of constraints'''
+        for constraint in action_constraints:
+            self.constraint_tree.add_constraint(constraint)
+
+    def check_conflicts(self, activities):
+        '''Flag which activities are conflicts using stored constraints'''
+        results = []
+        for activity in activities:
+            results.append(self.constraint_tree.check(Activity(activity)))
+
+        return results
 
 def detectmain(logdata, action_constraints):
     '''Detect which activities in logs are conflicts.
 
     Args:
-        logdata: list of str lists describing activities in format
-            [activityTime, action, documentID, actorName]
-        actionConstraints: list of str lists describing action constraints to
-            classify actions as conflicts
+        logdata: List[List[str]], activity descriptions in log format
+        action_constraints: List[List[str]], action constraints
 
     Returns: list of booleans equal in length to logdata, indicating if each
         activity was a conflict
     '''
-    # Create an Activity and ActivityHandler for each activity and check for a conflict
-    constraint_tree = DocumentNode()
-    for constraint in action_constraints:
-        constraint_tree.add_constraint(constraint)
-
-    results = []
-    for log in logdata:
-        activity = Activity(log)
-        results.append(constraint_tree.check(activity))
-
-    return results
+    engine = ConflictDetectionEngine(action_constraints)
+    return engine.check_conflicts(logdata)
