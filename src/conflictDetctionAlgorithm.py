@@ -1,27 +1,43 @@
-from src.classActivityHandler import ActivityHandler
 from src.classActionConstraints import DocumentNode
 
 class Activity:
     '''Data associated with an event activity
 
     Attributes:
-        activityTime: str
-        action: str
-        documentID: str
-        actorName: str
+        actiontype: str, action type
+        doc_id: str
+        actor: str, actor email
+        trueValue: str | None, time for edit or target user for permission changes
     '''
 
-    def __init__(self,activity):
+    def __init__(self, log):
         '''Initialize Activity attributes
 
         Args:
-            activity: list of activity event data strings
-                [activityTime, action, documentID, actorName]
+            log: List[str], line from logs describing events
         '''
-        self.activityTime = activity[0]
-        self.action = activity[1]
-        self.documentID = activity[2]
-        self.actorName = activity[5]
+        self.doc_id = log[2]
+        self.actor = log[5]
+        action = log[1]
+
+        if action[0:3] == "Per":
+            action_details = action.split("-")
+            new_permission = action_details[1].split(':')[1]
+            previous_permission = action_details[2].split(':')[1]
+            self.trueValue = action_details[3].split(':')[1]
+            if new_permission == "none":
+                self.actiontype = "Remove Permission"
+            elif previous_permission == "none":
+                self.actiontype = "Add Permission"
+            else:
+                self.actiontype = "Update Permission"
+
+        else:
+            self.actiontype = "Can " + action
+            if self.actiontype == "Can Edit":
+                self.trueValue = log[0] # Activity time
+            else:
+                self.trueValue = None
 
 
 def detectmain(logdata, actionConstraints):
@@ -43,10 +59,8 @@ def detectmain(logdata, actionConstraints):
             constraint_tree.add_constraint(constraint)
 
     results = []
-    for activity in logdata:
-        activityObject = Activity(activity)
-        Handler = ActivityHandler()
-        activityHandler = Handler.handleActivity(activityObject)
-        results.append(constraint_tree.check(activityHandler))
+    for log in logdata:
+        activity = Activity(log)
+        results.append(constraint_tree.check(activity))
 
     return results

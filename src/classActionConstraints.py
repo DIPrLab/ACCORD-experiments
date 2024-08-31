@@ -14,7 +14,7 @@ class ConstraintNode:
         '''Determine if activity is a conflict based on info in this node and children
 
         Args:
-            activity: ActivityHandler
+            activity: Activity
         '''
         pass
 
@@ -43,10 +43,14 @@ class ActionNode(ConstraintNode):
             self.add_constraint(constraint)
 
     def add_constraint(self, constraint):
-        if constraint[3] not in self.constraints:
-            self.constraints[constraint[3]] = ActorNode(constraint)
+        constraint_type = constraint[3]
+        # Convert time limit edit constraints to edit constraints for backward compatibility
+        if constraint_type == "Time Limit Edit":
+            constraint_type = "Can Edit"
+        if constraint_type not in self.constraints:
+            self.constraints[constraint_type] = ActorNode(constraint)
         else:
-            self.constraints[constraint[3]].add_constraint(constraint)
+            self.constraints[constraint_type].add_constraint(constraint)
 
     def check(self, activity):
         if activity.actiontype in self.constraints:
