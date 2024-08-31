@@ -2,7 +2,7 @@ import sys, random, time
 from datetime import datetime, timezone
 from csv import DictReader, reader
 
-from src.detection_alg import detectmain
+from src.detection import detectmain
 
 if len(sys.argv) < 3:
     print("Usage: scripts/expr1_detection.py <num conflicts> <log file>")

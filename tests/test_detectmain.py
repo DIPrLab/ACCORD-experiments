@@ -1,6 +1,6 @@
 import unittest
 import json
-from src.detection_alg import detectmain
+from src.detection import detectmain
 
 class TestDetectMain(unittest.TestCase):
     def testA_empty(self):
