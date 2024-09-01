@@ -8,7 +8,7 @@ from src.logextraction import extractDriveLog
 @dataclass
 class ResourceRecord():
     '''Which mock user had document during timestamps for log parsing'''
-    mock_user: MockUser
+    mock_user: 'MockUser'
     start_time: datetime.date
     end_time: datetime.date
 
@@ -19,16 +19,15 @@ class MockDrive():
     def __init__(self, users: Set[UserSubject]):
         self.users: Set[UserSubject] = users
         self.users_by_id: Dict[str, UserSubject] = { u.id: u for u in users }
-        self.mocks_by_id: Dict[str, MockUser] = {}
-        self.mocks_by_user: Dict[UserSubject, List[MockUser]] = { u: [] for u in users }
-        # self.mocks_to_users: Dict[MockUser, UserSubject] = {}
+        self.mocks_by_id: Dict[str, 'MockUser'] = {}
+        self.mocks_by_user: Dict[UserSubject, List['MockUser']] = { u: [] for u in users }
         self.resource_records: Dict[str, Dict[str, List[ResourceRecord]]] = {}
 
-    def register_mock(self, mock: MockUser):
+    def register_mock(self, mock: 'MockUser'):
         self.mocks_by_id[mock.id] = mock
         self.mocks_by_user[mock.user].append(mock)
 
-    def open_record(self, resource_id: str, mock: MockUser, time: datetime.date = None):
+    def open_record(self, resource_id: str, mock: 'MockUser', time: datetime.date = None):
         '''Create an access record for a new resource'''
         t = time if time else datetime.now(timezone.utc)
         record = ResourceRecord(mock, t, None)
@@ -38,7 +37,7 @@ class MockDrive():
             self.resource_records[resource_id][mock.user.id] = []
         self.resource_records[resource_id][mock.user.id].append(record)
 
-    def close_record(self, resource_id: str, mock: MockUser):
+    def close_record(self, resource_id: str, mock: 'MockUser'):
         '''Close one access record associated with a resource and mock user'''
         if (resource_id not in self.resource_records or 
                 mock.user.id not in self.resource_records[resource_id]):
@@ -56,7 +55,7 @@ class MockDrive():
                 return record.mock_user
         return None
 
-    def filter_resources_by_mock(self, mock: MockUser, resources: List[Resource]):
+    def filter_resources_by_mock(self, mock: 'MockUser', resources: List[Resource]):
         '''Filter a list of resources to those a mock user has access to'''
         filtered = []
         for r in resources:
@@ -161,11 +160,19 @@ class MockUser():
         '''Edit a file as mock user'''
         self.user.edit(resource)
 
-    def create_resource(self, mime_type, name, parent_id=None):
+    def create_resource(self, mime_type: str, name: str, parent: Resource = None):
         '''Create resource and corresponding record'''
         time = datetime.now(timezone.utc)
-        res = self.user.create_resource(mime_type, name, parent_id)
+        res = self.user.create_resource(mime_type, name, parent.id if parent else None)
         self.mock_drive.open_record(res["id"], self, time)
+        # Open records inherited from new parent
+        if parent:
+            for user_id in parent.permissions:
+                self.mock_drive.open_record(
+                    res.id,
+                    self.mock_drive.get_mock_user(parent.id, user_id, time)
+                )
+        return res
 
     def delete_resource(self, resource):
         '''Atempt deletion of resource and close record'''
@@ -224,7 +231,7 @@ class MockUser():
             for user_id in old_parent.permissions:
                 self.mock_drive.close_record(
                     resource.id,
-                    self.mock_drive.get_mock_user(resource.id, user_id, time)
+                    self.mock_drive.get_mock_user(old_parent.id, user_id, time)
                 )
 
         # Open records inherited from new parent
@@ -232,7 +239,7 @@ class MockUser():
             for user_id in new_parent.permissions:
                 self.mock_drive.open_record(
                     resource.id,
-                    self.mock_drive.get_mock_user(resource.id, user_id, time)
+                    self.mock_drive.get_mock_user(new_parent.id, user_id, time)
                 )
 
     def __repr__(self):

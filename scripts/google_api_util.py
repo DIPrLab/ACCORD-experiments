@@ -34,6 +34,7 @@ class UserSubject():
         self.name = name
         self.email = name + "@accord.foundation"
         self.driveid = None # Needs to be set later, as this needs to be gotten off a document
+        self.drive_resource = None
 
     def list_resources(self):
         '''Retrieve a list of all files and folders a user has access to.
@@ -168,7 +169,7 @@ class UserSubject():
             resource: Resource, resource to move
             resources: list[Resource], current list of resources user has permissions on
 
-        Returns: list[Resource], possible parents that resource can be moved to
+        Returns: list[str], possible parent ids that resource can be moved to
         '''
         possible_parents = []
         for r in resources:
