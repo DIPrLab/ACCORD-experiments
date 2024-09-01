@@ -74,7 +74,7 @@ class UserSubject():
 
         capabilities = resource.capabilities
         actions = []
-        if capabilities["canEdit"]:
+        if capabilities["canEdit"] and resource.mime_type == MIMETYPE_FILE:
             actions.append("Edit")
         if capabilities["canShare"]:
             actions += ["AddPermission", "RemovePermission", "UpdatePermission"]
@@ -83,16 +83,15 @@ class UserSubject():
 
         # Users only get one of delete or remove; owners can delete and others remove
         if capabilities["canDelete"]:
-            print("can delete")
             actions.append("Delete")
-        elif capabilities["canRemoveMyDriveParent"] and resource.parents != None:
+        elif capabilities["canRemoveMyDriveParent"] and capabilities["canMoveItemWithinDrive"] and resource.parents != None:
             actions.append("Remove")
 
         return actions
 
     def edit(self, resource):
-        '''Edit a file or rename a folder'''
-        if not resource.capabilities["canEdit"]:
+        '''Edit a file'''
+        if not (resource.mime_type == MIMETYPE_FILE and resource.capabilities["canEdit"]):
             raise ActionNotPermitted("Edit not permitted on this resource.")
 
         if resource.mime_type == MIMETYPE_FILE:
@@ -100,11 +99,6 @@ class UserSubject():
             file_content = "Hello World! File has been edited on " + str(datetime.now())
             media = MediaInMemoryUpload(file_content.encode(), mimetype=MIMETYPE_FILE)
             self.drive.files().update(fileId=resource.id, media_body=media).execute()
-
-        elif resource.mime_type == MIMETYPE_FOLDER:
-            # Rename folders
-            new_name = resource.name.split(',')[0] + ',' + str(datetime.now())
-            self.drive.files().update(fileId=resource.id, body={"name": new_name}).execute()
 
     def add_permission(self, resource, user, role):
         '''Attempt to add another user to a resource
@@ -178,18 +172,19 @@ class UserSubject():
         '''
         possible_parents = []
         for r in resources:
-            if r == resource: # Current resource
-                continue
-            if resource.parents == r.id: # Current parent
-                continue
-            if r.parents == resource.id: # Child
-                continue
             if not r.capabilities["canAddChildren"]: # Always False on non-folders
                 continue
+            if resource:
+                if r == resource: # Current resource
+                    continue
+                if resource.parents == r.id: # Current parent
+                    continue
+                if r.parents == resource.id: # Child
+                    continue
 
             possible_parents.append(r.id)
 
-        if resource.owned_by_me and resource.parents != self.driveid:
+        if (not resource) or (resource.owned_by_me and resource.parents != self.driveid):
             possible_parents.append(self.driveid)
         return possible_parents
 
@@ -268,7 +263,7 @@ class UserSubject():
         if parent_id:
             file_metadata['parents'] = parent_id
 
-        return self.drive.files().create(body=file_metadata, media_body=None, fields="parents").execute()
+        return self.drive.files().create(body=file_metadata, media_body=None, fields="parents,id").execute()
 
     def __repr__(self):
         return self.name
