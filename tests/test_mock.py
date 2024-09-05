@@ -61,22 +61,23 @@ class TestB_Create(unittest.TestCase):
         name = "folder" + str(self.sim['next_file'])
         self.sim['next_file'] += 1
         res = mock_user.create_resource(MIMETYPE_FOLDER, name)
-        mock_user.user.driveid = res["parents"][0]
+        mock_user.user.set_drive(res["parents"][0])
         self.resources = mock_user.list_resources()
         self.assertEqual(len(self.resources), 2)
 
     def testB2_potential_parents(self):
         mock_user = self.sim['mock'][0]
-        potential_parents = mock_user.list_potential_parents(None, self.resources)
-        print(potential_parents)
-        self.assertEqual(len(potential_parents), 1)
+        resources = mock_user.list_resources()
+        potential_parents = mock_user.list_potential_parents(None, resources)
+        self.assertEqual(len(potential_parents), 2)
 
     def testB3_create_file_in_folder(self):
         mock_user = self.sim['mock'][0]
         name = "file" + str(self.sim['next_file'])
         self.sim['next_file'] += 1
-        potential_parents = mock_user.list_potential_parents(None, self.resources)
-        print(potential_parents[0])
+        resources = mock_user.list_resources()
+        potential_parents = mock_user.list_potential_parents(None, resources)
+        self.assertEqual(len(potential_parents), 2)
         res = mock_user.create_resource(MIMETYPE_FILE, name, potential_parents[0])
         self.assertEqual(res["parents"][0], potential_parents[0].id)
 
@@ -84,26 +85,31 @@ class TestB_Create(unittest.TestCase):
         mock_user = self.sim['mock'][0]
         name = "folder" + str(self.sim['next_file'])
         self.sim['next_file'] += 1
-        res = mock_user.create_resource(MIMETYPE_FOLDER, name)
-        self.assertEqual(res["parents"][0], self.potential_parents[0].id)
-        self.resources = mock_user.list_resources()
-        self.assertEqual(len(self.resources), 4)
+        resources = mock_user.list_resources()
+        self.assertEqual(len(resources), 3)
+        potential_parents = mock_user.list_potential_parents(None, resources)
+        self.assertEqual(len(potential_parents), 2)
+        res = mock_user.create_resource(MIMETYPE_FOLDER, name, potential_parents[0])
+        self.assertEqual(res["parents"][0], potential_parents[0].id)
+        resources = mock_user.list_resources()
+        self.assertEqual(len(resources), 4)
+        self.assertEqual(len(mock_user.list_potential_parents(None, resources)), 3)
 
     def testB5_diff_mocks_same_user(self):
         mock_user = self.sim['mock'][1]
+        self.assertEqual(len(mock_user.list_resources()), 0)
         name = "file" + str(self.sim['next_file'])
         self.sim['next_file'] += 1
-        self.assertEqual(len(mock_user.list_resources()), 0)
         res = mock_user.create_resource(MIMETYPE_FILE, name)
         self.assertEqual(len(mock_user.list_resources()), 1)
 
     def testB6_diff_mocks_diff_users(self):
         mock_user = self.sim['mock'][2]
+        self.assertEqual(len(mock_user.list_resources()), 0)
         name = "file" + str(self.sim['next_file'])
         self.sim['next_file'] += 1
-        self.assertEqual(len(mock_user.list_resources()), 0)
         res = mock_user.create_resource(MIMETYPE_FILE, name)
-        mock_user.user.driveid = res["parents"][0]
+        mock_user.user.set_drive(res["parents"][0])
         self.assertEqual(len(mock_user.list_resources()), 1)
 
 

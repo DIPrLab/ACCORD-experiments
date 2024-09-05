@@ -36,6 +36,10 @@ class UserSubject():
         self.driveid = None # Needs to be set later, as this needs to be gotten off a document
         self.drive_resource = None
 
+    def set_drive(self, driveid):
+        self.driveid = driveid
+        self.drive_resource = Resource(self.driveid, "Root", {}, "", True, {}, None)
+
     def list_resources(self):
         '''Retrieve a list of all files and folders a user has access to.
 
@@ -169,7 +173,8 @@ class UserSubject():
             resource: Resource, resource to move
             resources: list[Resource], current list of resources user has permissions on
 
-        Returns: list[str], possible parent ids that resource can be moved to
+        Returns: List[Resource], possible parent objects that resource can be moved to,
+            including Drive Root resource
         '''
         possible_parents = []
         for r in resources:
@@ -183,10 +188,10 @@ class UserSubject():
                 if r.parents == resource.id: # Child
                     continue
 
-            possible_parents.append(r.id)
+            possible_parents.append(r)
 
         if (not resource) or (resource.owned_by_me and resource.parents != self.driveid):
-            possible_parents.append(self.driveid)
+            possible_parents.append(self.drive_resource)
         return possible_parents
 
     def move(self, resource, new_parent):
@@ -262,7 +267,7 @@ class UserSubject():
             'mimeType': mime_type,
         }
         if parent_id:
-            file_metadata['parents'] = parent_id
+            file_metadata['parents'] = [parent_id]
 
         return self.drive.files().create(body=file_metadata, media_body=None, fields="parents,id").execute()
 

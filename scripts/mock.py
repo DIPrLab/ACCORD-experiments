@@ -63,7 +63,8 @@ class MockDrive():
                 if mock.user.id in self.resource_records[r.id]:
                     current_time = datetime.now(timezone.utc)
                     for record in self.resource_records[r.id][mock.user.id]:
-                        if (record.start_time <= current_time and 
+                        if (mock is record.mock_user and
+                            record.start_time <= current_time and
                             (not record.end_time or record.endtime >= current_time)):
                             filtered.append(r)
                             break
@@ -163,13 +164,14 @@ class MockUser():
     def create_resource(self, mime_type: str, name: str, parent: Resource = None):
         '''Create resource and corresponding record'''
         time = datetime.now(timezone.utc)
+        print("creating with parent", parent)
         res = self.user.create_resource(mime_type, name, parent.id if parent else None)
         self.mock_drive.open_record(res["id"], self, time)
         # Open records inherited from new parent
-        if parent:
+        if parent and parent is not self.user.drive_resource:
             for user_id in parent.permissions:
                 self.mock_drive.open_record(
-                    res.id,
+                    res["id"],
                     self.mock_drive.get_mock_user(parent.id, user_id, time)
                 )
         return res
