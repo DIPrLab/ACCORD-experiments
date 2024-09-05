@@ -23,6 +23,26 @@ def initialize():
     sim['next_file'] = 0 # used for filenames
     return sim
 
+def create_folder_with_file(sim, mock_user):
+        '''Helper function to create a folder with a child file for mock_user'''
+        name = "folder" + str(sim['next_file'])
+        sim['next_file'] += 1
+        res = mock_user.create_resource(MIMETYPE_FOLDER, name)
+        mock_user.user.set_drive(res["parents"][0])
+        resources = mock_user.list_resources()
+        name = "file" + str(sim['next_file'])
+        sim['next_file'] += 1
+        potential_parents = mock_user.list_potential_parents(None, resources)
+        res = mock_user.create_resource(MIMETYPE_FILE, name, potential_parents[0])
+
+def assert_record_exists(tc: unittest.TestCase, resid: str, mock_user):
+    tc.assertIn(resid, tc.sim['mock_drive'].resource_records)
+    tc.assertIn(mock_user.user.id, tc.sim['mock_drive'].resource_records[resid])
+    records = tc.sim['mock_drive'].resource_records[resid][mock_user.user.id]
+    tc.assertEqual(len(records), 1)
+    tc.assertEqual(records[0].mock_user, mock_user)
+    tc.assertGreaterEqual(datetime.now(timezone.utc), records[0].start_time)
+
 class TestA_Initialization(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
@@ -176,6 +196,59 @@ class TestC_Delete(unittest.TestCase):
         time.sleep(1) # Takes some time for Google to resolve recursive deletion
         resources = mock_user.list_resources()
         self.assertEqual(len(resources), 0)
+
+class TestD_Permission_Change(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.sim = initialize()
+
+    def testD0_addable_users_simple(self):
+        mock_user = self.sim['mock'][0]
+        name = "file" + str(self.sim['next_file'])
+        self.sim['next_file'] += 1
+        res = mock_user.create_resource(MIMETYPE_FILE, name)
+        resources = mock_user.list_resources()
+        children = mock_user.get_children(resources[0], resources)
+        self.assertEqual(children, resources)
+        addable_users = mock_user.get_addable_users(children)
+        self.assertEqual(len(addable_users), len(self.sim['mock']) - 2)
+        for mu in self.sim['mock'][2:]:
+            self.assertIn(mu, addable_users)
+        self.assertNotIn(mock_user, addable_users)
+        self.assertNotIn(self.sim['mock'][1], addable_users)
+
+    def testD1_add_permission(self):
+        mock_user = self.sim['mock'][0]
+        resources = mock_user.list_resources()
+        children = mock_user.get_children(resources[0], resources)
+        self.assertEqual(children, resources)
+        addable_users = mock_user.get_addable_users(children)
+        new_user = addable_users[0]
+        mock_user.add_permission(resources[0], children, new_user, 'writer')
+        assert_record_exists(self, resources[0].id, new_user)
+        new_user_resources = new_user.list_resources()
+        time.sleep(1)
+        self.assertEqual(len(new_user_resources), 1)
+
+    def testD2_addable_users_children(self):
+        mock_user = self.sim['mock'][3]
+        create_folder_with_file(self.sim, mock_user)
+        resources = mock_user.list_resources()
+        if resources[0].mime_type == MIMETYPE_FILE:
+            file = resources[0]
+            folder = resources[1]
+        else:
+            file = resources[1]
+            folder = resources[0]
+        file_children = mock_user.get_children(file, resources)
+        mock_user.add_permission(file, file_children, self.sim['mock'][1], 'commenter')
+        time.sleep(1)
+        resources = mock_user.list_resources()
+        folder_children = mock_user.get_children(folder, resources)
+        self.assertEqual(len(folder_children), 2)
+        folder_addable_users = mock_user.get_addable_users(folder_children)
+        self.assertEqual(len(folder_addable_users), 1)
+        self.assertIs(folder_addable_users[0], self.sim['mock'][1])
 
 
 if __name__ == "__main__":

@@ -187,26 +187,41 @@ class MockUser():
     def get_children(self, resource, resources):
         '''List all resources that are children of resource, including resource itself'''
         children = [resource]
+        children_ids = [resource.id]
         if resource.mime_type == MIMETYPE_FOLDER:
             new_children = True
             while new_children:
                 new_children = False
                 for r in resources:
-                    if r.parents in children:
+                    if r.id in children_ids:
+                        continue
+                    if r.parents in children_ids:
                         children.append(r)
+                        children_ids.append(r.id)
                         new_children = True
         return children
 
     def get_addable_users(self, children):
         '''Construct a list of mock users a group of files could be shared with'''
         current_users = set()
+        current_mock_users: Dict[UserSubject, Set[MockUser]] = {}
+        time = datetime.now(timezone.utc)
         for r in children:
             for id in r.permissions:
-                current_users.add(self.mock_drive.users_by_id[id])
+                user = self.mock_drive.users_by_id[id]
+                current_users.add(user)
+                if user not in current_mock_users:
+                    current_mock_users[user] = set()
+                current_mock_users[user].add(self.mock_drive.get_mock_user(r.id, user.id, time))
         complement = self.mock_drive.users.difference(current_users)
         addable_users = []
         for u in complement:
-            addable_users += self.mock_drive.mocks_by_user(u)
+            addable_users += self.mock_drive.mocks_by_user[u]
+        for user, mock_set in current_mock_users.items():
+            if len(mock_set) == 1:
+                mu = mock_set.pop()
+                if mu is not self:
+                    addable_users.append(mu)
         return addable_users
 
     def add_permission(self, resource, children, mock_user, role):
