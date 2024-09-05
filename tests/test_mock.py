@@ -1,6 +1,5 @@
 # Tests for user mocking for simulating more users with only a few real users
-import yaml
-import unittest
+import yaml, unittest, time
 from datetime import datetime, timezone
 
 from scripts.google_api_util import UserSubject, MIMETYPE_FILE, MIMETYPE_FOLDER, Resource
@@ -40,7 +39,6 @@ class TestB_Create(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.sim = initialize()
-        cls.resources = []
 
     def testB0_create_file(self):
         mock_user = self.sim['mock'][0]
@@ -62,8 +60,8 @@ class TestB_Create(unittest.TestCase):
         self.sim['next_file'] += 1
         res = mock_user.create_resource(MIMETYPE_FOLDER, name)
         mock_user.user.set_drive(res["parents"][0])
-        self.resources = mock_user.list_resources()
-        self.assertEqual(len(self.resources), 2)
+        resources = mock_user.list_resources()
+        self.assertEqual(len(resources), 2)
 
     def testB2_potential_parents(self):
         mock_user = self.sim['mock'][0]
@@ -111,6 +109,73 @@ class TestB_Create(unittest.TestCase):
         res = mock_user.create_resource(MIMETYPE_FILE, name)
         mock_user.user.set_drive(res["parents"][0])
         self.assertEqual(len(mock_user.list_resources()), 1)
+
+
+class TestC_Delete(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.sim = initialize()
+
+    def testC0_delete_file(self):
+        mock_user = self.sim['mock'][2]
+        name = "file" + str(self.sim['next_file'])
+        self.sim['next_file'] += 1
+        res0 = mock_user.create_resource(MIMETYPE_FILE, name)
+        timestamp = datetime.now(timezone.utc)
+
+        resources = mock_user.list_resources()
+        mock_user.delete_resource(resources[0])
+        resources = mock_user.list_resources()
+        self.assertEqual(len(resources), 0)
+
+        self.assertIn(res0['id'], self.sim['mock_drive'].resource_records)
+        self.assertIn(mock_user.user.id, self.sim['mock_drive'].resource_records[res0['id']])
+        records = self.sim['mock_drive'].resource_records[res0['id']][mock_user.user.id]
+        self.assertEqual(len(records), 1)
+        self.assertEqual(records[0].mock_user, mock_user)
+        self.assertGreaterEqual(timestamp, records[0].start_time)
+        self.assertGreaterEqual(records[0].end_time, timestamp)
+
+    def testC1_delete_folder(self):
+        mock_user = self.sim['mock'][2]
+        name = "folder" + str(self.sim['next_file'])
+        self.sim['next_file'] += 1
+        res = mock_user.create_resource(MIMETYPE_FOLDER, name)
+        resources = mock_user.list_resources()
+        self.assertEqual(len(resources), 1)
+        timestamp = datetime.now(timezone.utc)
+
+        mock_user.delete_resource(resources[0])
+        resources = mock_user.list_resources()
+        self.assertEqual(len(resources), 0)
+
+        self.assertIn(res['id'], self.sim['mock_drive'].resource_records)
+        self.assertIn(mock_user.user.id, self.sim['mock_drive'].resource_records[res['id']])
+        records = self.sim['mock_drive'].resource_records[res['id']][mock_user.user.id]
+        self.assertEqual(len(records), 1)
+        self.assertEqual(records[0].mock_user, mock_user)
+        self.assertGreaterEqual(timestamp, records[0].start_time)
+        self.assertGreaterEqual(records[0].end_time, timestamp)
+
+    def testC2_delete_folder_with_contents(self):
+        mock_user = self.sim['mock'][3]
+        name = "folder" + str(self.sim['next_file'])
+        self.sim['next_file'] += 1
+        res = mock_user.create_resource(MIMETYPE_FOLDER, name)
+        mock_user.user.set_drive(res["parents"][0])
+        resources = mock_user.list_resources()
+        potential_parents = mock_user.list_potential_parents(None, resources)
+        res = mock_user.create_resource(MIMETYPE_FILE, name, potential_parents[0])
+        resources = mock_user.list_resources()
+        folder = None
+        for r in resources:
+            if r.mime_type == MIMETYPE_FOLDER:
+                folder = r
+                break
+        mock_user.delete_resource(folder)
+        time.sleep(1) # Takes some time for Google to resolve recursive deletion
+        resources = mock_user.list_resources()
+        self.assertEqual(len(resources), 0)
 
 
 if __name__ == "__main__":

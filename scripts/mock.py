@@ -42,8 +42,8 @@ class MockDrive():
         if (resource_id not in self.resource_records or 
                 mock.user.id not in self.resource_records[resource_id]):
             return # No record exists
-        for rec in self.resource_records[resource_id][mock.userid]:
-            if not rec.end_time:
+        for rec in self.resource_records[resource_id][mock.user.id]:
+            if rec.mock_user is mock and not rec.end_time:
                 rec.end_time = datetime.now(timezone.utc)
                 return # Only close one record; user may have multiple permissions
 
@@ -164,7 +164,6 @@ class MockUser():
     def create_resource(self, mime_type: str, name: str, parent: Resource = None):
         '''Create resource and corresponding record'''
         time = datetime.now(timezone.utc)
-        print("creating with parent", parent)
         res = self.user.create_resource(mime_type, name, parent.id if parent else None)
         self.mock_drive.open_record(res["id"], self, time)
         # Open records inherited from new parent
@@ -177,7 +176,11 @@ class MockUser():
         return res
 
     def delete_resource(self, resource):
-        '''Atempt deletion of resource and close record'''
+        '''Atempt deletion of resource and close record.
+
+        If resource has children that are also deleted, these records will not be closed,
+        but since resource is no longer accessible (deleted), this won't cause conflicts.
+        '''
         self.user.delete(resource)
         self.mock_drive.close_record(resource.id, self)
 
