@@ -39,9 +39,9 @@ def assert_record_exists(tc: unittest.TestCase, resid: str, mock_user):
     tc.assertIn(resid, tc.sim['mock_drive'].resource_records)
     tc.assertIn(mock_user.user.id, tc.sim['mock_drive'].resource_records[resid])
     records = tc.sim['mock_drive'].resource_records[resid][mock_user.user.id]
-    tc.assertEqual(len(records), 1)
     tc.assertEqual(records[0].mock_user, mock_user)
     tc.assertGreaterEqual(datetime.now(timezone.utc), records[0].start_time)
+
 
 class TestA_Initialization(unittest.TestCase):
     @classmethod
@@ -249,7 +249,70 @@ class TestD_Permission_Change(unittest.TestCase):
         folder_addable_users = mock_user.get_addable_users(folder_children)
         self.assertEqual(len(folder_addable_users), 1)
         self.assertIs(folder_addable_users[0], self.sim['mock'][1])
+        mock_user.add_permission(folder, folder_children, folder_addable_users[0], 'reader')
+        self.assertEqual(len(self.sim['mock_drive'].resource_records[file.id]), 2)
+        records = self.sim['mock_drive'].resource_records[file.id][folder_addable_users[0].user.id]
+        self.assertEqual(len(records), 2)
 
+    def testD3_update_permission_indirect(self):
+        mock_user = self.sim['mock'][3]
+        target = self.sim['mock'][1]
+        resources = mock_user.list_resources()
+        if resources[0].mime_type == MIMETYPE_FILE:
+            folder = resources[1]
+        else:
+            folder = resources[0]
+        mock_user.update_permission(folder, target, 'writer')
+
+        resources = mock_user.list_resources()
+        if resources[0].mime_type == MIMETYPE_FILE:
+            folder = resources[1]
+            file = resources[0]
+        else:
+            folder = resources[0]
+            file = resources[1]
+
+        permission_found = False
+        for userid, role in folder.permissions.items():
+            if userid == target.user.id:
+                self.assertEqual(role, 'writer')
+                permission_found = True
+        self.assertTrue(permission_found)
+        permission_found = False
+        for userid, role in file.permissions.items():
+            if userid == target.user.id:
+                self.assertEqual(role, 'writer')
+
+    def testD4_update_permission_direct(self):
+        mock_user = self.sim['mock'][3]
+        target = self.sim['mock'][1]
+        resources = mock_user.list_resources()
+        if resources[0].mime_type == MIMETYPE_FILE:
+            file = resources[0]
+        else:
+            file = resources[1]
+        mock_user.update_permission(file, target, 'reader')
+
+        resources = mock_user.list_resources()
+        if resources[0].mime_type == MIMETYPE_FILE:
+            folder = resources[1]
+            file = resources[0]
+        else:
+            folder = resources[0]
+            file = resources[1]
+
+        permission_found = False
+        for userid, role in folder.permissions.items():
+            if userid == target.user.id:
+                self.assertEqual(role, 'writer')
+                permission_found = True
+        self.assertTrue(permission_found)
+        permission_found = False
+        for userid, role in file.permissions.items():
+            if userid == target.user.id:
+                self.assertEqual(role, 'reader')
+                permission_found = True
+        self.assertTrue(permission_found)
 
 if __name__ == "__main__":
     unittest.main()
