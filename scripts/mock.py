@@ -38,14 +38,26 @@ class MockDrive():
         self.resource_records[resource_id][mock.user.id].append(record)
 
     def close_record(self, resource_id: str, mock: 'MockUser'):
-        '''Close one access record associated with a resource and mock user'''
-        if (resource_id not in self.resource_records or 
+        '''Close one access record associated with a resource and mock user.'''
+        if (resource_id not in self.resource_records or
                 mock.user.id not in self.resource_records[resource_id]):
             return # No record exists
         for rec in self.resource_records[resource_id][mock.user.id]:
             if rec.mock_user is mock and not rec.end_time:
                 rec.end_time = datetime.now(timezone.utc)
                 return # Only close one record; user may have multiple permissions
+
+    def close_all_records(self, resource_id: str, mock: 'MockUser'):
+        '''Close all access records associated with a resource and mock user.
+
+        Useful for when removing permissions on a resource directly or deleting.
+        '''
+        if (resource_id not in self.resource_records or
+                mock.user.id not in self.resource_records[resource_id]):
+            return # No record exists
+        for rec in self.resource_records[resource_id][mock.user.id]:
+            if rec.mock_user is mock and not rec.end_time:
+                rec.end_time = datetime.now(timezone.utc)
 
     def get_mock_user(self, resource_id: str, user_id: str, time: datetime.date):
         '''Return mock user associated with user and document at a certain time'''
@@ -179,10 +191,10 @@ class MockUser():
         '''Atempt deletion of resource and close record.
 
         If resource has children that are also deleted, these records will not be closed,
-        but since resource is no longer accessible (deleted), this won't cause conflicts.
+        but since these are no longer accessible (deleted), this won't cause conflicts.
         '''
         self.user.delete(resource)
-        self.mock_drive.close_record(resource.id, self)
+        self.mock_drive.close_all_records(resource.id, self)
 
     def get_children(self, resource, resources):
         '''List all resources that are children of resource, including resource itself'''
@@ -202,7 +214,12 @@ class MockUser():
         return children
 
     def get_addable_users(self, children):
-        '''Construct a list of mock users a group of files could be shared with'''
+        '''Construct a list of mock users a group of files could be shared with
+
+        Note: when using the result, will need to remove any users that have access to
+        the current file, as it wouldn't accomplish anything to add these users. Further,
+        it would open incorrect ResourceRecords
+        '''
         current_users = set()
         current_mock_users: Dict[UserSubject, Set[MockUser]] = {}
         time = datetime.now(timezone.utc)
@@ -234,6 +251,7 @@ class MockUser():
         '''Remove permission and update records for affected mock user'''
         for r in children:
             self.mock_drive.close_record(r.id, mock_user)
+        self.mock_drive.close_all_records(resource.id, mock_user)
         self.user.remove_permission(resource, mock_user.user)
 
     def update_permission(self, resource, mock_user, role):

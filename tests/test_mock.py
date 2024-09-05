@@ -198,6 +198,10 @@ class TestC_Delete(unittest.TestCase):
         self.assertEqual(len(resources), 0)
 
 class TestD_Permission_Change(unittest.TestCase):
+    '''Test Add, Update, Remove Permission, as well as get_addable_users()
+
+    Must run entire suite, as cases build on one anther
+    '''
     @classmethod
     def setUpClass(cls):
         cls.sim = initialize()
@@ -313,6 +317,72 @@ class TestD_Permission_Change(unittest.TestCase):
                 self.assertEqual(role, 'reader')
                 permission_found = True
         self.assertTrue(permission_found)
+
+    def testD5_remove_permission_direct(self):
+        mock_user = self.sim['mock'][3]
+        target = self.sim['mock'][1]
+        resources = mock_user.list_resources()
+        if resources[0].mime_type == MIMETYPE_FILE:
+            file = resources[0]
+        else:
+            file = resources[1]
+        time = datetime.now(timezone.utc)
+        file_children = mock_user.get_children(file, resources)
+        mock_user.remove_permission(file, file_children, target)
+
+        # Assert all records closed, regardless of whether indirect or direct
+        records = self.sim['mock_drive'].resource_records[file.id][target.user.id]
+        for rec in records:
+            self.assertEqual(rec.mock_user, target)
+            self.assertGreaterEqual(time, rec.start_time)
+            self.assertGreaterEqual(rec.end_time, time)
+
+    def testD6_remove_permission_indirect(self):
+        mock_user = self.sim['mock'][3]
+        target = self.sim['mock'][0]
+        resources = mock_user.list_resources()
+        if resources[0].mime_type == MIMETYPE_FILE:
+            file = resources[0]
+            folder = resources[1]
+        else:
+            file = resources[1]
+            folder = resources[0]
+        mock_user.add_permission(file, [file], target, 'writer')
+        folder_children = mock_user.get_children(folder, resources)
+        mock_user.remove_permission(folder, folder_children, self.sim['mock'][1])
+        mock_user.add_permission(folder, folder_children, target, 'reader')
+        time.sleep(1)
+        resources = mock_user.list_resources()
+        folder_children = mock_user.get_children(folder, resources)
+        timestamp = datetime.now(timezone.utc)
+        mock_user.remove_permission(folder, folder_children, target)
+
+        # Assert that there is still an open record on file
+        open_found = False
+        records = self.sim['mock_drive'].resource_records[file.id][target.user.id]
+        for rec in records:
+            if not open_found and not rec.end_time:
+                open_found = True
+            elif open_found and not rec.end_time:
+                self.assertFalse(open_found) # Basically, fail the test
+        self.assertTrue(open_found)
+
+        # Assert that there is still a direct permission on file
+        resources = mock_user.list_resources()
+        if resources[0].mime_type == MIMETYPE_FILE:
+            file = resources[0]
+        else:
+            file = resources[1]
+        for userid, role in file.permissions.items():
+            if userid == target.user.id:
+                self.assertEqual(role, 'writer')
+
+        # Assert that all direct permissions on folder were removed
+        records = self.sim['mock_drive'].resource_records[folder.id][target.user.id]
+        for rec in records:
+            if rec.mock_user is target:
+                self.assertGreaterEqual(timestamp, rec.start_time)
+                self.assertGreaterEqual(rec.end_time, timestamp)
 
 if __name__ == "__main__":
     unittest.main()
