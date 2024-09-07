@@ -35,13 +35,17 @@ def create_folder_with_file(sim, mock_user):
         potential_parents = mock_user.list_potential_parents(None, resources)
         res = mock_user.create_resource(MIMETYPE_FILE, name, potential_parents[0])
 
-def assert_record_exists(tc: unittest.TestCase, resid: str, mock_user):
+def assert_record_open(tc: unittest.TestCase, resid: str, mock_user):
     tc.assertIn(resid, tc.sim['mock_drive'].resource_records)
     tc.assertIn(mock_user.user.id, tc.sim['mock_drive'].resource_records[resid])
     records = tc.sim['mock_drive'].resource_records[resid][mock_user.user.id]
-    tc.assertEqual(records[0].mock_user, mock_user)
-    tc.assertGreaterEqual(datetime.now(timezone.utc), records[0].start_time)
-
+    t = datetime.now(timezone.utc)
+    record_found = False
+    for rec in records:
+        if rec.mock_user is mock_user:
+            if rec.start_time <= t and not rec.end_time:
+                record_found = True
+    tc.assertTrue(record_found)
 
 class TestA_Initialization(unittest.TestCase):
     @classmethod
@@ -229,7 +233,7 @@ class TestD_Permission_Change(unittest.TestCase):
         addable_users = mock_user.get_addable_users(children)
         new_user = addable_users[0]
         mock_user.add_permission(resources[0], children, new_user, 'writer')
-        assert_record_exists(self, resources[0].id, new_user)
+        assert_record_open(self, resources[0].id, new_user)
         new_user_resources = new_user.list_resources()
         time.sleep(1)
         self.assertEqual(len(new_user_resources), 1)
@@ -266,7 +270,9 @@ class TestD_Permission_Change(unittest.TestCase):
             folder = resources[1]
         else:
             folder = resources[0]
-        mock_user.update_permission(folder, target, 'writer')
+        folder_children = mock_user.get_children(folder, resources)
+        mock_user.update_permission(folder, folder_children, target, 'writer')
+        time.sleep(1)
 
         resources = mock_user.list_resources()
         if resources[0].mime_type == MIMETYPE_FILE:
@@ -295,7 +301,8 @@ class TestD_Permission_Change(unittest.TestCase):
             file = resources[0]
         else:
             file = resources[1]
-        mock_user.update_permission(file, target, 'reader')
+        file_children = mock_user.get_children(file, resources)
+        mock_user.update_permission(file, file_children, target, 'reader')
 
         resources = mock_user.list_resources()
         if resources[0].mime_type == MIMETYPE_FILE:
@@ -383,6 +390,31 @@ class TestD_Permission_Change(unittest.TestCase):
             if rec.mock_user is target:
                 self.assertGreaterEqual(timestamp, rec.start_time)
                 self.assertGreaterEqual(rec.end_time, timestamp)
+
+    def testD7_update_permission_after_remove(self):
+        mock_user = self.sim['mock'][3]
+        target = self.sim['mock'][0]
+        resources = mock_user.list_resources()
+        if resources[0].mime_type == MIMETYPE_FILE:
+            file = resources[0]
+            folder = resources[1]
+        else:
+            file = resources[1]
+            folder = resources[0]
+
+        file_children = mock_user.get_children(file, resources)
+        folder_children = mock_user.get_children(folder, resources)
+        mock_user.remove_permission(file, file_children, target)
+        mock_user.add_permission(folder, folder_children, target, 'writer')
+        time.sleep(1)
+        mock_user.remove_permission(file, file_children, target)
+        mock_user.update_permission(folder, folder_children, target, 'reader')
+        time.sleep(1)
+
+        assert_record_open(self, file.id, target)
+
+class TestE_Move(unittest.TestCase):
+    pass
 
 if __name__ == "__main__":
     unittest.main()
