@@ -462,7 +462,29 @@ class TestE_Move(unittest.TestCase):
         self.assertEqual(potential_parents[0].id, folder.id)
 
     def testE1_move_to_folder(self):
-        pass
+        mock_user = self.sim['mock'][0]
+        resources = mock_user.list_resources()
+        if resources[0].mime_type == MIMETYPE_FILE:
+            file = resources[0]
+            folder = resources[1]
+        else:
+            file = resources[1]
+            folder = resources[0]
+        file_children = [file]
+        potential_parents = mock_user.list_potential_parents(file, resources)
+        self.assertEqual(len(potential_parents), 1)
+        mock_user.move(file, file_children, folder, potential_parents[0])
+        time.sleep(1)
+
+        resources = mock_user.list_resources()
+        if resources[0].mime_type == MIMETYPE_FILE:
+            file = resources[0]
+        else:
+            file = resources[1]
+        self.assertEqual(file.parents, potential_parents[0].id)
+        potential_parents = mock_user.list_potential_parents(file, resources)
+        self.assertEqual(len(potential_parents), 1)
+        self.assertEqual(potential_parents[0].id, mock_user.user.driveid)
 
     def testE2_between_folders_permission_change(self):
         pass
