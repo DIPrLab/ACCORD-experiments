@@ -35,7 +35,8 @@ def create_folder_with_file(sim, mock_user):
         potential_parents = mock_user.list_potential_parents(None, resources)
         res = mock_user.create_resource(MIMETYPE_FILE, name, potential_parents[0])
 
-def assert_record_open(tc: unittest.TestCase, resid: str, mock_user):
+def assert_record_open(tc: unittest.TestCase, resid: str, mock_user: MockUser):
+    '''Assert that there is an open access record for a mock user'''
     tc.assertIn(resid, tc.sim['mock_drive'].resource_records)
     tc.assertIn(mock_user.user.id, tc.sim['mock_drive'].resource_records[resid])
     records = tc.sim['mock_drive'].resource_records[resid][mock_user.user.id]
@@ -46,6 +47,18 @@ def assert_record_open(tc: unittest.TestCase, resid: str, mock_user):
             if rec.start_time <= t and not rec.end_time:
                 record_found = True
     tc.assertTrue(record_found)
+
+def assert_record_open(tc: unittest.TestCase, resid: str, mock_user: MockUser):
+    '''Assert that all access records for a mock user are closed'''
+    tc.assertIn(resid, tc.sim['mock_drive'].resource_records)
+    tc.assertIn(mock_user.user.id, tc.sim['mock_drive'].resource_records[resid])
+    records = tc.sim['mock_drive'].resource_records[resid][mock_user.user.id]
+    record_open = False
+    for rec in records:
+        if rec.mock_user is mock_user:
+            record_found |= rec.end_time is not None
+    tc.assertFalse(record_open)
+
 
 class TestA_Initialization(unittest.TestCase):
     @classmethod
@@ -414,7 +427,45 @@ class TestD_Permission_Change(unittest.TestCase):
         assert_record_open(self, file.id, target)
 
 class TestE_Move(unittest.TestCase):
-    pass
+    '''Test cases for move & resulting permission changes.
+
+    Must run whole test suite together.
+    '''
+    @classmethod
+    def setUpClass(cls):
+        cls.sim = initialize()
+
+    def testE0_move_to_root(self):
+        mock_user = self.sim['mock'][0]
+        create_folder_with_file(self.sim, mock_user)
+        resources = mock_user.list_resources()
+        if resources[0].mime_type == MIMETYPE_FILE:
+            file = resources[0]
+            folder = resources[1]
+        else:
+            file = resources[1]
+            folder = resources[0]
+        file_children = [file]
+        potential_parents = mock_user.list_potential_parents(file, resources)
+        self.assertEqual(len(potential_parents), 1)
+        mock_user.move(file, file_children, folder, potential_parents[0])
+        time.sleep(1)
+
+        resources = mock_user.list_resources()
+        if resources[0].mime_type == MIMETYPE_FILE:
+            file = resources[0]
+        else:
+            file = resources[1]
+        self.assertEqual(file.parents, potential_parents[0].id)
+        potential_parents = mock_user.list_potential_parents(file, resources)
+        self.assertEqual(len(potential_parents), 1)
+        self.assertEqual(potential_parents[0].id, folder.id)
+
+    def testE1_move_to_folder(self):
+        pass
+
+    def testE2_between_folders_permission_change(self):
+        pass
 
 if __name__ == "__main__":
     unittest.main()

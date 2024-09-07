@@ -93,7 +93,7 @@ class MockDrive():
                     for record in self.resource_records[r.id][mock.user.id]:
                         if (mock is record.mock_user and
                             record.start_time <= current_time and
-                            (not record.end_time or record.endtime >= current_time)):
+                            (not record.end_time or record.end_time >= current_time)):
                             filtered.append(r)
                             break
         return filtered
@@ -157,8 +157,8 @@ class MockUser():
                     user = self.mock_drive.users_by_id[id]
                     children_users.add(user)
                     if user not in children_mock_users:
-                        children_mock_users[user] = []
-                    children_mock_users[user].append(self.mock_drive.get_mock_user(id, user.id, time))
+                        children_mock_users[user] = set()
+                    children_mock_users[user].add(self.mock_drive.get_mock_user(id, user.id, time))
 
             # Check each potential parent's users don't overlap with children
             def check_function(parent: Resource):
@@ -168,7 +168,7 @@ class MockUser():
                     user = self.mock_drive.users_by_id[id]
                     parent_users.add(user)
                     if user not in parent_mock_users:
-                        parent_mock_users[user] = []
+                        parent_mock_users[user] = set()
                     parent_mock_users[user].add(self.mock_drive.get_mock_user(id, user.id, time))
                 overlap = parent_users.intersection(children_users)
                 for o in overlap:
@@ -280,23 +280,25 @@ class MockUser():
         '''Attempt to move a resource, update records for affected mock users'''
         # Attempt move, may raise exception
         time = datetime.now(timezone.utc)
-        self.user.move(self, resource, new_parent)
+        self.user.move(resource, new_parent.id)
 
         # Close all records inheritted from current parent
         if old_parent: # Could be root
             for user_id in old_parent.permissions:
-                self.mock_drive.close_record(
-                    resource.id,
-                    self.mock_drive.get_mock_user(old_parent.id, user_id, time)
-                )
+                for res in children:
+                    self.mock_drive.close_record(
+                        res.id,
+                        self.mock_drive.get_mock_user(old_parent.id, user_id, time)
+                    )
 
         # Open records inherited from new parent
         if new_parent:
             for user_id in new_parent.permissions:
-                self.mock_drive.open_record(
-                    resource.id,
-                    self.mock_drive.get_mock_user(new_parent.id, user_id, time)
-                )
+                for res in children:
+                    self.mock_drive.open_record(
+                        resource.id,
+                        self.mock_drive.get_mock_user(new_parent.id, user_id, time)
+                    )
 
     def __repr__(self):
         return self.name + ":" + self.user.name
