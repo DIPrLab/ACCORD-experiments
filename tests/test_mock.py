@@ -1,9 +1,11 @@
 # Tests for user mocking for simulating more users with only a few real users
 import yaml, unittest, time
 from datetime import datetime, timezone
+from csv import DictReader
 
-from scripts.google_api_util import UserSubject, MIMETYPE_FILE, MIMETYPE_FOLDER, Resource
+from scripts.google_api_util import UserSubject, MIMETYPE_FILE, MIMETYPE_FOLDER
 from scripts.mock import MockUser, MockDrive
+from src.serviceAPI import create_reportsAPI_service
 
 def initialize():
     '''Create 2 real users (Alice, Bob) with 2 mock users (Name.{0,1}) each'''
@@ -15,11 +17,11 @@ def initialize():
         u.delete_all_resources()
     sim['mock_drive'] = MockDrive(set(sim['real']))
     sim['mock'] = []
-    for user in sim['real']:
+    for j, user in enumerate(sim['real']):
         user.delete_all_resources()
         for i in range(2):
             name = user.name + '.' + str(i)
-            sim['mock'].append(MockUser(name, str(i), user, sim['mock_drive']))
+            sim['mock'].append(MockUser(name, str(i + j * 2), user, sim['mock_drive']))
     sim['next_file'] = 0 # used for filenames
     return sim
 
@@ -28,18 +30,24 @@ def initialize_larger():
     sim = {}
     with open('scripts/.user_info', 'r') as file:
         user_info = yaml.safe_load(file)
-    sim['real'] = list(map(lambda u: UserSubject(u['name'], u['email'], u['token'],), user_info['users'][0:2]))
+    sim['real'] = list(map(lambda u: UserSubject(u['name'], u['email'], u['token'],), user_info['users'][0:3]))
     for u in sim['real']:
         u.delete_all_resources()
     sim['mock_drive'] = MockDrive(set(sim['real']))
     sim['mock'] = []
-    for user in sim['real']:
+    for j, user in enumerate(sim['real']):
         user.delete_all_resources()
-        for i in range(3):
+        for i in range(2):
             name = user.name + '.' + str(i)
-            sim['mock'].append(MockUser(name, str(i), user, sim['mock_drive']))
+            sim['mock'].append(MockUser(name, str(i + j * 2), user, sim['mock_drive']))
     sim['next_file'] = 0 # used for filenames
     return sim
+
+def initialize_reports(sim):
+    '''Initialize Reports API'''
+    with open('scripts/.user_info', 'r') as file:
+        user_info = yaml.safe_load(file)
+    sim['reports'] = create_reportsAPI_service(user_info['admin']['token'])
 
 def create_folder_with_file(sim, mock_user):
         '''Helper function to create a folder with a child file for mock_user'''
@@ -555,6 +563,77 @@ class TestE_Move(unittest.TestCase):
         for res in resources:
             if res.mime_type == MIMETYPE_FILE:
                 self.assertEqual(res.parents, folder2.id)
+
+class TestF_Fetch_Logs(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.sim = initialize_larger()
+        initialize_reports(cls.sim)
+
+    def testF0_all_actions(self):
+        alice0 = self.sim['mock'][0]
+        alice1 = self.sim['mock'][1]
+        bob0 = self.sim['mock'][2]
+        carol0 = self.sim['mock'][4]
+        t = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+
+        # Create
+        create_folder_with_file(self.sim, alice0)
+        a0_resources = alice0.list_resources()
+        a0_folder = None
+        a0_file = None
+        for r in a0_resources:
+            if r.mime_type == MIMETYPE_FILE:
+                a0_file = r
+            else:
+                a0_folder = r
+        create_folder_with_file(self.sim, alice1)
+        a1_resources = alice1.list_resources()
+        a1_folder = None
+        a1_file = None
+        for r in a1_resources:
+            if r.mime_type == MIMETYPE_FILE:
+                a1_file = r
+            else:
+                a1_folder = r
+
+        # Edit
+        alice0.edit(a0_file)
+
+        # Permission
+        alice1.add_permission(a1_folder, [a1_file, a1_folder], bob0, 'writer')
+        alice1.update_permission(a1_folder, [a1_file, a1_folder], bob0, 'owner')
+        time.sleep(1)
+        bob0.add_permission(a1_file, [a1_file], carol0, 'reader')
+        time.sleep(1)
+        alice1.remove_permission(a1_file, [a1_file], carol0)
+        bob0.update_permission(a1_folder, [a1_file, a1_folder], alice1, 'commenter')
+
+        # Move
+        name = "folder" + str(self.sim['next_file'])
+        self.sim['next_file'] += 1
+        res = bob0.create_resource(MIMETYPE_FOLDER, name)
+        b0_resources = bob0.list_resources()
+        b0_folder = None
+        for res in b0_resources:
+            if res.id == a1_file.id:
+                a1_file = res
+            elif res.id == a1_folder.id:
+                a1_folder = res
+            else:
+                b0_folder = res
+        bob0.move(a1_file, [a1_file], a1_folder, b0_folder)
+
+        # Delete
+        bob0.delete_resource(b0_folder)
+        print("\n")
+        for i in range(12):
+            time.sleep(5)
+            print("Logs ready in...", 60 - i * 5)
+
+        logs = self.sim['mock_drive'].fetch_logs(t, self.sim['reports'])
+        print(logs) # Check manually
+        print("\n*** Check logs above manually ***")
 
 
 if __name__ == "__main__":

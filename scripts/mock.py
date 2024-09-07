@@ -19,6 +19,7 @@ class MockDrive():
     def __init__(self, users: Set[UserSubject]):
         self.users: Set[UserSubject] = users
         self.users_by_id: Dict[str, UserSubject] = { u.id: u for u in users }
+        self.ids_by_email: Dict[str, UserSubject] = { u.email: u.id for u in users }
         self.mocks_by_id: Dict[str, 'MockUser'] = {}
         self.mocks_by_user: Dict[UserSubject, List['MockUser']] = { u: [] for u in users }
         self.resource_records: Dict[str, Dict[str, List[ResourceRecord]]] = {}
@@ -48,7 +49,7 @@ class MockDrive():
         if not mock_user:
             self.open_record(resource_id, mock, t)
         elif mock_user is not mock:
-            raise ValueError("A different mock currently has access")
+            raise ValueError("A different mock currently has access", mock, mock_user)
 
     def close_record(self, resource_id: str, mock: 'MockUser'):
         '''Close one access record associated with a resource and mock user.'''
@@ -101,16 +102,25 @@ class MockDrive():
     def fetch_logs(self, timestamp, reports_service):
         '''Fetch and parse drive logs by substituting mock user info'''
         logs = extractDriveLog(timestamp, reports_service)
-        processed = []
-        for log in logs:
-            # find correct user
-            user_id = log[4]
+        processed = [logs[0]]
+        for unsplit_log in logs[1:]:
+            log = unsplit_log.split(',')
+            # Find correct user
+            user_id = self.ids_by_email[log[5]]
             time = datetime.fromisoformat(log[0])
             mock_user = self.get_mock_user(log[2], user_id, time)
             if mock_user:
                 log[4] = mock_user.id # user id -> mock user id
                 log[5] = mock_user.email # user email -> mock user email
-                processed.append(log)
+                if log[1][0:3] == "Per":
+                    details = log[1].split(":")
+                    target = details[-1]
+                    target_mock = self.get_mock_user(log[2], self.ids_by_email[target], time)
+                    if not target_mock:
+                        print("No target mock found for permission change, skipping: " + str(log))
+                    details[-1] = target_mock.email
+                    log[1] = ":".join(details)
+                processed.append(",".join(log))
             else:
                 print("No mock user found for real user, skipping: " + str(log))
         return processed
@@ -121,7 +131,7 @@ class MockUser():
 
     def __init__(self, name: str, id: str, real_user: UserSubject, mock_drive: MockDrive):
         self.user: UserSubject = real_user
-        self.email: str = name + "@accord.foundation"
+        self.email: str = name.lower() + "@accord.foundation"
         self.name: str = name
         self.mock_drive: MockDrive = mock_drive
         self.id: str = id
@@ -197,10 +207,11 @@ class MockUser():
         # Open records inherited from new parent
         if parent and parent is not self.user.drive_resource:
             for user_id in parent.permissions:
-                self.mock_drive.open_record(
-                    res["id"],
-                    self.mock_drive.get_mock_user(parent.id, user_id, time)
-                )
+                if user_id != self.user.id:
+                    self.mock_drive.open_record(
+                        res["id"],
+                        self.mock_drive.get_mock_user(parent.id, user_id, time)
+                    )
         return res
 
     def delete_resource(self, resource):
@@ -265,16 +276,16 @@ class MockUser():
 
     def remove_permission(self, resource, children, mock_user):
         '''Remove permission and update records for affected mock user'''
+        self.user.remove_permission(resource, mock_user.user)
         for r in children:
             self.mock_drive.close_record(r.id, mock_user)
         self.mock_drive.close_all_records(resource.id, mock_user)
-        self.user.remove_permission(resource, mock_user.user)
 
     def update_permission(self, resource, children, mock_user, role):
         '''Update permission and update records for affected mock user'''
+        self.user.update_permission(resource, mock_user.user, role)
         for r in children:
             self.mock_drive.open_record_if_none(r.id, mock_user)
-        self.user.update_permission(resource, mock_user.user, role)
 
     def move(self, resource, children, old_parent, new_parent):
         '''Attempt to move a resource, update records for affected mock users'''

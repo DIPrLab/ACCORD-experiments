@@ -32,7 +32,7 @@ class UserSubject():
         self.drive = create_user_driveAPI_service(token)
         self.id = self.drive.about().get(fields="user").execute()["user"]["permissionId"]
         self.name = name
-        self.email = name + "@accord.foundation"
+        self.email = name.lower() + "@accord.foundation"
         self.driveid = None # Needs to be set later, as this needs to be gotten off a document
         self.drive_resource = None
 
@@ -163,11 +163,12 @@ class UserSubject():
             self.drive.permissions().update(fileId=resource.id, permissionId=user.id, body=new_permission, transferOwnership=True).execute()
 
     def list_potential_parents(self, resource, resources):
-        '''Filter user's resources to include only possilbe new parents for resource
+        '''Filter user's resources to include only possible new parents for resource
 
         Filters for folder mime type, removes resource itself, and current parent.
-        Precondition: self.driveid field has been populated externally. If not,
-        watch out for Nones in return value
+        Assumes that file will keep its current permissions. Precondition:
+        self.driveid field has been populated externally. If not, watch out for
+        Nones in return value
 
         Args:
             resource: Resource, resource to move

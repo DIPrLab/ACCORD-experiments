@@ -45,7 +45,7 @@ def extractDriveLog(lastLogTime, service):
 
     for activity in activities:
         activityTime = activity['id']['time']
-        actorID = list(activity['actor'].values())
+        actorID = list(activity['actor'].values()) # Profile ID, not permission ID
 
         for eventDetails in activity['events']:
             # Extract Activity Parameters
