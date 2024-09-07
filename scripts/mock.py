@@ -283,13 +283,12 @@ class MockUser():
         self.user.move(resource, new_parent.id)
 
         # Close all records inheritted from current parent
-        if old_parent: # Could be root
-            for user_id in old_parent.permissions:
-                for res in children:
-                    self.mock_drive.close_record(
-                        res.id,
-                        self.mock_drive.get_mock_user(old_parent.id, user_id, time)
-                    )
+        for user_id in old_parent.permissions:
+            for res in children:
+                self.mock_drive.close_record(
+                    res.id,
+                    self.mock_drive.get_mock_user(old_parent.id, user_id, time)
+                )
 
         # Open records inherited from new parent
         if new_parent:
