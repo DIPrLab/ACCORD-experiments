@@ -552,6 +552,8 @@ class TestE_Move(unittest.TestCase):
             else:
                 file = res
         file_children = [file]
+        potential_parents = mock_user.list_potential_parents(file, resources)
+        self.assertEqual(len(potential_parents), 2)
         mock_user.move(file, file_children, folder1, folder2)
         time.sleep(1)
         assert_record_closed(self, file.id, target1)
@@ -571,6 +573,7 @@ class TestF_Fetch_Logs(unittest.TestCase):
         initialize_reports(cls.sim)
 
     def testF0_all_actions(self):
+        '''Can be flaky--last actions may not be in logs if extracted too soon'''
         alice0 = self.sim['mock'][0]
         alice1 = self.sim['mock'][1]
         bob0 = self.sim['mock'][2]
@@ -585,6 +588,7 @@ class TestF_Fetch_Logs(unittest.TestCase):
         for r in a0_resources:
             if r.mime_type == MIMETYPE_FILE:
                 a0_file = r
+                print(a0_file.id)
             else:
                 a0_folder = r
         create_folder_with_file(self.sim, alice1)
@@ -609,6 +613,17 @@ class TestF_Fetch_Logs(unittest.TestCase):
         alice1.remove_permission(a1_file, [a1_file], carol0)
         bob0.update_permission(a1_folder, [a1_file, a1_folder], alice1, 'commenter')
 
+        # Test potential_parents()
+        alice0.add_permission(a0_folder, [a0_folder, a0_file], bob0, 'writer')
+        time.sleep(2)
+        b0_resources = bob0.list_resources()
+        a0_file_b0 = None
+        for res in b0_resources:
+            if res.id == a0_file.id:
+                a0_file_b0 = res
+        potential_parents = bob0.list_potential_parents(a0_file_b0, b0_resources)
+        self.assertEqual(len(potential_parents), 0)
+
         # Move
         name = "folder" + str(self.sim['next_file'])
         self.sim['next_file'] += 1
@@ -620,7 +635,7 @@ class TestF_Fetch_Logs(unittest.TestCase):
                 a1_file = res
             elif res.id == a1_folder.id:
                 a1_folder = res
-            else:
+            elif res.id != a0_file.id and res.id != a0_folder.id:
                 b0_folder = res
         bob0.move(a1_file, [a1_file], a1_folder, b0_folder)
 

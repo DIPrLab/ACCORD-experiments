@@ -168,7 +168,7 @@ class MockUser():
                     children_users.add(user)
                     if user not in children_mock_users:
                         children_mock_users[user] = set()
-                    children_mock_users[user].add(self.mock_drive.get_mock_user(id, user.id, time))
+                    children_mock_users[user].add(self.mock_drive.get_mock_user(resource.id, user.id, time))
 
             # Check each potential parent's users don't overlap with children
             def check_function(parent: Resource):
@@ -179,7 +179,7 @@ class MockUser():
                     parent_users.add(user)
                     if user not in parent_mock_users:
                         parent_mock_users[user] = set()
-                    parent_mock_users[user].add(self.mock_drive.get_mock_user(id, user.id, time))
+                    parent_mock_users[user].add(self.mock_drive.get_mock_user(parent.id, user.id, time))
                 overlap = parent_users.intersection(children_users)
                 for o in overlap:
                     union = children_mock_users[o].union(parent_mock_users[o])
