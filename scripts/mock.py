@@ -158,7 +158,7 @@ class MockUser():
         # and real users with permissions on new parent, unless they are the 
         # same mock user
         if resource != None:
-            children_mock_users: Dict[UserSubject, List[MockUser]] = {}
+            children_mock_users: Dict[UserSubject, Set[MockUser]] = {}
             children = self.get_children(resource, resources) # Could be just file
             children_users: Set[UserSubject] = set()
             time = datetime.now(timezone.utc)
