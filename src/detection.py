@@ -87,7 +87,7 @@ class ConditionNode(ConstraintNode):
 
     def add_constraint(self, constraint):
         comparator = constraint[6]
-        values = constraint[8].split(",")
+        values = constraint[8]
         values = [v for v in values if v and v != '-'] # Remove empty strings
         if comparator and (constraint[3] == "Can Edit" or constraint[3] == "Time Limit Edit"):
             values = [datetime.fromisoformat(v) for v in values]
