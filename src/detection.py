@@ -26,10 +26,11 @@ class DocumentNode(ConstraintNode):
             self.add_constraint(constraint)
 
     def add_constraint(self, constraint):
-        if constraint[1] not in self.constraints:
-            self.constraints[constraint[1]] = ActionNode(constraint)
-        else:
-            self.constraints[constraint[1]].add_constraint(constraint)
+        for resource_id in constraint[1]:
+            if resource_id not in self.constraints:
+                self.constraints[resource_id] = ActionNode(constraint)
+            else:
+                self.constraints[resource_id].add_constraint(constraint)
 
     def check(self, activity):
         if activity.doc_id in self.constraints:
@@ -66,10 +67,11 @@ class ActorNode(ConstraintNode):
             self.add_constraint(constraint)
 
     def add_constraint(self, constraint):
-        if constraint[4] not in self.constraints:
-            self.constraints[constraint[4]] = ConditionNode(constraint)
-        else:
-            self.constraints[constraint[4]] = ConditionNode(constraint)
+        for actor in constraint[4]:
+            if actor not in self.constraints:
+                self.constraints[actor] = ConditionNode(constraint)
+            else:
+                self.constraints[actor] = ConditionNode(constraint)
 
     def check(self, activity):
         if activity.actor in self.constraints:
