@@ -45,5 +45,23 @@ class TestDetectMain(unittest.TestCase):
             logs = json.load(file)
         self.assertEqual(sum(detectmain(logs, constraints)), 37)
 
+    def testF_document_grouping(self):
+        constraints = [[['Revisions', 'doc1'], ['1MSzbQFwHdC6vZdV5jyeHIfqJZZLIghFhCwHSj87w9jc', '1qiUmGMg5ueyv_MnfcacVktQdx_6xjCeD8b0dH1OAydo'], 'Permission Change', 'Update Permission', ['alice@accord.foundation'], 'FALSE', 'not in', 'abhi09@abhiroop.shop', []]]
+        logs = [['2024-07-24T17:38:17.755Z', 'Permission Change-to:can_viewcan_comment-from:can_edit-for:bob@accord.foundation', '1qiUmGMg5ueyv_MnfcacVktQdx_6xjCeD8b0dH1OAydo', 'doc1', '114128337804353370964', 'alice@accord.foundation']]
+        self.assertEqual(detectmain(logs, constraints), [True])
+
+    def testG_actor_grouping(self):
+        constraints = [[['doc1'], ['1qiUmGMg5ueyv_MnfcacVktQdx_6xjCeD8b0dH1OAydo'], 'Permission Change', 'Update Permission', ['abt@abhiroop.shop', 'alice@accord.foundation'], 'FALSE', 'not in', 'abhi09@abhiroop.shop', []]]
+        logs = [['2024-07-24T17:38:17.755Z', 'Permission Change-to:can_viewcan_comment-from:can_edit-for:bob@accord.foundation', '1qiUmGMg5ueyv_MnfcacVktQdx_6xjCeD8b0dH1OAydo', 'doc1', '114128337804353370964', 'alice@accord.foundation']]
+        self.assertEqual(detectmain(logs, constraints), [True])
+
+    def testH_all_attribute_grouping(self):
+        constraints = [[['Revisions', 'doc1'], ['1MSzbQFwHdC6vZdV5jyeHIfqJZZLIghFhCwHSj87w9jc', '1qiUmGMg5ueyv_MnfcacVktQdx_6xjCeD8b0dH1OAydo'], 'Permission Change', 'Update Permission', ['abt@abhiroop.shop', 'alice@accord.foundation'], 'FALSE', 'not in', 'abhi09@abhiroop.shop', []]]
+        logs = [['2024-07-24T17:38:17.755Z', 'Permission Change-to:can_viewcan_comment-from:can_edit-for:bob@accord.foundation', '1qiUmGMg5ueyv_MnfcacVktQdx_6xjCeD8b0dH1OAydo', 'doc1', '114128337804353370964', 'alice@accord.foundation']]
+        self.assertEqual(detectmain(logs, constraints), [True])
+        logs = [['2024-07-24T17:38:17.755Z', 'Permission Change-to:can_viewcan_comment-from:can_edit-for:bob@accord.foundation', '1qiUmGMg5ueyv_MnfcacVktQdx_6xjCeD8b0dH1OAydo', 'doc1', '114128337804353370964', 'carol@accord.foundation']]
+        self.assertEqual(detectmain(logs, constraints), [False])
+
+
 if __name__ == "__main__":
     unittest.main()
