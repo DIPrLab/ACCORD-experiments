@@ -15,7 +15,7 @@ from src.serviceAPI import create_reportsAPI_service
 
 # Parameters
 total_actions = 100
-log_output_path = "results/expr_1/logs/tmp/"
+log_output_path = "results/logs/"
 folders_per_user = 2
 files_per_user = 4
 DEBUG = True
