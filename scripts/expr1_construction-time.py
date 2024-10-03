@@ -1,14 +1,14 @@
 import random, string
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from src.detection import detectmain
 
 # Parameters
 total_users = 50
 total_resources = 400
 grouping_limit = 5
-trials = 4
-constriant_counts = [5000, 10000, 20000, 30000, 40000, 50000, 75000, 100000, 125000, 150000, 175000, 200000]
-data_filename = "results/expr1/test.csv"
+trials = 10
+constriant_counts = [5000, 10000, 20000, 40000, 60000, 80000, 100000, 120000, 140000, 160000, 180000, 200000]
+data_filename = "results/expr1/2024-10-2-19:45.csv"
 
 # Initialize all possible attributes
 usernames_file = open("scripts/usernames.txt", "r")
@@ -24,16 +24,17 @@ permission_operators = ["in", "not in"]
 
 random.seed()
 data_file = open(data_filename, "w+")
-data_file.write("constraint_count,detection_time1,detection_time2,detection_time3,detection_time4\n")
+data_file.write("constraint_count,dtime0,dtime1,dtime2,dtime3,dtime4,dtime5,dtime6,dtime7,dtime8,dtime9,dtime_avg\n")
 
 for count in constriant_counts:
     data_line = str(count)
+    dtimes = []
     for _ in range(trials):
         # Generate Action Constraints
         # Use sets and tuples during generation for efficiency
         constraints = set()
         while len(constraints) < count:
-            if len(constraints) % 5000 == 0:
+            if len(constraints) % 10000 == 0:
                 print(len(constraints))
             owner = random.choice(users)
             resources = tuple(random.sample(all_resources, k=random.randint(1, grouping_limit)))
@@ -75,7 +76,9 @@ for count in constriant_counts:
 
         detection_time = t1 - t0
         data_line += "," + str(detection_time)
+        dtimes.append(detection_time)
 
+    data_line += "," + str(sum(dtimes, timedelta()) / len(dtimes))
     data_file.write(data_line + "\n")
 
 data_file.close()
