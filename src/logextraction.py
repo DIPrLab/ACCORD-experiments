@@ -33,14 +33,25 @@ def extractDriveLog(lastLogTime, service):
     # Call the Admin SDK Reports API
     try:
         results = service.activities().list(
-            userKey='all', 
-            applicationName='drive', 
+            userKey='all',
+            applicationName='drive',
             startTime = lastLogTime
             ).execute()
     except Exception as e:
         raise Exception("Admin SDK Reports API call failed: " + str(e))
 
     activities = results.get('items', [])
+    while 'nextPageToken' in results:
+        try:
+            results = service.activities().list(
+                userKey='all',
+                applicationName='drive',
+                startTime = lastLogTime,
+                pageToken = results['nextPageToken']
+                ).execute()
+        except Exception as e:
+            raise Exception("Admin SDK Reports API call failed: " + str(e))
+        activities += results.get('items', [])
     logString = ["Activity_Time,Action,Doc_ID,Doc_Name,Actor_ID,Actor_Name"]
 
     for activity in activities:
