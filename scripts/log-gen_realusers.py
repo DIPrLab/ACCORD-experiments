@@ -14,7 +14,7 @@ from src.logextraction import extractDriveLog
 from src.serviceAPI import create_reportsAPI_service
 
 # Parameters
-total_actions = 100
+total_actions = 1000
 log_output_path = "results/logs/"
 folders_per_user = 2
 files_per_user = 4
@@ -81,12 +81,18 @@ while total_actions > 0:
         if DEBUG:
             print(user, "created resource", resource_name, "in", parent.id if parent else None)
 
-        user.create_resource(mime_type, resource_name, parent.id if parent else None)
+        try:
+            user.create_resource(mime_type, resource_name, parent.id if parent else None)
+        except:
+            continue
 
     elif action == "Edit":
         if DEBUG:
             print(user, "editted", target_res.name)
-        user.edit(target_res)
+        try:
+            user.edit(target_res)
+        except:
+            continue
 
     elif action == "AddPermission":
         permissions = target_res.permissions
@@ -105,7 +111,10 @@ while total_actions > 0:
 
         if DEBUG:
             print(user, "added permission", new_role, "for", target_user.name, "on", target_res.name)
-        user.add_permission(target_res, target_user, new_role)
+        try:
+            user.add_permission(target_res, target_user, new_role)
+        except:
+            continue
 
     elif action == "RemovePermission":
         permissions = target_res.permissions
@@ -116,7 +125,10 @@ while total_actions > 0:
         print(target_id)
         if DEBUG:
             print(user, "removed permission for", users_by_id[target_id].name, "on", target_res.name)
-        user.remove_permission(target_res, users_by_id[target_id])
+        try:
+            user.remove_permission(target_res, users_by_id[target_id])
+        except:
+            continue
 
     elif action == "UpdatePermission":
         permissions = target_res.permissions
@@ -124,7 +136,6 @@ while total_actions > 0:
             continue # Try another action if there's only one user with access to the resource
 
         target_id = random.choice([u for u, v in permissions.items() if v != "owner"])
-        print(target_id)
         target_user = users_by_id[target_id]
         current_role = permissions[target_id]
 
