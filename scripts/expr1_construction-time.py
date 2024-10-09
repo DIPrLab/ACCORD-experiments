@@ -7,8 +7,8 @@ total_users = 50
 total_resources = 400
 grouping_limit = 5
 trials = 10
-constriant_counts = [5000, 10000, 20000, 40000, 60000, 80000, 100000, 120000, 140000, 160000, 180000, 200000]
-data_filename = "results/expr1/2024-10-2-19:45.csv"
+constriant_counts = [0, 2000, 4000, 6000, 8000, 10000, 12000, 14000, 16000, 18000, 20000]
+data_filename = "results/expr1/test2.csv"
 
 # Initialize all possible attributes
 usernames_file = open("scripts/usernames.txt", "r")
@@ -18,9 +18,15 @@ usernames_file.close()
 resource_ids = ["".join(random.sample(string.ascii_letters, k=32)) for _ in range(total_resources)]
 all_resources = [(r[:10], r) for r in resource_ids]
 
-actions = ["Create", "Delete", "Move", "Edit", "Add Permission", "Update Permission", "Remove Permission"]
-edit_conditions = [(None, ()), ("gt", (datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")))]
-permission_operators = ["in", "not in"]
+CONSTRAINT_TYPES = [("Can Create", "Create"),
+                    ("Can Move", "Move"),
+                    ("Can Delete", "Delete"),
+                    ("Can Edit", "Edit"),
+                    ("Add Permission", "Permission Change"),
+                    ("Remove Permission", "Permission Change"),
+                    ("Update Permission", "Permission Change")]
+EDIT_CONDITIONS = [(None, ()), ("gt", (datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"), ))]
+PERMISSION_OPERATORS = ["in", "not in"]
 
 random.seed()
 data_file = open(data_filename, "w+")
@@ -41,15 +47,13 @@ for count in constriant_counts:
             resource_names = tuple([r[0] for r in resources])
             resource_ids = tuple([r[1] for r in resources])
             actors = tuple(random.sample(users, k=random.randint(1, grouping_limit)))
-            action_type = random.choice(actions)
-            action = action_type
+            action_type, action = random.choice(CONSTRAINT_TYPES)
             operator, targets = None, ()
-            if action == "Add Permission" or action == "Update Permission" or action == "Remove Permission":
-                action = "Permision Change"
-                operator = random.choice(permission_operators)
+            if action == "Permission Change":
+                operator = random.choice(PERMISSION_OPERATORS)
                 targets = tuple(random.sample(users, k=random.randint(1, grouping_limit)))
             elif action == "Edit":
-                operator, targets = random.choice(edit_conditions)
+                operator, targets = random.choice(EDIT_CONDITIONS)
 
             ac = (resource_names, resource_ids, action, action_type, actors, '', operator, owner, targets)
             constraints.add(ac)
@@ -75,10 +79,11 @@ for count in constriant_counts:
         t1 = datetime.now()
 
         detection_time = t1 - t0
-        data_line += "," + str(detection_time)
-        dtimes.append(detection_time)
+        detection_time_ms = detection_time.seconds * 1000 + (detection_time.microseconds / 1000) # Ignore "days" property
+        data_line += "," + str(detection_time_ms)
+        dtimes.append(detection_time_ms)
 
-    data_line += "," + str(sum(dtimes, timedelta()) / len(dtimes))
+    data_line += "," + str(sum(dtimes) / len(dtimes))
     data_file.write(data_line + "\n")
 
 data_file.close()
