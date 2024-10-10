@@ -29,6 +29,7 @@ ggplot(data=expr1, aes(x=constraint_count, y=dtime_avg)) +
 ```
 
 ## Experiment 2
+### Graph
 ```{r, echo=FALSE}
 ggplot(data=expr2.wider, aes(x=activity_count, y=avg_detection_time, group=selectivity_level, color=selectivity_level)) +
   geom_line(aes(linetype=selectivity_level))+
@@ -38,4 +39,48 @@ ggplot(data=expr2.wider, aes(x=activity_count, y=avg_detection_time, group=selec
   geom_point(show.legend=FALSE) +
   # guides(color=c("High <5%", "Low >=20%", "Medium 5-20%")) +
   labs(title="Detection time by selectivity level", x="Activities", y="Detection time (ms)", color="Selectivity", linetype="Selectivity")
+```
+
+### Stats
+```{r, echo=FALSE}
+ggplot(data=expr2, aes(x=selectivity_level, y=selectivity, fill=selectivity_level)) +
+  geom_boxplot() +
+  labs(title = "Variation of selectivity within a level", x = "Selectivity level", y = "Selectivity values")
+```
+Low
+```{r, echo=FALSE}
+expr2.low <- expr2 %>% filter(selectivity_level == "low")
+expr2.low %>% summarise(mean = mean(selectivity),
+            median = median(selectivity),
+            std_dev = sd(selectivity),
+            IQR = IQR(selectivity),
+            min = min(selectivity),
+            max = max(selectivity),
+            var = var(selectivity),
+            n = n())
+```
+Medium
+```{r, echo=FALSE}
+expr2.medium <- expr2 %>% filter(selectivity_level == "medium")
+expr2.medium %>% summarise(mean = mean(selectivity),
+            median = median(selectivity),
+            std_dev = sd(selectivity),
+            IQR = IQR(selectivity),
+            min = min(selectivity),
+            max = max(selectivity),
+            var = var(selectivity),
+            n = n())
+```
+High
+```{r, echo=FALSE}
+expr2.high <- expr2 %>% filter(selectivity_level == "high")
+expr2.high %>% summarise(mean = mean(selectivity),
+            median = median(selectivity),
+            std_dev = sd(selectivity),
+            IQR = IQR(selectivity),
+            min = min(selectivity),
+            max = max(selectivity),
+            var = var(selectivity),
+            n = n())
+
 ```
