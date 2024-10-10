@@ -7,8 +7,8 @@ total_users = 50
 total_resources = 400
 grouping_limit = 5
 trials = 10
-constriant_counts = [0, 2000, 4000, 6000, 8000, 10000, 12000, 14000, 16000, 18000, 20000]
-data_filename = "results/expr1/test2.csv"
+constriant_counts = [5000, 10000, 20000, 40000, 60000, 80000, 100000, 120000, 140000, 160000, 180000, 200000]
+data_filename = "results/expr1/2024-10-9-16:40.csv"
 
 # Initialize all possible attributes
 usernames_file = open("scripts/usernames.txt", "r")
