@@ -1,0 +1,188 @@
+Activity_Time,Action,Doc_ID,Doc_Name,Actor_ID,Actor_Name
+2024-10-02T19:10:23.019Z,Edit,1f2oBYZKeBjbMkykCHkLMu6GtOvK7r5hYlLSiU4Xb-r8,file49,112627686161565491345,drew@accord.foundation
+2024-10-02T19:10:20.493Z,Permission Change-to:none-from:can_edit-for:bob@accord.foundation,1KYns1SdmMqAHAVDmONpcDPPi3TAYbMNWXAjKFdC7SuY,file8,105806898968975168992,bob@accord.foundation
+2024-10-02T19:10:18.877Z,Edit,1Zgu-tby0YB3Trdny864MKQ-TSbeDuV37UJxXWRtXPEQ,file51,105806898968975168992,bob@accord.foundation
+2024-10-02T19:10:17.754Z,Move:Root:folder10,1Zgu-tby0YB3Trdny864MKQ-TSbeDuV37UJxXWRtXPEQ,file51,105806898968975168992,bob@accord.foundation
+2024-10-02T19:10:17.168Z,Create,1Zgu-tby0YB3Trdny864MKQ-TSbeDuV37UJxXWRtXPEQ,file51,105806898968975168992,bob@accord.foundation
+2024-10-02T19:10:17.168Z,Permission Change-to:owner-from:none-for:bob@accord.foundation,1Zgu-tby0YB3Trdny864MKQ-TSbeDuV37UJxXWRtXPEQ,file51,105806898968975168992,bob@accord.foundation
+2024-10-02T19:10:14.776Z,Permission Change-to:can_edit-from:owner-for:bob@accord.foundation,1MbdlSrj1JDKQnsj4LxWmgomKa1E11wvI,folder39,105806898968975168992,bob@accord.foundation
+2024-10-02T19:10:14.776Z,Permission Change-to:owner-from:none-for:drew@accord.foundation,1MbdlSrj1JDKQnsj4LxWmgomKa1E11wvI,folder39,105806898968975168992,bob@accord.foundation
+2024-10-02T19:10:11.453Z,Edit,1P7EVZiP_Tk7VaAA_QnbD9r1l4RY2fjNo47ckPyKIVf8,file34,105806898968975168992,bob@accord.foundation
+2024-10-02T19:10:09.177Z,Edit,1_BqSXR4Gc7F1ckG-11RRwmDtTNotfHcqDYPGFUUTaLo,file12,104174300424369407986,carol@accord.foundation
+2024-10-02T19:10:08.944Z,Edit,1_BqSXR4Gc7F1ckG-11RRwmDtTNotfHcqDYPGFUUTaLo,file12,104174300424369407986,carol@accord.foundation
+2024-10-02T19:10:06.234Z,Delete,1T-PpRw5CAAL_TSWs0i0hdbRoUS465DrfDjqXaOOZjCI,file45,112627686161565491345,drew@accord.foundation
+2024-10-02T19:10:04.533Z,Permission Change-to:can_edit-from:none-for:bob@accord.foundation,1KYns1SdmMqAHAVDmONpcDPPi3TAYbMNWXAjKFdC7SuY,file8,102378379302274418344,emily@accord.foundation
+2024-10-02T19:10:01.175Z,Edit,18pybW6uSYeesLzq5JHC7KcNzLOzhfMBLDVZmdLMlnvo,file20,112627686161565491345,drew@accord.foundation
+2024-10-02T19:09:58.863Z,Edit,1uWMVNW138Cj65VMSZn1OdjX4NZ_s6ssTJy86f05MPwg,file13,104174300424369407986,carol@accord.foundation
+2024-10-02T19:09:58.612Z,Edit,1uWMVNW138Cj65VMSZn1OdjX4NZ_s6ssTJy86f05MPwg,file13,104174300424369407986,carol@accord.foundation
+2024-10-02T19:09:56.181Z,Create,18cbNb5iIqWFsrpeD67V5CkDexNXY8ZbJ,folder50,104174300424369407986,carol@accord.foundation
+2024-10-02T19:09:56.181Z,Permission Change-to:owner-from:none-for:carol@accord.foundation,18cbNb5iIqWFsrpeD67V5CkDexNXY8ZbJ,folder50,104174300424369407986,carol@accord.foundation
+2024-10-02T19:09:55.279Z,Edit,1f2oBYZKeBjbMkykCHkLMu6GtOvK7r5hYlLSiU4Xb-r8,file49,112627686161565491345,drew@accord.foundation
+2024-10-02T19:09:54.411Z,Permission Change-to:can_view/can_comment-from:none-for:alice@accord.foundation,1f2oBYZKeBjbMkykCHkLMu6GtOvK7r5hYlLSiU4Xb-r8,file49,112627686161565491345,drew@accord.foundation
+2024-10-02T19:09:54.411Z,Move:Root:folder41,1f2oBYZKeBjbMkykCHkLMu6GtOvK7r5hYlLSiU4Xb-r8,file49,112627686161565491345,drew@accord.foundation
+2024-10-02T19:09:53.799Z,Create,1f2oBYZKeBjbMkykCHkLMu6GtOvK7r5hYlLSiU4Xb-r8,file49,112627686161565491345,drew@accord.foundation
+2024-10-02T19:09:53.799Z,Permission Change-to:owner-from:none-for:drew@accord.foundation,1f2oBYZKeBjbMkykCHkLMu6GtOvK7r5hYlLSiU4Xb-r8,file49,112627686161565491345,drew@accord.foundation
+2024-10-02T19:09:52.440Z,Edit,1FsVCDWBxkGXG9wPWo_Rnq0MxTX2Yf0tbl6sYCnye_Jg,file48,102378379302274418344,emily@accord.foundation
+2024-10-02T19:09:51.900Z,Edit,1FsVCDWBxkGXG9wPWo_Rnq0MxTX2Yf0tbl6sYCnye_Jg,file48,102378379302274418344,emily@accord.foundation
+2024-10-02T19:09:51.073Z,Create,1FsVCDWBxkGXG9wPWo_Rnq0MxTX2Yf0tbl6sYCnye_Jg,file48,102378379302274418344,emily@accord.foundation
+2024-10-02T19:09:51.073Z,Permission Change-to:owner-from:none-for:emily@accord.foundation,1FsVCDWBxkGXG9wPWo_Rnq0MxTX2Yf0tbl6sYCnye_Jg,file48,102378379302274418344,emily@accord.foundation
+2024-10-02T19:09:47.763Z,Edit,1P7EVZiP_Tk7VaAA_QnbD9r1l4RY2fjNo47ckPyKIVf8,file34,105806898968975168992,bob@accord.foundation
+2024-10-02T19:09:44.813Z,Edit,1FGrc8llcmmfs8aTDkppBNZsofcffjxgHKPtg5uQsilE,file25,102378379302274418344,emily@accord.foundation
+2024-10-02T19:09:42.181Z,Permission Change-to:none-from:can_view-for:bob@accord.foundation,1uWMVNW138Cj65VMSZn1OdjX4NZ_s6ssTJy86f05MPwg,file13,104174300424369407986,carol@accord.foundation
+2024-10-02T19:09:39.613Z,Permission Change-to:can_edit-from:owner-for:emily@accord.foundation,1FGrc8llcmmfs8aTDkppBNZsofcffjxgHKPtg5uQsilE,file25,102378379302274418344,emily@accord.foundation
+2024-10-02T19:09:39.613Z,Permission Change-to:owner-from:none-for:alice@accord.foundation,1FGrc8llcmmfs8aTDkppBNZsofcffjxgHKPtg5uQsilE,file25,102378379302274418344,emily@accord.foundation
+2024-10-02T19:09:38.095Z,Delete,1_ovLr4s0JQ2GEf49WGhstHnMspfV7LZJkKgu5NWYfSw,file27,102378379302274418344,emily@accord.foundation
+2024-10-02T19:09:38.082Z,Delete,1ELVgogkDAemx04sjDKTuta_y2INVDc0Y,folder47,102378379302274418344,emily@accord.foundation
+2024-10-02T19:09:37.320Z,Delete,16XMRzh9qgYN5qZFGp8nAH0vDAwq8j84e,folder28,102378379302274418344,emily@accord.foundation
+2024-10-02T19:09:35.864Z,Edit,1T-PpRw5CAAL_TSWs0i0hdbRoUS465DrfDjqXaOOZjCI,file45,112627686161565491345,drew@accord.foundation
+2024-10-02T19:09:31.288Z,Permission Change-to:can_edit-from:owner-for:carol@accord.foundation,1uWMVNW138Cj65VMSZn1OdjX4NZ_s6ssTJy86f05MPwg,file13,104174300424369407986,carol@accord.foundation
+2024-10-02T19:09:31.288Z,Permission Change-to:owner-from:none-for:drew@accord.foundation,1uWMVNW138Cj65VMSZn1OdjX4NZ_s6ssTJy86f05MPwg,file13,104174300424369407986,carol@accord.foundation
+2024-10-02T19:09:29.804Z,Permission Change-to:can_view/can_comment-from:none-for:alice@accord.foundation,18pybW6uSYeesLzq5JHC7KcNzLOzhfMBLDVZmdLMlnvo,file20,112627686161565491345,drew@accord.foundation
+2024-10-02T19:09:29.803Z,Permission Change-to:can_view/can_comment-from:none-for:alice@accord.foundation,1T-PpRw5CAAL_TSWs0i0hdbRoUS465DrfDjqXaOOZjCI,file45,112627686161565491345,drew@accord.foundation
+2024-10-02T19:09:29.336Z,Permission Change-to:can_view/can_comment-from:none-for:alice@accord.foundation,1emmMRMVYA9bImVSTp0eeXXpXBEWr_W2N,folder41,112627686161565491345,drew@accord.foundation
+2024-10-02T19:09:25.514Z,Create,1ELVgogkDAemx04sjDKTuta_y2INVDc0Y,folder47,102378379302274418344,emily@accord.foundation
+2024-10-02T19:09:25.514Z,Permission Change-to:owner-from:none-for:emily@accord.foundation,1ELVgogkDAemx04sjDKTuta_y2INVDc0Y,folder47,102378379302274418344,emily@accord.foundation
+2024-10-02T19:09:23.428Z,Move:Root:folder41,18pybW6uSYeesLzq5JHC7KcNzLOzhfMBLDVZmdLMlnvo,file20,112627686161565491345,drew@accord.foundation
+2024-10-02T19:09:21.727Z,Edit,1gcLE5T8rHmmcc6RxAj6wFXbNSS9RjT-rwyn_ECU-O4U,file46,104174300424369407986,carol@accord.foundation
+2024-10-02T19:09:21.509Z,Edit,1gcLE5T8rHmmcc6RxAj6wFXbNSS9RjT-rwyn_ECU-O4U,file46,104174300424369407986,carol@accord.foundation
+2024-10-02T19:09:21.039Z,Create,1gcLE5T8rHmmcc6RxAj6wFXbNSS9RjT-rwyn_ECU-O4U,file46,104174300424369407986,carol@accord.foundation
+2024-10-02T19:09:21.039Z,Permission Change-to:owner-from:none-for:carol@accord.foundation,1gcLE5T8rHmmcc6RxAj6wFXbNSS9RjT-rwyn_ECU-O4U,file46,104174300424369407986,carol@accord.foundation
+2024-10-02T19:09:19.544Z,Edit,1T-PpRw5CAAL_TSWs0i0hdbRoUS465DrfDjqXaOOZjCI,file45,112627686161565491345,drew@accord.foundation
+2024-10-02T19:09:18.992Z,Move:Root:folder41,1T-PpRw5CAAL_TSWs0i0hdbRoUS465DrfDjqXaOOZjCI,file45,112627686161565491345,drew@accord.foundation
+2024-10-02T19:09:18.514Z,Create,1T-PpRw5CAAL_TSWs0i0hdbRoUS465DrfDjqXaOOZjCI,file45,112627686161565491345,drew@accord.foundation
+2024-10-02T19:09:18.514Z,Permission Change-to:owner-from:none-for:drew@accord.foundation,1T-PpRw5CAAL_TSWs0i0hdbRoUS465DrfDjqXaOOZjCI,file45,112627686161565491345,drew@accord.foundation
+2024-10-02T19:09:16.978Z,Permission Change-to:none-from:can_view-for:drew@accord.foundation,1_ovLr4s0JQ2GEf49WGhstHnMspfV7LZJkKgu5NWYfSw,file27,102378379302274418344,emily@accord.foundation
+2024-10-02T19:09:16.548Z,Permission Change-to:none-from:can_view-for:drew@accord.foundation,16XMRzh9qgYN5qZFGp8nAH0vDAwq8j84e,folder28,102378379302274418344,emily@accord.foundation
+2024-10-02T19:09:14.740Z,Permission Change-to:can_view/can_comment-from:none-for:alice@accord.foundation,1KYns1SdmMqAHAVDmONpcDPPi3TAYbMNWXAjKFdC7SuY,file8,102378379302274418344,emily@accord.foundation
+2024-10-02T19:09:12.873Z,Create,14EbzbLFQyS1sL7Ko1pR9YB6rcdXRP9Nw,folder44,112627686161565491345,drew@accord.foundation
+2024-10-02T19:09:12.873Z,Permission Change-to:owner-from:none-for:drew@accord.foundation,14EbzbLFQyS1sL7Ko1pR9YB6rcdXRP9Nw,folder44,112627686161565491345,drew@accord.foundation
+2024-10-02T19:09:11.494Z,Delete,1Gf1Ac4M-GL4s8xzdZPNb04pTyXF4FMRXJnoDXjJZ0hc,file42,105806898968975168992,bob@accord.foundation
+2024-10-02T19:09:09.899Z,Permission Change-to:none-from:can_view-for:bob@accord.foundation,1FXAXep5oyE828vrIjpJhE6y0Ss4267zOKkH3svp9z3M,file15,104174300424369407986,carol@accord.foundation
+2024-10-02T19:09:09.899Z,Move:folder17:folder37,1FXAXep5oyE828vrIjpJhE6y0Ss4267zOKkH3svp9z3M,file15,104174300424369407986,carol@accord.foundation
+2024-10-02T19:09:05.681Z,Permission Change-to:none-from:can_edit-for:carol@accord.foundation,1MbdlSrj1JDKQnsj4LxWmgomKa1E11wvI,folder39,104174300424369407986,carol@accord.foundation
+2024-10-02T19:09:03.953Z,Delete,1FofrSW73edruXLPTyMbWaH580SZQqwRM3hFC1kYYs5M,file26,102378379302274418344,emily@accord.foundation
+2024-10-02T19:09:01.859Z,Move:Root:folder37,1_IrvHRSJP2zmL-xVtIpDf_kJg9zR6si2AMwWcvre3ZI,file14,104174300424369407986,carol@accord.foundation
+2024-10-02T19:08:58.095Z,Permission Change-to:can_view-from:none-for:drew@accord.foundation,1_ovLr4s0JQ2GEf49WGhstHnMspfV7LZJkKgu5NWYfSw,file27,102378379302274418344,emily@accord.foundation
+2024-10-02T19:08:57.660Z,Permission Change-to:can_view-from:none-for:drew@accord.foundation,16XMRzh9qgYN5qZFGp8nAH0vDAwq8j84e,folder28,102378379302274418344,emily@accord.foundation
+2024-10-02T19:08:55.450Z,Move:Root:folder40,1Xfh6DJL46vAV4slr3w6y1BzQjXKZ8dJo237N6pbW6pA,file43,105806898968975168992,bob@accord.foundation
+2024-10-02T19:08:54.517Z,Edit,1Xfh6DJL46vAV4slr3w6y1BzQjXKZ8dJo237N6pbW6pA,file43,105806898968975168992,bob@accord.foundation
+2024-10-02T19:08:51.752Z,Create,1Xfh6DJL46vAV4slr3w6y1BzQjXKZ8dJo237N6pbW6pA,file43,105806898968975168992,bob@accord.foundation
+2024-10-02T19:08:51.752Z,Permission Change-to:owner-from:none-for:bob@accord.foundation,1Xfh6DJL46vAV4slr3w6y1BzQjXKZ8dJo237N6pbW6pA,file43,105806898968975168992,bob@accord.foundation
+2024-10-02T19:08:49.523Z,Edit,1Gf1Ac4M-GL4s8xzdZPNb04pTyXF4FMRXJnoDXjJZ0hc,file42,105806898968975168992,bob@accord.foundation
+2024-10-02T19:08:49.281Z,Edit,1Gf1Ac4M-GL4s8xzdZPNb04pTyXF4FMRXJnoDXjJZ0hc,file42,105806898968975168992,bob@accord.foundation
+2024-10-02T19:08:48.681Z,Create,1Gf1Ac4M-GL4s8xzdZPNb04pTyXF4FMRXJnoDXjJZ0hc,file42,105806898968975168992,bob@accord.foundation
+2024-10-02T19:08:48.681Z,Permission Change-to:owner-from:none-for:bob@accord.foundation,1Gf1Ac4M-GL4s8xzdZPNb04pTyXF4FMRXJnoDXjJZ0hc,file42,105806898968975168992,bob@accord.foundation
+2024-10-02T19:08:47.191Z,Edit,1FGrc8llcmmfs8aTDkppBNZsofcffjxgHKPtg5uQsilE,file25,102378379302274418344,emily@accord.foundation
+2024-10-02T19:08:46.463Z,Delete,1GsBGds3IDPKDEOuYB7vseP_-K4cuHxkyS-2alKfxx7w,file3,105806898968975168992,bob@accord.foundation
+2024-10-02T19:08:44.487Z,Permission Change-to:none-from:can_edit-for:bob@accord.foundation,1BmYJ0XxHZVMII8riIFJ7j_DmX1h9P3Ev7Ctvu8Y6efs,file31,105806898968975168992,bob@accord.foundation
+2024-10-02T19:08:44.487Z,Move:Root:Root,1BmYJ0XxHZVMII8riIFJ7j_DmX1h9P3Ev7Ctvu8Y6efs,file31,105806898968975168992,bob@accord.foundation
+2024-10-02T19:08:44.440Z,Move:Root:Root,1Bz3DqxwtRRt_TgxcOZta8Tzj129gjnWs,folder17,105806898968975168992,bob@accord.foundation
+2024-10-02T19:08:44.340Z,Delete,1_Jhajq-iAgKhM9UD-mkdFXtNMFC7pW3OB-2Y-vBTTaA,file9,105806898968975168992,bob@accord.foundation
+2024-10-02T19:08:44.330Z,Delete,1tz_geFjPtJPQh0pX93kUHfN_nnKeFV2792eNgdS_eg4,file6,105806898968975168992,bob@accord.foundation
+2024-10-02T19:08:43.554Z,Delete,1pr3s2645aj0IUhJXdN8_j_43Ds-RbKAR,folder11,105806898968975168992,bob@accord.foundation
+2024-10-02T19:08:40.481Z,Create,1emmMRMVYA9bImVSTp0eeXXpXBEWr_W2N,folder41,112627686161565491345,drew@accord.foundation
+2024-10-02T19:08:40.481Z,Permission Change-to:owner-from:none-for:drew@accord.foundation,1emmMRMVYA9bImVSTp0eeXXpXBEWr_W2N,folder41,112627686161565491345,drew@accord.foundation
+2024-10-02T19:08:36.459Z,Create,1tVdDWmmcQHNBJVp2IQD4_otU66Oj11RN,folder40,105806898968975168992,bob@accord.foundation
+2024-10-02T19:08:36.459Z,Permission Change-to:owner-from:none-for:bob@accord.foundation,1tVdDWmmcQHNBJVp2IQD4_otU66Oj11RN,folder40,105806898968975168992,bob@accord.foundation
+2024-10-02T19:08:35.268Z,Edit,1sMxZT91vz16FlXmtba3ZxQp7YNkosMgLJovg-_kp6aI,file21,112627686161565491345,drew@accord.foundation
+2024-10-02T19:08:34.953Z,Permission Change-to:can_edit-from:none-for:drew@accord.foundation,1GsBGds3IDPKDEOuYB7vseP_-K4cuHxkyS-2alKfxx7w,file3,114128337804353370964,alice@accord.foundation
+2024-10-02T19:08:33.423Z,Edit,18pybW6uSYeesLzq5JHC7KcNzLOzhfMBLDVZmdLMlnvo,file20,112627686161565491345,drew@accord.foundation
+2024-10-02T19:08:32.850Z,Edit,1sMxZT91vz16FlXmtba3ZxQp7YNkosMgLJovg-_kp6aI,file21,112627686161565491345,drew@accord.foundation
+2024-10-02T19:08:32.533Z,Permission Change-to:can_view-from:can_edit-for:bob@accord.foundation,1FXAXep5oyE828vrIjpJhE6y0Ss4267zOKkH3svp9z3M,file15,105806898968975168992,bob@accord.foundation
+2024-10-02T19:08:31.432Z,Permission Change-to:can_view-from:can_edit-for:bob@accord.foundation,1uWMVNW138Cj65VMSZn1OdjX4NZ_s6ssTJy86f05MPwg,file13,105806898968975168992,bob@accord.foundation
+2024-10-02T19:08:28.495Z,Permission Change-to:can_view-from:can_edit-for:bob@accord.foundation,1Bz3DqxwtRRt_TgxcOZta8Tzj129gjnWs,folder17,105806898968975168992,bob@accord.foundation
+2024-10-02T19:08:24.618Z,Create,1MbdlSrj1JDKQnsj4LxWmgomKa1E11wvI,folder39,105806898968975168992,bob@accord.foundation
+2024-10-02T19:08:24.618Z,Permission Change-to:owner-from:none-for:bob@accord.foundation,1MbdlSrj1JDKQnsj4LxWmgomKa1E11wvI,folder39,105806898968975168992,bob@accord.foundation
+2024-10-02T19:08:24.618Z,Permission Change-to:can_edit-from:none-for:carol@accord.foundation,1MbdlSrj1JDKQnsj4LxWmgomKa1E11wvI,folder39,105806898968975168992,bob@accord.foundation
+2024-10-02T19:08:23.416Z,Edit,18SbnPqoppYG7VH1pmVL2w4GfONAV0PdlgO457aJGDf4,file0,114128337804353370964,alice@accord.foundation
+2024-10-02T19:08:23.026Z,Edit,18SbnPqoppYG7VH1pmVL2w4GfONAV0PdlgO457aJGDf4,file0,114128337804353370964,alice@accord.foundation
+2024-10-02T19:08:19.480Z,Delete,1Wxfe_XkmqpkAxP-mLTyAUHRpNpyoGVP6,folder4,114128337804353370964,alice@accord.foundation
+2024-10-02T19:08:19.471Z,Delete,196vUO8Rk3kLMVAbLQagm3nQkHMGX603Y,folder35,114128337804353370964,alice@accord.foundation
+2024-10-02T19:08:18.580Z,Delete,1RmlcCi81lurcrUbi6LJa5qaWWTzDvqq3,folder5,114128337804353370964,alice@accord.foundation
+2024-10-02T19:08:16.881Z,Delete,1ch9ZcFallewPgNas30USWgc9rTtj86Gh,folder22,112627686161565491345,drew@accord.foundation
+2024-10-02T19:08:15.801Z,Edit,1GnWCrXicggNW22gbIxy0F9INXP3IGJQhwF4YYLxut-8,file38,104174300424369407986,carol@accord.foundation
+2024-10-02T19:08:15.634Z,Edit,1GnWCrXicggNW22gbIxy0F9INXP3IGJQhwF4YYLxut-8,file38,104174300424369407986,carol@accord.foundation
+2024-10-02T19:08:15.138Z,Create,1GnWCrXicggNW22gbIxy0F9INXP3IGJQhwF4YYLxut-8,file38,104174300424369407986,carol@accord.foundation
+2024-10-02T19:08:15.138Z,Permission Change-to:owner-from:none-for:carol@accord.foundation,1GnWCrXicggNW22gbIxy0F9INXP3IGJQhwF4YYLxut-8,file38,104174300424369407986,carol@accord.foundation
+2024-10-02T19:08:13.298Z,Permission Change-to:can_edit-from:none-for:emily@accord.foundation,1GsBGds3IDPKDEOuYB7vseP_-K4cuHxkyS-2alKfxx7w,file3,105806898968975168992,bob@accord.foundation
+2024-10-02T19:08:10.932Z,Delete,165sfisn3PvgtQ63s8UbdMoavH7lleIk5,folder36,102378379302274418344,emily@accord.foundation
+2024-10-02T19:08:08.490Z,Move:Root:folder5,1Wxfe_XkmqpkAxP-mLTyAUHRpNpyoGVP6,folder4,114128337804353370964,alice@accord.foundation
+2024-10-02T19:08:06.529Z,Create,12SrDLhUnJwqKtSv82DCz5yEeYEmmlQa0,folder37,104174300424369407986,carol@accord.foundation
+2024-10-02T19:08:06.529Z,Permission Change-to:owner-from:none-for:carol@accord.foundation,12SrDLhUnJwqKtSv82DCz5yEeYEmmlQa0,folder37,104174300424369407986,carol@accord.foundation
+2024-10-02T19:08:04.578Z,Permission Change-to:can_view-from:can_edit-for:carol@accord.foundation,1tz_geFjPtJPQh0pX93kUHfN_nnKeFV2792eNgdS_eg4,file6,105806898968975168992,bob@accord.foundation
+2024-10-02T19:08:04.578Z,Move:folder17:folder11,1tz_geFjPtJPQh0pX93kUHfN_nnKeFV2792eNgdS_eg4,file6,105806898968975168992,bob@accord.foundation
+2024-10-02T19:08:02.853Z,Delete,1D3xdR-25zwdozOCKSRWjoiXl01Qm7q8txh3i79DUVbA,file7,105806898968975168992,bob@accord.foundation
+2024-10-02T19:08:00.219Z,Permission Change-to:can_edit-from:none-for:bob@accord.foundation,1uWMVNW138Cj65VMSZn1OdjX4NZ_s6ssTJy86f05MPwg,file13,104174300424369407986,carol@accord.foundation
+2024-10-02T19:08:00.219Z,Move:Root:folder17,1uWMVNW138Cj65VMSZn1OdjX4NZ_s6ssTJy86f05MPwg,file13,104174300424369407986,carol@accord.foundation
+2024-10-02T19:07:58.397Z,Create,165sfisn3PvgtQ63s8UbdMoavH7lleIk5,folder36,102378379302274418344,emily@accord.foundation
+2024-10-02T19:07:58.397Z,Permission Change-to:owner-from:none-for:emily@accord.foundation,165sfisn3PvgtQ63s8UbdMoavH7lleIk5,folder36,102378379302274418344,emily@accord.foundation
+2024-10-02T19:07:55.873Z,Permission Change-to:can_edit-from:none-for:carol@accord.foundation,1tz_geFjPtJPQh0pX93kUHfN_nnKeFV2792eNgdS_eg4,file6,105806898968975168992,bob@accord.foundation
+2024-10-02T19:07:55.873Z,Move:Root:folder17,1tz_geFjPtJPQh0pX93kUHfN_nnKeFV2792eNgdS_eg4,file6,105806898968975168992,bob@accord.foundation
+2024-10-02T19:07:53.476Z,Permission Change-to:can_edit-from:owner-for:alice@accord.foundation,1GsBGds3IDPKDEOuYB7vseP_-K4cuHxkyS-2alKfxx7w,file3,114128337804353370964,alice@accord.foundation
+2024-10-02T19:07:53.476Z,Permission Change-to:owner-from:none-for:bob@accord.foundation,1GsBGds3IDPKDEOuYB7vseP_-K4cuHxkyS-2alKfxx7w,file3,114128337804353370964,alice@accord.foundation
+2024-10-02T19:07:51.104Z,Move:Root:folder28,1_ovLr4s0JQ2GEf49WGhstHnMspfV7LZJkKgu5NWYfSw,file27,102378379302274418344,emily@accord.foundation
+2024-10-02T19:07:48.144Z,Delete,1IgIUMe0_E1aeqcNnXC59VtYPicpTSke2,folder23,112627686161565491345,drew@accord.foundation
+2024-10-02T19:07:46.676Z,Permission Change-to:none-from:can_edit-for:emily@accord.foundation,1vc3v0txZATRrSgP3nemXX742hjDB3KeWzAv55-hda1s,file24,102378379302274418344,emily@accord.foundation
+2024-10-02T19:07:44.626Z,Permission Change-to:can_edit-from:none-for:bob@accord.foundation,1FXAXep5oyE828vrIjpJhE6y0Ss4267zOKkH3svp9z3M,file15,104174300424369407986,carol@accord.foundation
+2024-10-02T19:07:44.626Z,Move:Root:folder17,1FXAXep5oyE828vrIjpJhE6y0Ss4267zOKkH3svp9z3M,file15,104174300424369407986,carol@accord.foundation
+2024-10-02T19:07:41.724Z,Delete,1kl8g3o8M4_5VocMpGwxBnkLL6RnYw6isK9BezY0IZYY,file1,114128337804353370964,alice@accord.foundation
+2024-10-02T19:07:36.218Z,Move:folder10:Root,1pr3s2645aj0IUhJXdN8_j_43Ds-RbKAR,folder11,105806898968975168992,bob@accord.foundation
+2024-10-02T19:07:34.261Z,Edit,1FGrc8llcmmfs8aTDkppBNZsofcffjxgHKPtg5uQsilE,file25,102378379302274418344,emily@accord.foundation
+2024-10-02T19:07:31.638Z,Edit,18pybW6uSYeesLzq5JHC7KcNzLOzhfMBLDVZmdLMlnvo,file20,112627686161565491345,drew@accord.foundation
+2024-10-02T19:07:29.085Z,Delete,1p0McREfT9kEMHDXD6Obcm-QkEp_ySlDkCVWShDO9DMo,file33,112627686161565491345,drew@accord.foundation
+2024-10-02T19:07:27.594Z,Delete,1SPgAYW0yfEi3ALE0zfWpp9qSJCPUi3KU3e_vowv0uXk,file30,104174300424369407986,carol@accord.foundation
+2024-10-02T19:07:25.098Z,Create,196vUO8Rk3kLMVAbLQagm3nQkHMGX603Y,folder35,114128337804353370964,alice@accord.foundation
+2024-10-02T19:07:25.098Z,Permission Change-to:owner-from:none-for:alice@accord.foundation,196vUO8Rk3kLMVAbLQagm3nQkHMGX603Y,folder35,114128337804353370964,alice@accord.foundation
+2024-10-02T19:07:23.273Z,Delete,1heH-tBjkA6qH-9mMLgAYYvii6uBASi-vyTuNt9MowlY,file19,112627686161565491345,drew@accord.foundation
+2024-10-02T19:07:21.744Z,Permission Change-to:can_view-from:can_edit-for:carol@accord.foundation,1pr3s2645aj0IUhJXdN8_j_43Ds-RbKAR,folder11,104174300424369407986,carol@accord.foundation
+2024-10-02T19:07:18.482Z,Move:Root:folder22,1IgIUMe0_E1aeqcNnXC59VtYPicpTSke2,folder23,112627686161565491345,drew@accord.foundation
+2024-10-02T19:07:16.489Z,Delete,1N5kOWHsvrnYMgXZCwCATSCHZz7BlUcqK,folder32,114128337804353370964,alice@accord.foundation
+2024-10-02T19:07:14.790Z,Permission Change-to:none-from:can_view-for:alice@accord.foundation,1vc3v0txZATRrSgP3nemXX742hjDB3KeWzAv55-hda1s,file24,102378379302274418344,emily@accord.foundation
+2024-10-02T19:07:12.075Z,Permission Change-to:none-from:can_view-for:carol@accord.foundation,1p0McREfT9kEMHDXD6Obcm-QkEp_ySlDkCVWShDO9DMo,file33,112627686161565491345,drew@accord.foundation
+2024-10-02T19:07:10.752Z,Edit,1P7EVZiP_Tk7VaAA_QnbD9r1l4RY2fjNo47ckPyKIVf8,file34,105806898968975168992,bob@accord.foundation
+2024-10-02T19:07:09.566Z,Move:Root:folder10,1P7EVZiP_Tk7VaAA_QnbD9r1l4RY2fjNo47ckPyKIVf8,file34,105806898968975168992,bob@accord.foundation
+2024-10-02T19:07:08.153Z,Create,1P7EVZiP_Tk7VaAA_QnbD9r1l4RY2fjNo47ckPyKIVf8,file34,105806898968975168992,bob@accord.foundation
+2024-10-02T19:07:08.153Z,Permission Change-to:owner-from:none-for:bob@accord.foundation,1P7EVZiP_Tk7VaAA_QnbD9r1l4RY2fjNo47ckPyKIVf8,file34,105806898968975168992,bob@accord.foundation
+2024-10-02T19:07:01.791Z,Permission Change-to:can_view/can_comment-from:none-for:emily@accord.foundation,1IgIUMe0_E1aeqcNnXC59VtYPicpTSke2,folder23,112627686161565491345,drew@accord.foundation
+2024-10-02T19:06:59.678Z,Edit,18pybW6uSYeesLzq5JHC7KcNzLOzhfMBLDVZmdLMlnvo,file20,112627686161565491345,drew@accord.foundation
+2024-10-02T19:06:58.325Z,Permission Change-to:none-from:can_view/can_comment-for:emily@accord.foundation,1p0McREfT9kEMHDXD6Obcm-QkEp_ySlDkCVWShDO9DMo,file33,112627686161565491345,drew@accord.foundation
+2024-10-02T19:06:58.325Z,Move:Root:Root,1p0McREfT9kEMHDXD6Obcm-QkEp_ySlDkCVWShDO9DMo,file33,112627686161565491345,drew@accord.foundation
+2024-10-02T19:06:57.302Z,Permission Change-to:none-from:can_edit-for:bob@accord.foundation,1SPgAYW0yfEi3ALE0zfWpp9qSJCPUi3KU3e_vowv0uXk,file30,104174300424369407986,carol@accord.foundation
+2024-10-02T19:06:55.417Z,Permission Change-to:can_view-from:can_edit-for:carol@accord.foundation,1p0McREfT9kEMHDXD6Obcm-QkEp_ySlDkCVWShDO9DMo,file33,112627686161565491345,drew@accord.foundation
+2024-10-02T19:06:53.469Z,Permission Change-to:none-from:can_edit-for:bob@accord.foundation,1KYns1SdmMqAHAVDmONpcDPPi3TAYbMNWXAjKFdC7SuY,file8,102378379302274418344,emily@accord.foundation
+2024-10-02T19:06:50.174Z,Delete,1QR40EYBQ9T5vhiltArervOk5NOTmZTgN,folder16,104174300424369407986,carol@accord.foundation
+2024-10-02T19:06:48.382Z,Permission Change-to:can_edit-from:none-for:carol@accord.foundation,1p0McREfT9kEMHDXD6Obcm-QkEp_ySlDkCVWShDO9DMo,file33,112627686161565491345,drew@accord.foundation
+2024-10-02T19:06:48.382Z,Permission Change-to:can_view/can_comment-from:none-for:emily@accord.foundation,1p0McREfT9kEMHDXD6Obcm-QkEp_ySlDkCVWShDO9DMo,file33,112627686161565491345,drew@accord.foundation
+2024-10-02T19:06:48.382Z,Move:Root:Root,1p0McREfT9kEMHDXD6Obcm-QkEp_ySlDkCVWShDO9DMo,file33,112627686161565491345,drew@accord.foundation
+2024-10-02T19:06:47.225Z,Edit,1p0McREfT9kEMHDXD6Obcm-QkEp_ySlDkCVWShDO9DMo,file33,112627686161565491345,drew@accord.foundation
+2024-10-02T19:06:46.456Z,Create,1p0McREfT9kEMHDXD6Obcm-QkEp_ySlDkCVWShDO9DMo,file33,112627686161565491345,drew@accord.foundation
+2024-10-02T19:06:46.456Z,Permission Change-to:owner-from:none-for:drew@accord.foundation,1p0McREfT9kEMHDXD6Obcm-QkEp_ySlDkCVWShDO9DMo,file33,112627686161565491345,drew@accord.foundation
+2024-10-02T19:06:42.566Z,Delete,12yuP7wIhtzd6syNwzMyfXM_oU-lTjzkZX8pm8o2gg8w,file18,112627686161565491345,drew@accord.foundation
+2024-10-02T19:06:38.970Z,Permission Change-to:can_edit-from:owner-for:bob@accord.foundation,1KYns1SdmMqAHAVDmONpcDPPi3TAYbMNWXAjKFdC7SuY,file8,105806898968975168992,bob@accord.foundation
+2024-10-02T19:06:38.970Z,Permission Change-to:owner-from:none-for:emily@accord.foundation,1KYns1SdmMqAHAVDmONpcDPPi3TAYbMNWXAjKFdC7SuY,file8,105806898968975168992,bob@accord.foundation
+2024-10-02T19:06:36.813Z,Create,1N5kOWHsvrnYMgXZCwCATSCHZz7BlUcqK,folder32,114128337804353370964,alice@accord.foundation
+2024-10-02T19:06:36.813Z,Permission Change-to:owner-from:none-for:alice@accord.foundation,1N5kOWHsvrnYMgXZCwCATSCHZz7BlUcqK,folder32,114128337804353370964,alice@accord.foundation
+2024-10-02T19:06:35.095Z,Permission Change-to:can_view-from:can_edit-for:carol@accord.foundation,1_Jhajq-iAgKhM9UD-mkdFXtNMFC7pW3OB-2Y-vBTTaA,file9,105806898968975168992,bob@accord.foundation
+2024-10-02T19:06:33.188Z,Delete,1RJ-y0HMWpXe08mvjOhu2l7CWg_QGDVIa,folder29,102378379302274418344,emily@accord.foundation
+2024-10-02T19:06:31.206Z,Permission Change-to:can_edit-from:none-for:bob@accord.foundation,1SPgAYW0yfEi3ALE0zfWpp9qSJCPUi3KU3e_vowv0uXk,file30,104174300424369407986,carol@accord.foundation
+2024-10-02T19:06:30.370Z,Permission Change-to:can_edit-from:none-for:bob@accord.foundation,1Bz3DqxwtRRt_TgxcOZta8Tzj129gjnWs,folder17,104174300424369407986,carol@accord.foundation
+2024-10-02T19:06:30.370Z,Move:Root:folder11,1Bz3DqxwtRRt_TgxcOZta8Tzj129gjnWs,folder17,104174300424369407986,carol@accord.foundation
+2024-10-02T19:06:28.592Z,Permission Change-to:can_edit-from:none-for:bob@accord.foundation,1BmYJ0XxHZVMII8riIFJ7j_DmX1h9P3Ev7Ctvu8Y6efs,file31,104174300424369407986,carol@accord.foundation
+2024-10-02T19:06:28.592Z,Move:Root:folder11,1BmYJ0XxHZVMII8riIFJ7j_DmX1h9P3Ev7Ctvu8Y6efs,file31,104174300424369407986,carol@accord.foundation
+2024-10-02T19:06:27.815Z,Edit,1BmYJ0XxHZVMII8riIFJ7j_DmX1h9P3Ev7Ctvu8Y6efs,file31,104174300424369407986,carol@accord.foundation
+2024-10-02T19:06:27.086Z,Create,1BmYJ0XxHZVMII8riIFJ7j_DmX1h9P3Ev7Ctvu8Y6efs,file31,104174300424369407986,carol@accord.foundation
+2024-10-02T19:06:27.086Z,Permission Change-to:owner-from:none-for:carol@accord.foundation,1BmYJ0XxHZVMII8riIFJ7j_DmX1h9P3Ev7Ctvu8Y6efs,file31,104174300424369407986,carol@accord.foundation
+2024-10-02T19:06:22.729Z,Permission Change-to:can_edit-from:owner-for:emily@accord.foundation,1vc3v0txZATRrSgP3nemXX742hjDB3KeWzAv55-hda1s,file24,102378379302274418344,emily@accord.foundation
+2024-10-02T19:06:22.729Z,Permission Change-to:owner-from:none-for:carol@accord.foundation,1vc3v0txZATRrSgP3nemXX742hjDB3KeWzAv55-hda1s,file24,102378379302274418344,emily@accord.foundation
+2024-10-02T19:06:20.622Z,Permission Change-to:can_edit-from:none-for:drew@accord.foundation,1QR40EYBQ9T5vhiltArervOk5NOTmZTgN,folder16,104174300424369407986,carol@accord.foundation
+2024-10-02T19:06:18.511Z,Permission Change-to:can_edit-from:none-for:carol@accord.foundation,1_Jhajq-iAgKhM9UD-mkdFXtNMFC7pW3OB-2Y-vBTTaA,file9,105806898968975168992,bob@accord.foundation
+2024-10-02T19:06:18.511Z,Move:Root:folder11,1_Jhajq-iAgKhM9UD-mkdFXtNMFC7pW3OB-2Y-vBTTaA,file9,105806898968975168992,bob@accord.foundation
+2024-10-02T19:06:14.128Z,Permission Change-to:can_view-from:can_view/can_comment-for:alice@accord.foundation,1vc3v0txZATRrSgP3nemXX742hjDB3KeWzAv55-hda1s,file24,102378379302274418344,emily@accord.foundation
+2024-10-02T19:06:12.102Z,Delete,1iQGAVjdr-UR6GJkyHkK9D0sWdMaH-CP3_mkJsW40Fqc,file2,114128337804353370964,alice@accord.foundation
+2024-10-02T19:06:09.974Z,Move:Root:folder10,1pr3s2645aj0IUhJXdN8_j_43Ds-RbKAR,folder11,105806898968975168992,bob@accord.foundation
+2024-10-02T19:06:07.167Z,Permission Change-to:can_view/can_comment-from:none-for:alice@accord.foundation,1vc3v0txZATRrSgP3nemXX742hjDB3KeWzAv55-hda1s,file24,102378379302274418344,emily@accord.foundation
+2024-10-02T19:06:03.838Z,Edit,1SPgAYW0yfEi3ALE0zfWpp9qSJCPUi3KU3e_vowv0uXk,file30,104174300424369407986,carol@accord.foundation
+2024-10-02T19:06:02.226Z,Move:Root:folder17,1SPgAYW0yfEi3ALE0zfWpp9qSJCPUi3KU3e_vowv0uXk,file30,104174300424369407986,carol@accord.foundation
+2024-10-02T19:06:01.649Z,Create,1SPgAYW0yfEi3ALE0zfWpp9qSJCPUi3KU3e_vowv0uXk,file30,104174300424369407986,carol@accord.foundation
+2024-10-02T19:06:01.649Z,Permission Change-to:owner-from:none-for:carol@accord.foundation,1SPgAYW0yfEi3ALE0zfWpp9qSJCPUi3KU3e_vowv0uXk,file30,104174300424369407986,carol@accord.foundation
+2024-10-02T19:05:59.608Z,Permission Change-to:can_edit-from:none-for:carol@accord.foundation,1pr3s2645aj0IUhJXdN8_j_43Ds-RbKAR,folder11,105806898968975168992,bob@accord.foundation
