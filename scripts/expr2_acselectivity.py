@@ -1,15 +1,21 @@
 from csv import reader
-import random
+import random, math
 from datetime import datetime, timezone, timedelta
 from src.detection import detectmain
 
 # Parameters
-log_files = ["/Users/gracehunter/psu/decoupled/results/logs/activity-log_1000actions_files4folders2_2024-10-08T05:04:24Z-2024-10-08T05:52:30Z.csv"]
-data_filename = "results/expr2/test2.csv"
+log_files = [
+    "results/logs/activity-log_1000actions_files4folders2_2024-10-09T19:07:55Z-2024-10-09T19:52:31Z.csv",
+    "results/logs/activity-log_1000actions_files4folders2_2024-10-09T20:03:26Z-2024-10-09T20:49:16Z.csv",
+    "results/logs/activity-log_1000actions_files4folders2_2024-10-09T21:29:39Z-2024-10-09T22:11:40Z.csv",
+    "results/logs/activity-log_1000actions_files4folders2_2024-10-09T22:15:25Z-2024-10-09T22:59:34Z.csv",
+]
+data_filename = "results/expr2/2024-10-9-16:40.csv"
 selectivity_levels = [0, 0.05, .20, 1]
 level_names = ["high", "medium", "low"]
-activity_counts = [100, 200, 300, 400, 500, 600, 700, 800, 900, 1000]
-num_constraints = 10
+activity_counts = [200, 400, 600, 800, 1000, 1200, 1400, 1600, 1800, 2000]
+num_constraints = 200
+trials = 10
 
 # BEGIN Experiment 2
 # Action space generation constants
@@ -121,7 +127,7 @@ data_file.write("log_file,activity_count,selectivity_level,selectivity,detection
 for log_file in log_files:
 
     with open(log_file, "r") as csv_file:
-        logs = list(reader(csv_file))[1:] # Skip header row
+        logs = list(reader(csv_file))[1:][::-1] # Skip header row & reverse to be chronological
 
     for activity_count in activity_counts:
         logs_subset = logs[:activity_count]
@@ -154,8 +160,6 @@ for log_file in log_files:
                     else:
                         activity = [timestamp, action, resource[1], resource[0], "0", user]
                         all_activities.append(activity)
-        print(all_activities)
-        print(len(all_resources), users, len(all_activities))
         assert len(all_activities) == space_size
 
         for i in range(1, len(selectivity_levels)):
@@ -194,7 +198,7 @@ for log_file in log_files:
                     attempts += 1
                     if selectivity < range_floor:
                         print("increasing", selectivity)
-                        for _ in range(int((range_floor - selectivity) / delta_per_constraint)):
+                        for _ in range(math.ceil((range_floor - selectivity) / delta_per_constraint)):
                             ac_index = random.randint(0, len(constraints_list) - 1)
                             ac = constraints_list[ac_index]
                             constraints.remove(ac)
@@ -203,7 +207,7 @@ for log_file in log_files:
                             constraints_list[ac_index] = ac
                     else:
                         print("decreasing", selectivity)
-                        for _ in range(int((range_ceil - selectivity) / delta_per_constraint)):
+                        for _ in range(math.ceil((range_ceil - selectivity) / delta_per_constraint)):
                             ac_index = random.randint(0, len(constraints_list) - 1)
                             ac = constraints_list[ac_index]
                             constraints.remove(ac)
@@ -230,12 +234,15 @@ for log_file in log_files:
                     list(targets)
                 ])
 
-            t0 = datetime.now()
-            result = detectmain(logs_subset, parsed_constraints)
-            t1 = datetime.now()
+            dtimes = []
+            for _ in range(trials):
+                t0 = datetime.now()
+                result = detectmain(logs_subset, parsed_constraints)
+                t1 = datetime.now()
+                detection_time = t1 - t0
+                detection_time_ms = detection_time.seconds * 1000 + (detection_time.microseconds / 1000) # Ignore "days" property
+                dtimes.append(detection_time_ms)
 
-            detection_time = t1 - t0
-            detection_time_ms = detection_time.seconds * 1000 + (detection_time.microseconds / 1000) # Ignore "days" property
-            data_line = ",".join([log_file, str(activity_count), range_name, str(selectivity), str(detection_time_ms)])
+            data_line = ",".join([log_file, str(activity_count), range_name, str(selectivity), str(sum(dtimes) / len(dtimes))])
             data_file.write(data_line + "\n")
             print("done")
