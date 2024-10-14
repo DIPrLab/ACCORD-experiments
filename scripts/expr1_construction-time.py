@@ -8,7 +8,7 @@ total_resources = 400
 grouping_limit = 5
 trials = 10
 constriant_counts = [5000, 10000, 20000, 40000, 60000, 80000, 100000, 120000, 140000, 160000, 180000, 200000]
-data_filename = "results/expr1/2024-10-9-16:40.csv"
+data_filename = "results/expr1/2024-10-10-17:45.csv"
 
 # Initialize all possible attributes
 usernames_file = open("scripts/usernames.txt", "r")
@@ -72,7 +72,7 @@ for count in constriant_counts:
                     owner,
                     list(targets)
             ])
-        
+
         print("detecting")
         t0 = datetime.now()
         result = detectmain([], parsed_constraints)

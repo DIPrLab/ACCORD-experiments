@@ -81,7 +81,7 @@ class ActorNode(ConstraintNode):
 
 class ConditionNode(ConstraintNode):
     def __init__(self, constraint=None):
-        self.conditions = []
+        self.conditions = set()
         if constraint:
             self.add_constraint(constraint)
 
@@ -91,7 +91,7 @@ class ConditionNode(ConstraintNode):
         values = [v for v in values if v and v != '-'] # Remove empty strings
         if comparator and (constraint[3] == "Can Edit" or constraint[3] == "Time Limit Edit"):
             values = [datetime.fromisoformat(v) for v in values]
-        self.conditions.append([comparator, values])
+        self.conditions.add((comparator, tuple(values)))
 
     def check(self, activity):
         for condition in self.conditions:

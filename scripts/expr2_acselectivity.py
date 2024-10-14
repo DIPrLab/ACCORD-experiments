@@ -10,7 +10,7 @@ log_files = [
     "results/logs/activity-log_1000actions_files4folders2_2024-10-09T21:29:39Z-2024-10-09T22:11:40Z.csv",
     "results/logs/activity-log_1000actions_files4folders2_2024-10-09T22:15:25Z-2024-10-09T22:59:34Z.csv",
 ]
-data_filename = "results/expr2/2024-10-9-16:40.csv"
+data_filename = "results/expr2/2024-10-9-23:55.csv"
 selectivity_levels = [0, 0.05, .20, 1]
 level_names = ["high", "medium", "low"]
 activity_counts = [200, 400, 600, 800, 1000, 1200, 1400, 1600, 1800, 2000]
