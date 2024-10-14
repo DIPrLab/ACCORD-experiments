@@ -10,10 +10,10 @@ log_files = [
     "results/logs/activity-log_1000actions_files4folders2_2024-10-09T21:29:39Z-2024-10-09T22:11:40Z.csv",
     "results/logs/activity-log_1000actions_files4folders2_2024-10-09T22:15:25Z-2024-10-09T22:59:34Z.csv",
 ]
-data_filename = "results/expr2/2024-10-9-16:40.csv"
+data_filename = "results/expr2/2024-10-14-13:05.csv"
 selectivity_levels = [0, 0.05, .20, 1]
 level_names = ["high", "medium", "low"]
-activity_counts = [200, 400, 600, 800, 1000, 1200, 1400, 1600, 1800, 2000]
+activity_counts = [0, 200, 400, 600, 800, 1000, 1200, 1400, 1600, 1800, 2000]
 num_constraints = 200
 trials = 10
 
@@ -47,30 +47,28 @@ def increase_selectivity(ac, users, resources):
     """Add one elemnent to an attribute that supports grouping"""
     resource_names, resource_ids, action, action_type, actors, listlike, operator, owner, targets = ac
     group_index_choices = [0, 4]
-    if ac[2] == "Permission Change":
-        group_index_choices.append(8)
     chosen_group_index = random.choice(group_index_choices)
     if chosen_group_index == 8:
-        if ac[6] == "not in":
-            if len(ac[8]) > 0:
-                targets = ac[8][1:]
-        elif ac[6] == "in":
-            if len(ac[8]) < len(users):
+        if operator == "not in":
+            if len(targets) > 0:
+                targets = targets[1:]
+        elif operator == "in":
+            if len(targets) < len(users):
                 new_user = random.choice(users)
-                while new_user in ac[8]:
+                while new_user in targets:
                     new_user = random.choice(users)
                 targets = (*targets, new_user)
     elif chosen_group_index == 0:
-        if len(ac[1]) < len(resources):
+        if len(resource_names) < len(resources):
             new_resource = random.choice(resources)
-            while new_resource[1] in ac[1]:
+            while new_resource[1] in resource_names:
                 new_resource = random.choice(resources)
             resource_names = (*resource_names, new_resource[0])
             resource_ids = (*resource_ids, new_resource[1])
     elif chosen_group_index == 4:
-        if len(ac[4]) < len(users):
+        if len(actors) < len(users):
             new_user = random.choice(users)
-            while new_user in ac[4]:
+            while new_user in actors:
                 new_user = random.choice(users)
             actors = (*actors, new_user)
     return (resource_names, resource_ids, action, action_type, actors, listlike, operator, owner, targets)
@@ -78,27 +76,34 @@ def increase_selectivity(ac, users, resources):
 def decrease_selectivity(ac, users, resources):
     """Remove one elemnent from an attribute that supports grouping"""
     resource_names, resource_ids, action, action_type, actors, listlike, operator, owner, targets = ac
-    group_index_choices = [0, 4]
-    if ac[2] == "Permission Change":
-        group_index_choices.append(8)
+    group_index_choices = []
+    if len(resource_names) > 1:
+        group_index_choices.append(0)
+    if len(actors) > 1:
+        group_index_choices.append(4)
+    if action == "Permission Change":
+        if operator == "not in" and len(targets) < len(users):
+            group_index_choices.append(8)
+        elif operator == "in" and len(targets) > 1:
+            group_index_choices.append(8)
+
+    if len(group_index_choices) == 0:
+        return ac
     chosen_group_index = random.choice(group_index_choices)
+
     if chosen_group_index == 8:
-        if ac[6] == "not in":
-            if len(ac[8]) < len(users):
+        if operator == "not in":
+            new_user = random.choice(users)
+            while new_user in targets:
                 new_user = random.choice(users)
-                while new_user in ac[8]:
-                    new_user = random.choice(users)
-                targets = (*targets, new_user)
-        elif ac[6] == "in":
-            if len(ac[8]) > 0:
-                targets = ac[8][1:]
+            targets = (*targets, new_user)
+        elif operator == "in":
+            targets = targets[1:]
     elif chosen_group_index == 0:
-        if len(ac[1]) > 0:
-            resource_names = resource_names[1:]
-            resource_ids = resource_ids[1:]
+        resource_names = resource_names[1:]
+        resource_ids = resource_ids[1:]
     elif chosen_group_index == 4:
-        if len(ac[4]) > 0:
-            actors = actors[1:]
+        actors = actors[1:]
     return (resource_names, resource_ids, action, action_type, actors, listlike, operator, owner, targets)
 
 def actions_selected_by_ac(constraints, activities):
