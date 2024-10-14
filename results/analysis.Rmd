@@ -12,18 +12,22 @@ expr1 <- read_csv("expr1/2024-10-9-16:40.csv")
 expr2 <- read_csv("expr2/2024-10-9-16:40.csv")
 summary(expr1)
 
+expr1$std_dev <- apply(subset(expr1, select=c("dtime0","dtime1","dtime2","dtime3","dtime4","dtime5","dtime6","dtime7","dtime8","dtime9")), 1, sd)
+
 log_files <- unique(expr2$log_file)
-# expr2.wider <- subset(expr2, select = -selectivity)
 expr2.wider <- expr2 %>% pivot_wider(id_cols=c(activity_count, selectivity_level), names_from=log_file, values_from=detection_time)
 expr2.wider$avg_detection_time <- rowMeans(subset(expr2.wider, select = log_files))
+expr2.wider$std_dev <- apply(subset(expr2.wider, select = log_files), 1, sd)
 ```
 
 ## Experiment 1: Construction Time
 ```{r, echo=FALSE}
+expr1$std_dev
 summary(expr1)
 ggplot(data=expr1, aes(x=constraint_count, y=dtime_avg)) +
   geom_line() +
   geom_point() +
+  geom_errorbar(aes(ymin=dtime_avg-std_dev, ymax=dtime_avg+std_dev)) +
   theme_bw() +
   labs(title="Construction time", x="Action constraints", y="Detection time (ms)")
 ```
@@ -35,9 +39,10 @@ ggplot(data=expr2.wider, aes(x=activity_count, y=avg_detection_time, group=selec
   geom_line(aes(linetype=selectivity_level))+
   scale_linetype_manual(values=c("dashed", "twodash", "solid"), breaks=c('low', 'medium', 'high'), labels=c("Low >=20%", "Medium >=5% and <20%", "High <5%")) +
   scale_color_discrete(breaks=c('low', 'medium', 'high'), labels=c("Low >=20%", "Medium >=5% and <20%", "High <5%")) +
-  theme_bw() +
   geom_point(show.legend=FALSE) +
-  # guides(color=c("High <5%", "Low >=20%", "Medium 5-20%")) +
+  geom_errorbar(show.legend = FALSE, aes(ymin=avg_detection_time-std_dev, ymax=avg_detection_time+std_dev, width=25)) +
+  theme_bw() +
+  theme(legend.position="bottom", legend.title=element_blank()) +
   labs(title="Detection time by selectivity level", x="Activities", y="Detection time (ms)", color="Selectivity", linetype="Selectivity")
 ```
 
