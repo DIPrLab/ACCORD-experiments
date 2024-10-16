@@ -10,10 +10,10 @@ log_files = [
     "results/logs/activity-log_1000actions_files4folders2_2024-10-09T21:29:39Z-2024-10-09T22:11:40Z.csv",
     "results/logs/activity-log_1000actions_files4folders2_2024-10-09T22:15:25Z-2024-10-09T22:59:34Z.csv",
 ]
-data_filename = "results/expr2/2024-10-14-13:05.csv"
+data_filename = "results/expr2/2024-10-15-22:22.csv"
 selectivity_levels = [0, 0.05, .20, 1]
 level_names = ["high", "medium", "low"]
-activity_counts = [0, 200, 400, 600, 800, 1000, 1200, 1400, 1600, 1800, 2000]
+activity_counts = [200, 400, 600, 800, 1000, 1200, 1400, 1600, 1800, 2000]
 num_constraints = 200
 trials = 10
 
@@ -127,7 +127,7 @@ def actions_selected_by_ac(constraints, activities):
 random.seed()
 
 data_file = open(data_filename, "w+")
-data_file.write("log_file,activity_count,selectivity_level,selectivity,detection_time\n")
+data_file.write("log_file,activity_count,users,resources,selectivity_level,selectivity,detection_time\n")
 
 for log_file in log_files:
 
@@ -248,6 +248,6 @@ for log_file in log_files:
                 detection_time_ms = detection_time.seconds * 1000 + (detection_time.microseconds / 1000) # Ignore "days" property
                 dtimes.append(detection_time_ms)
 
-            data_line = ",".join([log_file, str(activity_count), range_name, str(selectivity), str(sum(dtimes) / len(dtimes))])
+            data_line = ",".join([log_file, str(activity_count), str(len(users)), str(len(all_resources)), range_name, str(selectivity), str(sum(dtimes) / len(dtimes))])
             data_file.write(data_line + "\n")
             print("done")
