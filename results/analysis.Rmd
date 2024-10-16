@@ -9,15 +9,19 @@ library(openintro)
 library(tidyverse)
 
 expr1 <- read_csv("expr1/2024-10-9-16:40.csv")
-expr2 <- read_csv("expr2/2024-10-9-16:40.csv")
+expr2 <- read_csv("expr2/2024-10-15-22:22.csv")
 summary(expr1)
 
 expr1$std_dev <- apply(subset(expr1, select=c("dtime0","dtime1","dtime2","dtime3","dtime4","dtime5","dtime6","dtime7","dtime8","dtime9")), 1, sd)
 
+expr2$log_file <- as.factor(expr2$log_file)
+levels(expr2$log_file) <- c("Log 1", "Log 2", "Log 3", "Log 4")
 log_files <- unique(expr2$log_file)
-expr2.wider <- expr2 %>% pivot_wider(id_cols=c(activity_count, selectivity_level), names_from=log_file, values_from=detection_time)
+expr2.wider <- expr2 %>% select(!c("users","resources"))
+expr2.wider <- expr2.wider %>% pivot_wider(id_cols=c(activity_count, selectivity_level), names_from=log_file, values_from=detection_time)
 expr2.wider$avg_detection_time <- rowMeans(subset(expr2.wider, select = log_files))
 expr2.wider$std_dev <- apply(subset(expr2.wider, select = log_files), 1, sd)
+
 ```
 
 ## Experiment 1: Construction Time
@@ -44,6 +48,21 @@ ggplot(data=expr2.wider, aes(x=activity_count, y=avg_detection_time, group=selec
   theme_bw() +
   theme(legend.position="bottom", legend.title=element_blank()) +
   labs(title="Detection time by selectivity level", x="Activities", y="Detection time (ms)", color="Selectivity", linetype="Selectivity")
+
+
+ggplot(data=expr2, aes(x=resources, y=detection_time, group=selectivity_level, color=selectivity_level)) +
+  geom_point(aes(shape=log_file), breaks=c('low', 'medium', 'high'), labels=c("Low >=20%", "Medium >=5% and <20%", "High <5%")) +
+  scale_color_discrete(breaks=c('low', 'medium', 'high'), labels=c("Low >=20%", "Medium >=5% and <20%", "High <5%")) +
+  theme_bw() +
+  # theme(legend.position="bottom", legend.title=element_blank()) +
+  labs(title="Detection time vs. resources by selectivity level", x="Resources", y="Detection time (ms)", color="Selectivity", shape="Log file")
+
+ggplot(data=expr2, aes(x=resources, y=detection_time, group=selectivity_level, color=selectivity_level)) +
+  geom_point(breaks=c('low', 'medium', 'high'), labels=c("Low >=20%", "Medium >=5% and <20%", "High <5%")) +
+  scale_color_discrete(breaks=c('low', 'medium', 'high'), labels=c("Low >=20%", "Medium >=5% and <20%", "High <5%")) +
+  theme_bw() +
+  theme(legend.position="bottom", legend.title=element_blank()) +
+  labs(title="Detection time vs. resources by selectivity level", x="Resources", y="Detection time (ms)", color="Selectivity", shape="Log file")
 ```
 
 ### Stats
