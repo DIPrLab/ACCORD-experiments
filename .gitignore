@@ -2,3 +2,7 @@
 tokens/
 *.yaml
 *.txt
+__pycache__/
+*.sql
+tmp/
+venv/
