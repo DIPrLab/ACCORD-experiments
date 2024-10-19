@@ -30,6 +30,8 @@ class MockDrive():
 
     def open_record(self, resource_id: str, mock: 'MockUser', time: datetime.date = None):
         '''Create an access record for a new resource'''
+        if not mock:
+            return
         t = time if time else datetime.now(timezone.utc)
         record = ResourceRecord(mock, t, None)
         if resource_id not in self.resource_records:
@@ -44,6 +46,8 @@ class MockDrive():
         Useful when updating an indirect permission on a resource a user was
         previously removed from.
         '''
+        if not mock:
+            return
         t = time if time else datetime.now(timezone.utc)
         mock_user = self.get_mock_user(resource_id, mock.user.id, t)
         if not mock_user:
@@ -53,6 +57,8 @@ class MockDrive():
 
     def close_record(self, resource_id: str, mock: 'MockUser'):
         '''Close one access record associated with a resource and mock user.'''
+        if not mock:
+            return
         if (resource_id not in self.resource_records or
                 mock.user.id not in self.resource_records[resource_id]):
             return # No record exists
@@ -66,6 +72,8 @@ class MockDrive():
 
         Useful for when removing permissions on a resource directly or deleting.
         '''
+        if not mock:
+            return
         if (resource_id not in self.resource_records or
                 mock.user.id not in self.resource_records[resource_id]):
             return # No record exists
@@ -118,6 +126,7 @@ class MockDrive():
                     target_mock = self.get_mock_user(log[2], self.ids_by_email[target], time)
                     if not target_mock:
                         print("No target mock found for permission change, skipping: " + str(log))
+                        continue
                     details[-1] = target_mock.email
                     log[1] = ":".join(details)
                 processed.append(",".join(log))
@@ -145,7 +154,7 @@ class MockUser():
 
     def list_potential_parents(self, resource, resources):
         '''Filter a user's resources to include only possible new parents for resource
-        
+
         Args:
             resource: Resource | None, resource to move, None if creating
             resources: List[Resource], filtered list that mock user has access to
@@ -154,8 +163,8 @@ class MockUser():
         '''
         potential_parents = self.user.list_potential_parents(resource, resources)
 
-        # Can't be any overlap between real users with permissions on children 
-        # and real users with permissions on new parent, unless they are the 
+        # Can't be any overlap between real users with permissions on children
+        # and real users with permissions on new parent, unless they are the
         # same mock user
         if resource != None:
             children_mock_users: Dict[UserSubject, Set[MockUser]] = {}
@@ -168,7 +177,9 @@ class MockUser():
                     children_users.add(user)
                     if user not in children_mock_users:
                         children_mock_users[user] = set()
-                    children_mock_users[user].add(self.mock_drive.get_mock_user(resource.id, user.id, time))
+                    matching_mock = self.mock_drive.get_mock_user(resource.id, user.id, time)
+                    if matching_mock:
+                        children_mock_users[user].add(matching_mock)
 
             # Check each potential parent's users don't overlap with children
             def check_function(parent: Resource):
@@ -179,7 +190,9 @@ class MockUser():
                     parent_users.add(user)
                     if user not in parent_mock_users:
                         parent_mock_users[user] = set()
-                    parent_mock_users[user].add(self.mock_drive.get_mock_user(parent.id, user.id, time))
+                    matching_mock = self.mock_drive.get_mock_user(parent.id, user.id, time)
+                    if matching_mock:
+                        parent_mock_users[user].add(matching_mock)
                 overlap = parent_users.intersection(children_users)
                 for o in overlap:
                     union = children_mock_users[o].union(parent_mock_users[o])
@@ -217,11 +230,10 @@ class MockUser():
     def delete_resource(self, resource):
         '''Atempt deletion of resource and close record.
 
-        If resource has children that are also deleted, these records will not be closed,
-        but since these are no longer accessible (deleted), this won't cause conflicts.
+        Opts to leave records for deleted resources open, as it may take a moment
+        for Drive to remove all permissions.
         '''
         self.user.delete(resource)
-        self.mock_drive.close_all_records(resource.id, self)
 
     def get_children(self, resource, resources):
         '''List all resources that are children of resource, including resource itself'''
@@ -256,7 +268,9 @@ class MockUser():
                 current_users.add(user)
                 if user not in current_mock_users:
                     current_mock_users[user] = set()
-                current_mock_users[user].add(self.mock_drive.get_mock_user(r.id, user.id, time))
+                matching_mock = self.mock_drive.get_mock_user(r.id, user.id, time)
+                if matching_mock:
+                    current_mock_users[user].add(matching_mock)
         complement = self.mock_drive.users.difference(current_users)
         addable_users = []
         for u in complement:
@@ -291,15 +305,6 @@ class MockUser():
         '''Attempt to move a resource, update records for affected mock users'''
         # Attempt move, may raise exception
         time = datetime.now(timezone.utc)
-        self.user.move(resource, new_parent.id)
-
-        # Close all records inheritted from current parent
-        for user_id in old_parent.permissions:
-            for res in children:
-                self.mock_drive.close_record(
-                    res.id,
-                    self.mock_drive.get_mock_user(old_parent.id, user_id, time)
-                )
 
         # Open records inherited from new parent
         if new_parent:
@@ -309,6 +314,16 @@ class MockUser():
                         resource.id,
                         self.mock_drive.get_mock_user(new_parent.id, user_id, time)
                     )
+
+        self.user.move(resource, new_parent.id)
+
+        # Close all records inheritted from current parent
+        for user_id in old_parent.permissions:
+            for res in children:
+                self.mock_drive.close_record(
+                    res.id,
+                    self.mock_drive.get_mock_user(old_parent.id, user_id, time)
+                )
 
     def __repr__(self):
         return self.name + ":" + self.user.name

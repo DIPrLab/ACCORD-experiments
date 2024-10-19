@@ -6,7 +6,8 @@
 # [Same as for real user simulation, with exception that initialization of
 # mock user classes looks different]
 
-import random
+import random, math
+import numpy as np
 import yaml, time
 from datetime import datetime, timezone
 
@@ -21,10 +22,20 @@ log_output_path = "results/logs/"
 folders_per_user = 2
 files_per_user = 4
 initial_mock_users = 5
-add_user_frequency = 40 # Add a new mock user every 40 actions
+add_user_frequency_mu = 40 # Add a new mock user every 40 actions
+add_user_frequency_sigma = 10
 DEBUG = True
 
 # --- BEGIN log generation ---
+def get_add_user_interval():
+    '''Use specified mu and sigma to choose an integer from normal distribution,
+       rounding towards mu'''
+    rn = np.random.default_rng().normal(add_user_frequency_mu, add_user_frequency_sigma)
+    if rn < 40:
+        return math.ceil(rn)
+    else:
+        return math.floor(rn)
+
 all_roles = ['owner', 'writer', 'commenter', 'reader']
 
 random.seed()
@@ -33,11 +44,10 @@ random.seed()
 with open('scripts/.user_info', 'r') as file:
     realuser_info = yaml.safe_load(file)
 realusers = list(map(lambda u: UserSubject(u['name'], u['email'], u['token'],), realuser_info['users']))
-realusers_by_id = {u.id : u for u in realusers}
-realuser_set = set(realusers_by_id.keys())
+realuser_set = set(realusers)
 total_realusers = len(realusers)
 
-for user in real_users:
+for user in realusers:
     user.delete_all_resources()
 
 # Initialize mock Drive
@@ -49,7 +59,7 @@ users = []
 for _ in range(initial_mock_users):
     realuser = realusers[next_mock_id % total_realusers]
     mock_name = realuser.name + "." + str(next_mock_id)
-    users.append(MockUser(name, str(next_mock_id), realuser, mock_drive))
+    users.append(MockUser(mock_name, str(next_mock_id), realuser, mock_drive))
     next_mock_id += 1
 
 # Initialize resources
@@ -61,17 +71,21 @@ for u in users:
     for _ in range(folders_per_user):
         new_file = u.create_resource(MIMETYPE_FOLDER, "folder" + str(next_file))
         next_file += 1
-    u.user.driveid = new_file["parents"][0]
-for u in mock_users:
+    u.user.set_drive(new_file["parents"][0])
+for u in users:
     assert len(u.list_resources()) == folders_per_user + files_per_user
 
 # Initialize Reports API service and timestamp for logging
-reports_service = create_reportsAPI_service(user_info['admin']['token'])
+reports_service = create_reportsAPI_service(realuser_info['admin']['token'])
 timestamp = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 
 # Perform random actions
 remaining_actions = total_actions
+next_round_to_add_user = remaining_actions - get_add_user_interval()
 while remaining_actions > 0:
+
+    if remaining_actions % 20 == 0:
+        print(remaining_actions)
 
     # Choose user & target resource
     user = random.choice(users)
@@ -99,10 +113,10 @@ while remaining_actions > 0:
         parent = random.choice(user.list_potential_parents(None, resources))
 
         if DEBUG:
-            print(user, "created resource", resource_name, "in", parent.name if parent else None)
+            print(user.name, "created resource", resource_name, "in", parent.name)
 
         try:
-            user.create_resource(mime_type, resource_name, parent.id if parent else None)
+            user.create_resource(mime_type, resource_name, parent)
         except:
             continue
 
@@ -116,10 +130,12 @@ while remaining_actions > 0:
 
     elif action == "AddPermission":
         current_permissions = set()
-        time = datetime.now(timezone.utc)
+        timenow = datetime.now(timezone.utc)
         for id in target_res.permissions:
             realuser = mock_drive.users_by_id[id]
-            current_permissions.add(mock_drive.get_mock_user(target_res.id, realuser.id, time))
+            matching_mock = mock_drive.get_mock_user(target_res.id, realuser.id, timenow)
+            if matching_mock:
+                current_permissions.add(matching_mock)
 
         resource_children = user.get_children(target_res, resources)
         addable_mocks = set(user.get_addable_users(resource_children))
@@ -127,9 +143,10 @@ while remaining_actions > 0:
         if len(target_mock_options) < 1:
             continue
 
+        print(target_mock_options)
         target_mock = random.choice(target_mock_options)
 
-        if permissions[user.user.id] == "owner":
+        if target_res.permissions[user.user.id] == "owner":
             possible_roles = all_roles
         else:
             possible_roles = [role for role in all_roles if role != "owner"]
@@ -144,13 +161,15 @@ while remaining_actions > 0:
 
     elif action == "RemovePermission":
         removable_permissions = []
-        time = datetime.now(timezone.utc)
+        timenow = datetime.now(timezone.utc)
         for id in target_res.permissions:
-            if target_res[id] != "owner":
+            if target_res.permissions[id] != "owner":
                 realuser = mock_drive.users_by_id[id]
-                removable_permissions.append(mock_drive.get_mock_user(target_res.id, realuser.id, time))
+                matching_mock = mock_drive.get_mock_user(target_res.id, realuser.id, timenow)
+                if matching_mock:
+                    removable_permissions.append(matching_mock)
 
-        if len(removable_permisions) < 1:
+        if len(removable_permissions) < 1:
             continue
 
         resource_children = user.get_children(target_res, resources)
@@ -165,16 +184,19 @@ while remaining_actions > 0:
 
     elif action == "UpdatePermission":
         updatable_permissions = []
-        time = datetime.now(timezone.utc)
-        for id in target_res.permission:
-            if target_res[id] != "owner":
+        timenow = datetime.now(timezone.utc)
+        for id in target_res.permissions:
+            if target_res.permissions[id] != "owner":
                 realuser = mock_drive.users_by_id[id]
-                current_permissions.append(mock_drive.get_mock_user(target_res.id, realuser.id, time))
+                matching_mock = mock_drive.get_mock_user(target_res.id, realuser.id, timenow)
+                if matching_mock:
+                    updatable_permissions.append(matching_mock)
 
         if len(updatable_permissions) < 1:
             continue
 
         resource_children = user.get_children(target_res, resources)
+        print(updatable_permissions)
         target_mock = random.choice(updatable_permissions)
 
         current_role = target_res.permissions[target_mock.user.id]
@@ -184,9 +206,9 @@ while remaining_actions > 0:
         new_role = random.choice(possible_roles)
 
         if DEBUG:
-            print(user, "updated permission for", target_mock.name, "on", target_res.name, "from", current_role, "to", new_role)
+            print(user.name, "updated permission for", target_mock.name, "on", target_res.name, "from", current_role, "to", new_role)
         try:
-            user.update_permission(target_res, resource_children, target_user, new_role)
+            user.update_permission(target_res, resource_children, target_mock, new_role)
         except:
             continue
 
@@ -195,11 +217,19 @@ while remaining_actions > 0:
         if not possible_parents:
             continue
         new_parent = random.choice(possible_parents)
+        old_parent = None
+        if target_res.parents == user.user.driveid:
+            old_parent = user.user.drive_resource
+        else:
+            for r in resources:
+                if r.id == target_res.parents:
+                    old_parent = r
+        resource_children = user.get_children(target_res, resources)
 
         if DEBUG:
-            print(user.name, "moved", target_res.name, "from", target_res.parents, "into", new_parent.name if new_parent else None)
+            print(user.name, "moved", target_res.name, "from", old_parent, "into", new_parent.name if new_parent else None)
         try:
-            user.move(target_res, resource_children, target_res.parents, new_parent)
+            user.move(target_res, resource_children, old_parent, new_parent)
         except:
             continue
 
@@ -207,7 +237,7 @@ while remaining_actions > 0:
         if DEBUG:
             print(user.name, "deleted", target_res.name, "from", target_res.parents)
         try:
-            user.delete(target_res)
+            user.delete_resource(target_res)
         except:
             continue
 
@@ -216,13 +246,13 @@ while remaining_actions > 0:
         print("successful")
 
     # Add a mock user if appropriate
-    if remaining_actions % add_user_frequency == 0:
+    if remaining_actions == next_round_to_add_user:
         realuser = realusers[next_mock_id % total_realusers]
         mock_name = realuser.name + "." + str(next_mock_id)
-        users.append(MockUser(name, str(next_mock_id), realuser, mock_drive))
+        users.append(MockUser(mock_name, str(next_mock_id), realuser, mock_drive))
         next_mock_id += 1
-        if DEBUG:
-            print("Mock users increased to", next_mock_id)
+        next_round_to_add_user -= get_add_user_interval()
+        print("Mock users increased to", next_mock_id)
 
 end_timestamp = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 time.sleep(60)
