@@ -1,8 +1,18 @@
-# Action Constraints vs. Detection Time
+# Conduct a simulation with real Google user accounts, creating a file with the
+# parsed activity logs
+#
+# Simulation steps:
+# 1. For each user, all resources are deleted and specified number of initial
+#    resources is created
+# 2. For the total number of actions specified,
+#    a. A user is randomly chosen
+#    b. One of their resources is randomly selected
+#    c. Based on their permissions on that resource, an action is randomly
+#       chosen and executed. If action fails, it does not count towards total
+#       number of actions
+#
 # Constants:
-#   - Users: 5
-#   - Actions: 200
-#   - Resources: 5 folders, 5 files (each user initialized with one)
+#   - Real Users: 5
 #   - Actions allowed: All
 
 import random
@@ -31,10 +41,7 @@ users_by_id = {u.id : u for u in users}
 user_set = set(users_by_id.keys())
 total_users = len(users)
 
-for u in users:
-    print(u.name, u.email, u.id)
-
-# Initialize documents
+# Initialize resources
 next_file = 0
 for user in users:
     user.delete_all_resources()
@@ -181,7 +188,6 @@ while total_actions > 0:
 end_timestamp = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 time.sleep(60)
 logs = extractDriveLog(timestamp, reports_service)
-print(logs)
 log_file = log_output_path + "activity-log_" + str(total_actions) + "_files" + str(files_per_user) + "folders" + str(folders_per_user) + "_" + timestamp + "-" + end_timestamp + ".csv"
 with open(log_file, "w+") as f:
     for line in logs:
