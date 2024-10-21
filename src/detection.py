@@ -149,6 +149,9 @@ class Activity:
             else:
                 self.actiontype = "Update Permission"
 
+        elif action[0:3] == "Mov":
+            self.actiontype = "Can Move"
+
         else:
             self.actiontype = "Can " + action
             if self.actiontype == "Can Edit":
