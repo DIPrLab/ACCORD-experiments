@@ -6,13 +6,13 @@ from src.detection import detectmain
 
 # Parameters
 log_file = "results/logs/activity-log_mock5freq40_2000actions_files4folders2_2024-10-19T02:26:54Z-2024-10-19T04:58:40Z.csv"
-data_filename = "results/expr3/2024-10-21-10:45.csv"
+data_filename = "results/expr3/2024-10-21-12:00.csv"
 selectivity_levels = [0, .05, .20, 1]
 level_names = ["high", "medium", "low"]
 activity_counts = [200, 400, 600, 800, 1000, 1200, 1400, 1600, 1800, 2000, 2200,
                    2400, 2600, 2800, 3000, 3200, 3400, 3600, 3800, 4000]
 num_constraints = 200
-trials = 10
+trials = 40
 
 # Begin Experiment 3
 # Action space generation constants
