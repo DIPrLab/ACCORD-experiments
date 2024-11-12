@@ -5,12 +5,11 @@ output: html_document
 ---
 
 ```{r setup, include=FALSE, message=FALSE}
-library(openintro)
 library(tidyverse)
 
 expr1 <- read_csv("expr1/2024-10-9-16:40.csv")
-expr2 <- read_csv("expr2/2024-10-15-22:22.csv")
-summary(expr1)
+expr2 <- read_csv("expr2/2024-10-21-11:50.csv")
+expr3 <- read_csv("expr3/2024-11-08-10:05.csv")
 
 expr1$std_dev <- apply(subset(expr1, select=c("dtime0","dtime1","dtime2","dtime3","dtime4","dtime5","dtime6","dtime7","dtime8","dtime9")), 1, sd)
 
@@ -22,23 +21,26 @@ expr2.wider <- expr2.wider %>% pivot_wider(id_cols=c(activity_count, selectivity
 expr2.wider$avg_detection_time <- rowMeans(subset(expr2.wider, select = log_files))
 expr2.wider$std_dev <- apply(subset(expr2.wider, select = log_files), 1, sd)
 
+
+# write.csv(expr2.wider, "expr2-aggregated.csv")
 ```
 
 ## Experiment 1: Construction Time
 ```{r, echo=FALSE}
-expr1$std_dev
-summary(expr1)
+# expr1$std_dev
+# summary(expr1)
 ggplot(data=expr1, aes(x=constraint_count, y=dtime_avg)) +
   geom_line() +
   geom_point() +
   geom_errorbar(aes(ymin=dtime_avg-std_dev, ymax=dtime_avg+std_dev)) +
   theme_bw() +
-  labs(title="Construction time", x="Action constraints", y="Detection time (ms)")
+  labs(title="Construction time vs. action constraints", x="Action constraints", y="Construction time (ms)")
 ```
 
 ## Experiment 2
 ### Graph
 ```{r, echo=FALSE}
+# summary(expr2.wider)
 ggplot(data=expr2.wider, aes(x=activity_count, y=avg_detection_time, group=selectivity_level, color=selectivity_level)) +
   geom_line(aes(linetype=selectivity_level))+
   scale_linetype_manual(values=c("dashed", "twodash", "solid"), breaks=c('low', 'medium', 'high'), labels=c("Low >=20%", "Medium >=5% and <20%", "High <5%")) +
@@ -47,23 +49,23 @@ ggplot(data=expr2.wider, aes(x=activity_count, y=avg_detection_time, group=selec
   geom_errorbar(show.legend = FALSE, aes(ymin=avg_detection_time-std_dev, ymax=avg_detection_time+std_dev, width=25)) +
   theme_bw() +
   theme(legend.position="bottom", legend.title=element_blank()) +
-  labs(title="Detection time by selectivity level", x="Activities", y="Detection time (ms)", color="Selectivity", linetype="Selectivity")
-
+  labs(title="Total time vs. activities by selectivity level", x="Activities", y="Detection time (ms)", color="Selectivity", linetype="Selectivity")
 
 ggplot(data=expr2, aes(x=resources, y=detection_time, group=selectivity_level, color=selectivity_level)) +
   geom_point(aes(shape=log_file), breaks=c('low', 'medium', 'high'), labels=c("Low >=20%", "Medium >=5% and <20%", "High <5%")) +
   scale_color_discrete(breaks=c('low', 'medium', 'high'), labels=c("Low >=20%", "Medium >=5% and <20%", "High <5%")) +
   theme_bw() +
   # theme(legend.position="bottom", legend.title=element_blank()) +
-  labs(title="Detection time vs. resources by selectivity level", x="Resources", y="Detection time (ms)", color="Selectivity", shape="Log file")
+  labs(title="Total time vs. resources by selectivity level", x="Resources", y="Detection time (ms)", color="Selectivity", shape="Log file")
 
-ggplot(data=expr2, aes(x=resources, y=detection_time, group=selectivity_level, color=selectivity_level)) +
+ggplot(data=expr2, aes(x=5*resources*(3+2+3*5), y=detection_time, group=selectivity_level, color=selectivity_level)) +
   geom_point(breaks=c('low', 'medium', 'high'), labels=c("Low >=20%", "Medium >=5% and <20%", "High <5%")) +
   scale_color_discrete(breaks=c('low', 'medium', 'high'), labels=c("Low >=20%", "Medium >=5% and <20%", "High <5%")) +
   theme_bw() +
   theme(legend.position="bottom", legend.title=element_blank()) +
-  labs(title="Detection time vs. resources by selectivity level", x="Resources", y="Detection time (ms)", color="Selectivity", shape="Log file")
+  labs(title="Total time vs. action space size by selectivity level", x="Action space size", y="Detection time (ms)", color="Selectivity", shape="Log file")
 ```
+
 
 ### Stats
 ```{r, echo=FALSE}
@@ -71,7 +73,8 @@ ggplot(data=expr2, aes(x=selectivity_level, y=selectivity, fill=selectivity_leve
   geom_boxplot() +
   labs(title = "Variation of selectivity within a level", x = "Selectivity level", y = "Selectivity values")
 ```
-Low
+
+Low selectivity
 ```{r, echo=FALSE}
 expr2.low <- expr2 %>% filter(selectivity_level == "low")
 expr2.low %>% summarise(mean = mean(selectivity),
@@ -83,7 +86,8 @@ expr2.low %>% summarise(mean = mean(selectivity),
             var = var(selectivity),
             n = n())
 ```
-Medium
+
+Medium selectivity
 ```{r, echo=FALSE}
 expr2.medium <- expr2 %>% filter(selectivity_level == "medium")
 expr2.medium %>% summarise(mean = mean(selectivity),
@@ -95,7 +99,8 @@ expr2.medium %>% summarise(mean = mean(selectivity),
             var = var(selectivity),
             n = n())
 ```
-High
+
+High selectivity
 ```{r, echo=FALSE}
 expr2.high <- expr2 %>% filter(selectivity_level == "high")
 expr2.high %>% summarise(mean = mean(selectivity),
@@ -107,4 +112,250 @@ expr2.high %>% summarise(mean = mean(selectivity),
             var = var(selectivity),
             n = n())
 
+```
+
+## Experiment 3
+### Graphs for total run time (detection time + construction time)
+```{r, echo=FALSE}
+ggplot(data=expr3, aes(x=activity_count, y=detection_time_mean+construction_time_mean, group=selectivity_level, color=selectivity_level)) +
+  geom_point() +
+  geom_errorbar(show.legend = FALSE, aes(ymin=detection_time_mean+construction_time_mean-(detection_time_std+construction_time_std), ymax=detection_time_mean+construction_time_mean+construction_time_std+detection_time_std, width=50)) +
+  scale_color_discrete(breaks=c('low', 'medium', 'high'), labels=c("Low >=30% and <40%", "Medium >=20% and <30%", "High >=10% and <20%")) +
+  theme_bw() +
+  theme(legend.position="bottom", legend.title=element_blank()) +
+  labs(title="Total run time vs. activities by selectivity level", x="Activities", y="Total run time (ms)", color="Selectivity")
+
+ggplot(data=expr3, aes(x=users, y=detection_time_mean+construction_time_mean, group=selectivity_level, color=selectivity_level)) +
+  geom_point() +
+  geom_errorbar(show.legend = FALSE, aes(ymin=detection_time_mean+construction_time_mean-(detection_time_std+construction_time_std), ymax=detection_time_mean+construction_time_mean+construction_time_std+detection_time_std, width=0.5)) +
+  scale_color_discrete(breaks=c('low', 'medium', 'high'), labels=c("Low >=30% and <40%", "Medium >=20% and <30%", "High >=10% and <20%")) +
+  theme_bw() +
+  theme(legend.position="bottom", legend.title=element_blank()) +
+  labs(title="Total run time vs. users by selectivity level", x="Users", y="Total run time (ms)", color="Selectivity")
+
+ggplot(data=expr3, aes(x=resources, y=detection_time_mean+construction_time_mean, group=selectivity_level, color=selectivity_level)) +
+  geom_point() +
+  geom_errorbar(show.legend = FALSE, aes(ymin=detection_time_mean+construction_time_mean-(detection_time_std+construction_time_std), ymax=detection_time_mean+construction_time_mean+construction_time_std+detection_time_std, width=10)) +
+  scale_color_discrete(breaks=c('low', 'medium', 'high'), labels=c("Low >=30% and <40%", "Medium >=20% and <30%", "High >=10% and <20%")) +
+  theme_bw() +
+  theme(legend.position="bottom", legend.title=element_blank()) +
+  labs(title="Total run time vs. resources by selectivity level", x="Resources", y="Total run time (ms)", color="Selectivity")
+```
+
+```{r, echo=FALSE}
+ggplot(data=expr3, aes(x=resources*users*(5+3*users), y=construction_time_mean+detection_time_mean, group=selectivity_level, color=selectivity_level)) +
+  geom_point() +
+  geom_errorbar(show.legend = FALSE, aes(ymin=construction_time_mean+detection_time_mean-construction_time_std-detection_time_std, ymax=construction_time_mean+detection_time_mean+detection_time_std+construction_time_std, width=75000)) +
+  theme_bw() +
+  theme(legend.position="bottom") +
+  labs(title="Total run time vs. action space size", x="Action space size", y="Total run time time", color="Selectivity level")
+```
+
+### Graphs for construction time
+In the first graph, it appears that increasing the activity count will increase the construction time. However, since no logs are used in this portion of the experiment, this is impossible.
+Rather, the activity count has a strong correlation with the action space size,
+which is a strong predictor of the construction time.
+
+```{r, echo=FALSE}
+ggplot(data=expr3, aes(x=activity_count, y=construction_time_mean, group=selectivity_level, color=selectivity_level)) +
+  geom_point() +
+  geom_errorbar(show.legend = FALSE, aes(ymin=construction_time_mean-(construction_time_std), ymax=construction_time_mean+construction_time_std, width=50)) +
+  scale_color_discrete(breaks=c('low', 'medium', 'high'), labels=c("Low >=30% and <40%", "Medium >=20% and <30%", "High >=10% and <20%")) +
+  theme_bw() +
+  theme(legend.position="bottom", legend.title=element_blank()) +
+  labs(title="Construction time vs. activities by selectivity level", x="Activities", y="Construction time (ms)", color="Selectivity")
+
+ggplot(data=expr3, aes(x=users, y=construction_time_mean, group=selectivity_level, color=selectivity_level)) +
+  geom_point() +
+  geom_errorbar(show.legend = FALSE, aes(ymin=construction_time_mean-(construction_time_std), ymax=construction_time_mean+construction_time_std, width=0.5)) +
+  scale_color_discrete(breaks=c('low', 'medium', 'high'), labels=c("Low >=30% and <40%", "Medium >=20% and <30%", "High >=10% and <20%")) +
+  theme_bw() +
+  theme(legend.position="bottom", legend.title=element_blank()) +
+  labs(title="Construction time vs. users by selectivity level", x="Users", y="Construction time (ms)", color="Selectivity")
+
+ggplot(data=expr3, aes(x=resources, y=construction_time_mean, group=selectivity_level, color=selectivity_level)) +
+  geom_point() +
+  geom_errorbar(show.legend = FALSE, aes(ymin=construction_time_mean-(construction_time_std), ymax=construction_time_mean+construction_time_std, width=10)) +
+  scale_color_discrete(breaks=c('low', 'medium', 'high'), labels=c("Low >=30% and <40%", "Medium >=20% and <30%", "High >=10% and <20%")) +
+  theme_bw() +
+  theme(legend.position="bottom", legend.title=element_blank()) +
+  labs(title="Construction time vs. resources by selectivity level", x="Resources", y="Construction time (ms)", color="Selectivity")
+
+ggplot(data=expr3, aes(x=resources*users*(5+3*users), y=construction_time_mean, group=selectivity_level, color=selectivity_level)) +
+  geom_point() +
+  geom_errorbar(show.legend = FALSE, aes(ymin=construction_time_mean-construction_time_std, ymax=construction_time_mean+construction_time_std, width=75000)) +
+  theme_bw() +
+  theme(legend.position="bottom") +
+  labs(title="Construction time vs. action space size", x="Action space size", y="Construction time (ms)", color="Selectivity level")
+```
+
+### Graphs for detection time
+```{r, echo=FALSE}
+ggplot(data=expr3, aes(x=activity_count, y=detection_time_mean, group=selectivity_level, color=selectivity_level)) +
+  geom_point() +
+  geom_errorbar(show.legend = FALSE, aes(ymin=detection_time_mean-(detection_time_std), ymax=detection_time_mean+detection_time_std, width=50)) +
+  scale_color_discrete(breaks=c('low', 'medium', 'high'), labels=c("Low >=30% and <40%", "Medium >=20% and <30%", "High >=10% and <20%")) +
+  theme_bw() +
+  theme(legend.position="bottom", legend.title=element_blank()) +
+  labs(title="Detection time vs. activities by selectivity level", x="Activities", y="Detection time (ms)", color="Selectivity")
+
+ggplot(data=expr3, aes(x=users, y=detection_time_mean, group=selectivity_level, color=selectivity_level)) +
+  geom_point() +
+  geom_errorbar(show.legend = FALSE, aes(ymin=detection_time_mean-(detection_time_std), ymax=detection_time_mean+detection_time_std, width=0.5)) +
+  scale_color_discrete(breaks=c('low', 'medium', 'high'), labels=c("Low >=30% and <40%", "Medium >=20% and <30%", "High >=10% and <20%")) +
+  theme_bw() +
+  theme(legend.position="bottom", legend.title=element_blank()) +
+  labs(title="Detection time vs. users by selectivity level", x="Users", y="Detection time (ms)", color="Selectivity")
+
+ggplot(data=expr3, aes(x=resources, y=detection_time_mean, group=selectivity_level, color=selectivity_level)) +
+  geom_point() +
+  geom_errorbar(show.legend = FALSE, aes(ymin=detection_time_mean-(detection_time_std), ymax=detection_time_mean+detection_time_std, width=10)) +
+  scale_color_discrete(breaks=c('low', 'medium', 'high'), labels=c("Low >=30% and <40%", "Medium >=20% and <30%", "High >=10% and <20%")) +
+  theme_bw() +
+  theme(legend.position="bottom", legend.title=element_blank()) +
+  labs(title="Detection time vs. resources by selectivity level", x="Actions", y="Detection time (ms)", color="Selectivity")
+
+
+ggplot(data=expr3, aes(x=resources*users*(5+3*users), y=detection_time_mean, group=selectivity_level, color=selectivity_level)) +
+  geom_point() +
+  geom_errorbar(show.legend = FALSE, aes(ymin=detection_time_mean-detection_time_std, ymax=detection_time_mean+detection_time_std, width=50000)) +
+  theme_bw() +
+  theme(legend.position="bottom") +
+  labs(title="Detection time vs. action space size", x="Action space size", y="Detection time", color="Selectivity level")
+```
+
+### Construction time as a fraction of total time
+```{r, echo=FALSE}
+expr3.med <- expr3 %>% filter(selectivity_level == "medium")
+ggplot(data=expr3.med, aes(x=resources*users*(5+3*users))) +
+  geom_line(aes(y=construction_time_mean, color="Construction")) +
+  geom_line(aes(y=construction_time_mean+detection_time_mean, color="Total")) +
+  geom_point(aes(y=construction_time_mean, color="Construction")) +
+  geom_point(aes(y=construction_time_mean+detection_time_mean, color="Total")) +
+  theme(legend.title=element_blank()) +
+  theme_bw() + 
+  labs(y="Time (ms)", x="Action space size", title="Total run time and Construction time vs. action space size", colour="")
+```
+
+### Selectivity vs. Activity count
+```{r, echo=FALSE}
+ggplot(data=expr3, aes(x=activity_count, y=selectivity_mean, group=selectivity_level, color=selectivity_level)) +
+  geom_point() +
+  geom_errorbar(show.legend=FALSE,
+                aes(ymin=selectivity_mean-selectivity_std, ymax=selectivity_mean+selectivity_std, width=50)) +
+  scale_color_discrete(breaks=c('low', 'medium', 'high'), labels=c("Low >=30% and <40%", "Medium >=20% and <30%", "High >=10% and <20%")) +
+  theme_bw() +
+  theme(legend.position="bottom", legend.title=element_blank()) +
+  labs(title="Selectivity vs. activities by selectivity level", x="Actions", y="Selectivity", color="Selectivity")
+```
+
+### Communicating how selectivity is also varying
+Within a selectivity range, the lowest points have fewer activities, users, and resources.
+If we keep this type of graph, I'd do the experiment again without using specific ranges
+to eliminate the patterns in the data.
+
+```{r, echo=FALSE}
+ggplot(data=expr3, aes(x=selectivity_mean, y=detection_time_mean, group=selectivity_level)) +
+  geom_point(aes(size=activity_count)) +
+  geom_errorbar(show.legend = FALSE, aes(ymin=detection_time_mean-detection_time_std, ymax=detection_time_mean+detection_time_std, width=.01)) +
+  theme_bw() +
+  theme(legend.position="bottom") +
+  labs(title="Detection time vs. selectivity", x="Selectivity", y="Detection time", size="Activity count")
+```
+
+```{r, echo=FALSE}
+ggplot(data=expr3, aes(x=selectivity_mean, y=construction_time_mean, group=selectivity_level)) +
+  geom_point(aes(size=resources*users*(5+3*users))) +
+  geom_errorbar(show.legend = FALSE, aes(ymin=construction_time_mean-construction_time_std, ymax=construction_time_mean+construction_time_std, width=.01)) +
+  theme_bw() +
+  theme(legend.position="bottom") +
+  labs(title="Construction time vs. selectivity", x="Selectivity", y="Construction time", size="Action space size")
+```
+
+### Regression
+*Note: Assumptions that must be met before doing multiple linear regression weren't fully checked.
+The construction time model for sure is inaccurate, because this has been demonstrated to not be a linear relationship. Residuals for most models indicate an assumption may not have been met,
+some of which is the result of having a relatively small amount of data.*
+
+First, a multiple regression for the detection time (without the construction time) with
+predictors users, resources, activity count, and mean selectivity.
+
+The most significant predictor of detection time is the mean selectivity.
+```{r, echo=FALSE}
+expr3.reg <- lm(detection_time_mean ~ activity_count + users + resources + selectivity_mean, expr3)
+summary(expr3.reg)
+ggplot(data = expr3.reg) +
+  geom_point(aes(y = .resid, x = .fitted)) +
+  labs(x = "Fitted Values", y = "Residuals")
+ggplot(data = expr3.reg, aes(x = .resid)) +
+  geom_histogram(aes(y = after_stat(density)), bins=8) +
+  stat_function(fun = dnorm,
+                args = list(mean = mean(expr3.reg$residuals),
+                            sd = sd(expr3.reg$residuals)),
+                col = "blue",
+                size = 1.5) +
+  labs(title="Distribution of Residuals")
+```
+
+Limitations: Since activity count was controlled, it is the most linear
+variable, and thus is most likely to have a strong correlation with the detection time.
+Users only increased in this experiment,
+resulting in no trials with large numbers of activities and few users or resources.
+Further, these variables are **not independent.**
+
+### Adjusted (and Best) Regression for Detection Time
+To address this, since the action space size is a composite of the users and resources,
+these columns can be combined using the formula in the paper.
+```{r, echo=FALSE}
+expr3.asize <- expr3 %>% mutate(action_space_size = resources * users * (5 + 3 * users))
+expr3.reg <- lm(detection_time_mean ~ activity_count + action_space_size + selectivity_mean, expr3.asize)
+summary(expr3.reg)
+ggplot(data = expr3.reg) +
+  geom_point(aes(y = .resid, x = .fitted)) +
+  labs(x = "Fitted Values", y = "Residuals")
+ggplot(data = expr3.reg, aes(x = .resid)) +
+  geom_histogram(aes(y = after_stat(density)), bins=8) +
+  stat_function(fun = dnorm,
+                args = list(mean = mean(expr3.reg$residuals),
+                            sd = sd(expr3.reg$residuals)),
+                col = "blue",
+                size = 1.5) +
+  labs(title="Distribution of Residuals")
+```
+
+### Regression for total run time
+Construction time and detection time with predictors activity count, action space size, and selectivity mean.
+
+```{r, echo=FALSE}
+expr3.reg <- lm(detection_time_mean + construction_time_mean ~ activity_count + action_space_size + selectivity_mean, expr3.asize)
+summary(expr3.reg)
+ggplot(data = expr3.reg) +
+  geom_point(aes(y = .resid, x = .fitted)) +
+  labs(x = "Fitted Values", y = "Residuals")
+ggplot(data = expr3.reg, aes(x = .resid)) +
+  geom_histogram(aes(y = after_stat(density)), bins=8) +
+  stat_function(fun = dnorm,
+                args = list(mean = mean(expr3.reg$residuals),
+                            sd = sd(expr3.reg$residuals)),
+                col = "blue",
+                size = 1.5) +
+  labs(title="Distribution of Residuals")
+```
+
+### Stats
+```{r, echo=FALSE}
+ggplot(data = expr3) +
+  geom_histogram(aes(x=detection_time_mean), bins=10) +
+  theme_bw() +
+  labs(title="Distribution of Detection Times")
+ggplot(data = expr3) +
+  geom_histogram(aes(x=detection_time_mean + construction_time_mean), bins=10) +
+  theme_bw() + 
+  labs(title="Distribution of Total Run Times")
+```
+
+```{r, echo=FALSE}
+ggplot(data=expr3, aes(x=selectivity_level, y=selectivity_mean, fill=selectivity_level)) +
+  geom_boxplot() +
+  labs(title = "Variation of selectivity within a level", x = "Selectivity level", y = "Selectivity values")
 ```
