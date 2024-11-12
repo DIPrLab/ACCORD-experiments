@@ -2,17 +2,16 @@ from csv import reader
 import random, math
 import numpy as np
 from datetime import datetime, timezone, timedelta
-from src.detection import detectmain
+from src.detection import ConflictDetectionEngine, detectmain
 
 # Parameters
 log_file = "results/logs/activity-log_mock5freq40_2000actions_files4folders2_2024-10-19T02:26:54Z-2024-10-19T04:58:40Z.csv"
-data_filename = "results/expr3/2024-10-21-12:00.csv"
-selectivity_levels = [0, .05, .20, 1]
+data_filename = "results/expr3/2024-11-08-10:05.csv"
+selectivity_levels = [.1, .2, .3, .4]
 level_names = ["high", "medium", "low"]
-activity_counts = [200, 400, 600, 800, 1000, 1200, 1400, 1600, 1800, 2000, 2200,
-                   2400, 2600, 2800, 3000, 3200, 3400, 3600, 3800, 4000]
+activity_counts = [200, 400, 800, 1200, 1600, 2000, 2400, 2800, 3200, 3600, 4000]
 num_constraints = 200
-trials = 40
+trials = 10
 
 # Begin Experiment 3
 # Action space generation constants
@@ -136,7 +135,7 @@ def actions_selected_by_ac(constraints, activities):
 random.seed()
 
 data_file = open(data_filename, "w+")
-data_file.write("log_file,activity_count,users,resources,selectivity_level,selectivity,detection_time_mean,detection_time_std\n")
+data_file.write("log_file,activity_count,users,resources,selectivity_level,selectivity_mean,selectivity_std,construction_time_mean,construction_time_std,detection_time_mean,detection_time_std\n")
 
 with open(log_file, "r") as csv_file:
     logs = list(reader(csv_file))[1:][::-1] # Skip header row & reverse to be chronological
@@ -175,95 +174,112 @@ for activity_count in activity_counts:
     assert len(all_activities) == space_size
 
     for i in range(1, len(selectivity_levels)):
-        regenerate = True
-        while regenerate:
-            # Randomly generate action constraints from action space with no grouping
-            constraints = set()
-            while len(constraints) < num_constraints:
-                owner = random.choice(users)
-                resource = random.choice(all_resources)
-                resource_names = (resource[0], )
-                resource_ids = (resource[1], )
-                actors = (random.choice(users), )
-                action_type, action = random.choice(CONSTRAINT_TYPES)
-                operator, targets = None, ()
-                if action == "Permission Change":
-                    operator = random.choice(PERMISSION_OPERATORS)
-                    if operator == "in":
-                        targets = (random.choice(users), )
-                    elif operator == "not in":
-                        targets = tuple(random.sample(users, k=(len(users) - 1)))
-
-                ac = (resource_names, resource_ids, action, action_type, actors, '', operator, owner, targets)
-                constraints.add(ac)
-            constraints_list = list(constraints)
-
-            # Randomly increase grouping until selectivity threshold is hit
-            range_floor = selectivity_levels[i - 1]
-            range_ceil = selectivity_levels[i]
-            range_name = level_names[i - 1]
-            delta_per_constraint = 10 / space_size
-            selectivity = actions_selected_by_ac(constraints, all_activities) / space_size
-            print(range_name, range_floor, range_ceil)
-            attempts = 0
-            while (selectivity < range_floor or selectivity > range_ceil) and attempts < 100:
-                attempts += 1
-                if selectivity < range_floor:
-                    print("increasing", selectivity, min(5000, math.ceil((range_floor - selectivity) / delta_per_constraint)))
-                    for _ in range(min(5000, math.ceil((range_floor - selectivity) / delta_per_constraint))):
-                        ac_index = random.randint(0, len(constraints_list) - 1)
-                        ac = constraints_list[ac_index]
-                        # old_ac = ac
-                        constraints.remove(ac)
-                        ac = increase_selectivity(ac, users, all_resources)
-                        # if attempts > 2:
-                        #    before = actions_selected_by_ac(set([old_ac]), all_activities)
-                        #    after = actions_selected_by_ac(set([ac]), all_activities)
-                        #    print(before, after)
-                        constraints.add(ac)
-                        constraints_list[ac_index] = ac
-                else:
-                    print("decreasing", selectivity - range_ceil, delta_per_constraint, selectivity, min(5000, math.ceil((selectivity - range_ceil) / delta_per_constraint)))
-                    for _ in range(min(5000, math.ceil((selectivity - range_ceil) / delta_per_constraint))):
-                        ac_index = random.randint(0, len(constraints_list) - 1)
-                        ac = constraints_list[ac_index]
-                        constraints.remove(ac)
-                        ac = decrease_selectivity(ac, users, all_resources)
-                        constraints.add(ac)
-                        constraints_list[ac_index] = ac
-                selectivity = actions_selected_by_ac(constraints, all_activities) / space_size
-            if attempts < 100:
-                regenerate = False
-
-        # Time detection algorithm
-        print("detecting")
-        parsed_constraints = []
-        for (resource_names, resource_ids, action, action_type, actors, deprecated, operator, owner, targets) in constraints:
-            parsed_constraints.append([
-                list(resource_names),
-                list(resource_ids),
-                action,
-                action_type,
-                list(actors),
-                deprecated,
-                operator,
-                owner,
-                list(targets)
-            ])
-
+        print("activity count", activity_count, "selectivity level", i)
         dtimes = []
-        for _ in range(trials):
-            t0 = datetime.now()
-            result = detectmain(logs_subset, parsed_constraints)
-            t1 = datetime.now()
-            detection_time = t1 - t0
-            detection_time_ms = detection_time.seconds * 1000 + (detection_time.microseconds / 1000) # Ignore "days" property
-            dtimes.append(detection_time_ms)
+        ctimes = []
+        selectivities = []
+        for j in range(trials):
+            regenerate = True
+            while regenerate:
+                # Randomly generate action constraints from action space with no grouping
+                constraints = set()
+                while len(constraints) < num_constraints:
+                    owner = random.choice(users)
+                    resource = random.choice(all_resources)
+                    resource_names = (resource[0], )
+                    resource_ids = (resource[1], )
+                    actors = (random.choice(users), )
+                    action_type, action = random.choice(CONSTRAINT_TYPES)
+                    operator, targets = None, ()
+                    if action == "Permission Change":
+                        operator = random.choice(PERMISSION_OPERATORS)
+                        if operator == "in":
+                            targets = (random.choice(users), )
+                        elif operator == "not in":
+                            targets = tuple(random.sample(users, k=(len(users) - 1)))
+
+                    ac = (resource_names, resource_ids, action, action_type, actors, '', operator, owner, targets)
+                    constraints.add(ac)
+                constraints_list = list(constraints)
+
+                # Randomly increase grouping until selectivity threshold is hit
+                range_floor = selectivity_levels[i - 1]
+                range_ceil = selectivity_levels[i]
+                range_name = level_names[i - 1]
+                delta_per_constraint = 10 / space_size
+                selectivity = actions_selected_by_ac(constraints, all_activities) / space_size
+                print(range_name, range_floor, range_ceil)
+                attempts = 0
+                while (selectivity < range_floor or selectivity > range_ceil) and attempts < 100:
+                    attempts += 1
+                    if selectivity < range_floor:
+                        print("increasing", selectivity, min(5000, math.ceil((range_floor - selectivity) / delta_per_constraint)))
+                        for _ in range(min(5000, math.ceil((range_floor - selectivity) / delta_per_constraint))):
+                            ac_index = random.randint(0, len(constraints_list) - 1)
+                            ac = constraints_list[ac_index]
+                            constraints.remove(ac)
+                            ac = increase_selectivity(ac, users, all_resources)
+                            constraints.add(ac)
+                            constraints_list[ac_index] = ac
+                    else:
+                        print("decreasing", selectivity - range_ceil, delta_per_constraint, selectivity, min(5000, math.ceil((selectivity - range_ceil) / delta_per_constraint)))
+                        for _ in range(min(5000, math.ceil((selectivity - range_ceil) / delta_per_constraint))):
+                            ac_index = random.randint(0, len(constraints_list) - 1)
+                            ac = constraints_list[ac_index]
+                            constraints.remove(ac)
+                            ac = decrease_selectivity(ac, users, all_resources)
+                            constraints.add(ac)
+                            constraints_list[ac_index] = ac
+                    selectivity = actions_selected_by_ac(constraints, all_activities) / space_size
+                if attempts < 100:
+                    regenerate = False
+
+            # Time detection algorithm
+            print("detecting")
+            parsed_constraints = []
+            for (resource_names, resource_ids, action, action_type, actors, deprecated, operator, owner, targets) in constraints:
+                parsed_constraints.append([
+                    list(resource_names),
+                    list(resource_ids),
+                    action,
+                    action_type,
+                    list(actors),
+                    deprecated,
+                    operator,
+                    owner,
+                    list(targets)
+                ])
+
+            raw_construction_times = []
+            raw_detection_times = []
+            for _ in range(trials):
+                t0 = datetime.now()
+                engine = ConflictDetectionEngine(parsed_constraints)
+                t1 = datetime.now()
+                result = engine.check_conflicts(logs_subset)
+                t2 = datetime.now()
+                construction_time = t1 - t0
+                construction_time_ms = construction_time.seconds * 1000 + (construction_time.microseconds / 1000) # Ignore "days" property
+                raw_construction_times.append(construction_time_ms)
+                detection_time = t2 - t1
+                detection_time_ms = detection_time.seconds * 1000 + (detection_time.microseconds / 1000) # Ignore "days" property
+                raw_detection_times.append(detection_time_ms)
+            raw_construction_times = np.array(raw_construction_times)
+            raw_detection_times = np.array(raw_detection_times)
+            ctimes.append(raw_construction_times.mean())
+            dtimes.append(raw_detection_times.mean())
+            selectivities.append(selectivity)
+            print("done")
 
         dtimes = np.array(dtimes)
-        mean = dtimes.mean()
-        sd = dtimes.std()
+        dmean = dtimes.mean()
+        dstd = dtimes.std()
+        ctimes = np.array(ctimes)
+        cmean = ctimes.mean()
+        cstd = ctimes.std()
+        selectivities = np.array(selectivities)
+        selectivities_mean = selectivities.mean()
+        selectivities_sd = selectivities.std()
 
-        data_line = ",".join([log_file, str(activity_count), str(len(users)), str(len(all_resources)), range_name, str(selectivity), str(mean), str(sd)])
+        data_line = ",".join([log_file, str(activity_count), str(len(users)), str(len(all_resources)), range_name, str(selectivities_mean), str(selectivities_sd), str(cmean), str(cstd), str(dmean), str(dstd)])
         data_file.write(data_line + "\n")
-        print("done")
