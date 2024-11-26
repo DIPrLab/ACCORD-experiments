@@ -6,10 +6,10 @@ from src.detection import ConflictDetectionEngine, detectmain
 
 # Parameters
 log_file = "results/logs/activity-log_mock5freq40_2000actions_files4folders2_2024-10-19T02:26:54Z-2024-10-19T04:58:40Z.csv"
-data_filename = "results/expr3/2024-11-08-10:05.csv"
-selectivity_levels = [.1, .2, .3, .4]
+data_filename = "results/expr3/2024-11-21-00:15.csv"
+selectivity_levels = [(.1, .2), (.4, .5), (.7, .8)]
 level_names = ["high", "medium", "low"]
-activity_counts = [200, 400, 800, 1200, 1600, 2000, 2400, 2800, 3200, 3600, 4000]
+activity_counts = [400, 800, 1200, 1600, 2000, 2400, 2800, 3200, 3600, 4000]
 num_constraints = 200
 trials = 10
 
@@ -42,77 +42,76 @@ PERMISSION_OPERATORS = ["not in", "in"]
 def increase_selectivity(ac, users, resources):
     """Add one elemnent to an attribute that supports grouping"""
     resource_names, resource_ids, action, action_type, actors, listlike, operator, owner, targets = ac
-    group_index_choices = [0, 4]
+    group_index_choices = []
     if len(resource_names) < len(resources):
         group_index_choices.append(0)
     if len(actors) < len(users):
         group_index_choices.append(4)
-    if operator == "not in" and len(targets) > 1:
-        group_index_choices.append(8)
     if operator == "in" and len(targets) < len(users):
+        group_index_choices.append(8)
+    if operator == "not in" and len(targets) > 1:
         group_index_choices.append(8)
 
     if len(group_index_choices) == 0:
-        return ac
+        return (ac, False)
     chosen_group_index = random.choice(group_index_choices)
 
     if chosen_group_index == 8:
         if operator == "not in":
-            if len(targets) > 0:
-                targets = targets[1:]
+            targets = targets[1:]
         elif operator == "in":
-            if len(targets) < len(users):
-                new_user = random.choice(users)
-                while new_user in targets:
-                    new_user = random.choice(users)
-                targets = (*targets, new_user)
-    elif chosen_group_index == 0:
-        if len(resource_names) < len(resources):
-            new_resource = random.choice(resources)
-            while new_resource[1] in resource_names:
-                new_resource = random.choice(resources)
-            resource_names = (*resource_names, new_resource[0])
-            resource_ids = (*resource_ids, new_resource[1])
-    elif chosen_group_index == 4:
-        if len(actors) < len(users):
             new_user = random.choice(users)
-            while new_user in actors:
+            while new_user in targets:
                 new_user = random.choice(users)
-            actors = (*actors, new_user)
-    return (resource_names, resource_ids, action, action_type, actors, listlike, operator, owner, targets)
+            targets = (*targets, new_user)
+    elif chosen_group_index == 0:
+        new_resource = random.choice(resources)
+        while new_resource[1] in resource_names:
+            new_resource = random.choice(resources)
+        resource_names = (*resource_names, new_resource[0])
+        resource_ids = (*resource_ids, new_resource[1])
+    elif chosen_group_index == 4:
+        new_user = random.choice(users)
+        while new_user in actors:
+            new_user = random.choice(users)
+        actors = (*actors, new_user)
+    return ((resource_names, resource_ids, action, action_type, actors, listlike, operator, owner, targets), True)
 
 def decrease_selectivity(ac, users, resources):
     """Remove one elemnent from an attribute that supports grouping"""
     resource_names, resource_ids, action, action_type, actors, listlike, operator, owner, targets = ac
     group_index_choices = []
-    if len(resource_names) > 2:
+    if len(resource_names) > 1:
         group_index_choices.append(0)
-    if len(actors) > 2:
+    if len(actors) > 1:
         group_index_choices.append(4)
     if action == "Permission Change":
-        if operator == "not in" and len(targets) < len(users):
+        if operator == "in" and len(targets) > 1:
             group_index_choices.append(8)
-        elif operator == "in" and len(targets) > 2:
+        elif operator == "not in" and len(targets) < len(users):
             group_index_choices.append(8)
 
     if len(group_index_choices) == 0:
-        return ac
+        print("failed to decrease")
+        return (ac, False)
     chosen_group_index = random.choice(group_index_choices)
 
     if chosen_group_index == 8:
         if operator == "not in":
+            print("adding user in not in")
             new_user = random.choice(users)
             while new_user in targets:
                 new_user = random.choice(users)
             targets = (*targets, new_user)
         elif operator == "in":
+            print("removing user in in")
             targets = targets[1:]
     elif chosen_group_index == 0:
         resource_names = resource_names[1:]
         resource_ids = resource_ids[1:]
     elif chosen_group_index == 4:
         actors = actors[1:]
-    return (resource_names, resource_ids, action, action_type, actors, listlike, operator, owner, targets)
+    return ((resource_names, resource_ids, action, action_type, actors, listlike, operator, owner, targets), True)
 
 def actions_selected_by_ac(constraints, activities):
     """Return the number of actions that this AC selects, using the detection algorithm"""
@@ -173,8 +172,8 @@ for activity_count in activity_counts:
                     all_activities.append(activity)
     assert len(all_activities) == space_size
 
-    for i in range(1, len(selectivity_levels)):
-        print("activity count", activity_count, "selectivity level", i)
+    for i, (range_floor, range_ceil) in enumerate(selectivity_levels):
+        print("activity count", activity_count, "selectivity level", range_floor, range_ceil)
         dtimes = []
         ctimes = []
         selectivities = []
@@ -203,35 +202,47 @@ for activity_count in activity_counts:
                 constraints_list = list(constraints)
 
                 # Randomly increase grouping until selectivity threshold is hit
-                range_floor = selectivity_levels[i - 1]
-                range_ceil = selectivity_levels[i]
-                range_name = level_names[i - 1]
-                delta_per_constraint = 10 / space_size
+                range_name = level_names[i]
+                diff = range_ceil - range_floor
                 selectivity = actions_selected_by_ac(constraints, all_activities) / space_size
+                r_len = len(all_resources) * selectivity
+                u_len = len(users) * selectivity
+                t_len = u_len
+                delta_per_constraint = ((4 * (u_len + r_len) + 3 * (t_len * u_len + u_len * r_len + t_len * r_len)) / 3) / space_size
                 print(range_name, range_floor, range_ceil)
                 attempts = 0
-                while (selectivity < range_floor or selectivity > range_ceil) and attempts < 100:
+                while (selectivity < range_floor or selectivity > range_ceil) and attempts < 500:
                     attempts += 1
                     if selectivity < range_floor:
-                        print("increasing", selectivity, min(5000, math.ceil((range_floor - selectivity) / delta_per_constraint)))
-                        for _ in range(min(5000, math.ceil((range_floor - selectivity) / delta_per_constraint))):
-                            ac_index = random.randint(0, len(constraints_list) - 1)
-                            ac = constraints_list[ac_index]
-                            constraints.remove(ac)
-                            ac = increase_selectivity(ac, users, all_resources)
-                            constraints.add(ac)
-                            constraints_list[ac_index] = ac
+                        print("increasing", selectivity, math.ceil(min(range_ceil - range_floor, (range_floor - selectivity)) / delta_per_constraint))
+                        num = range_floor - selectivity
+                        for _ in range(math.ceil(num / delta_per_constraint)):
+                            return_val = False
+                            while not return_val:
+                                ac_index = random.randint(0, len(constraints_list) - 1)
+                                ac = constraints_list[ac_index]
+                                constraints.remove(ac)
+                                ac, return_val = increase_selectivity(ac, users, all_resources)
+                                constraints.add(ac)
+                                constraints_list[ac_index] = ac
                     else:
-                        print("decreasing", selectivity - range_ceil, delta_per_constraint, selectivity, min(5000, math.ceil((selectivity - range_ceil) / delta_per_constraint)))
-                        for _ in range(min(5000, math.ceil((selectivity - range_ceil) / delta_per_constraint))):
-                            ac_index = random.randint(0, len(constraints_list) - 1)
-                            ac = constraints_list[ac_index]
-                            constraints.remove(ac)
-                            ac = decrease_selectivity(ac, users, all_resources)
-                            constraints.add(ac)
-                            constraints_list[ac_index] = ac
+                        print("decreasing", selectivity - range_ceil, delta_per_constraint, selectivity, math.ceil(min(range_ceil - range_floor, (selectivity - range_ceil)) / delta_per_constraint))
+                        num = selectivity - range_ceil
+                        for _ in range(math.ceil(num / delta_per_constraint)):
+                            return_val = False
+                            while not return_val:
+                                ac_index = random.randint(0, len(constraints_list) - 1)
+                                ac = constraints_list[ac_index]
+                                constraints.remove(ac)
+                                ac, return_val = decrease_selectivity(ac, users, all_resources)
+                                constraints.add(ac)
+                                constraints_list[ac_index] = ac
                     selectivity = actions_selected_by_ac(constraints, all_activities) / space_size
-                if attempts < 100:
+                    r_len = len(all_resources) * selectivity
+                    u_len = len(users) * selectivity
+                    t_len = u_len
+                    delta_per_constraint = ((4 * (u_len + r_len) + 3 * (t_len * u_len + u_len * r_len + t_len * r_len)) / 3) / space_size
+                if attempts < 500:
                     regenerate = False
 
             # Time detection algorithm
@@ -270,6 +281,43 @@ for activity_count in activity_counts:
             dtimes.append(raw_detection_times.mean())
             selectivities.append(selectivity)
             print("done")
+
+        # Remove outliers
+        total_times = [i + j for i, j in zip(ctimes, dtimes)]
+        print(total_times, ctimes, dtimes, selectivities)
+        mindex = 0
+        for i, elem in enumerate(total_times):
+            if elem < total_times[mindex]:
+                mindex = i
+        total_times.pop(mindex)
+        dtimes.pop(mindex)
+        ctimes.pop(mindex)
+        selectivities.pop(mindex)
+        mindex = 0
+        for i, elem in enumerate(total_times):
+            if elem < total_times[mindex]:
+                mindex = i
+        total_times.pop(mindex)
+        dtimes.pop(mindex)
+        ctimes.pop(mindex)
+        selectivities.pop(mindex)
+        maxdex = 0
+        for i, elem in enumerate(total_times):
+            if elem > total_times[maxdex]:
+                maxdex = i
+        total_times.pop(maxdex)
+        dtimes.pop(maxdex)
+        ctimes.pop(maxdex)
+        selectivities.pop(maxdex)
+        maxdex = 0
+        for i, elem in enumerate(total_times):
+            if elem > total_times[maxdex]:
+                maxdex = i
+        total_times.pop(maxdex)
+        dtimes.pop(maxdex)
+        ctimes.pop(maxdex)
+        selectivities.pop(maxdex)
+        print(total_times, ctimes, dtimes, selectivities)
 
         dtimes = np.array(dtimes)
         dmean = dtimes.mean()
