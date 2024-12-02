@@ -1,14 +1,15 @@
 import random, string
+import numpy as np
 from datetime import datetime, timezone, timedelta
-from src.detection import detectmain
+from src.detection import ConflictDetectionEngine
 
 # Parameters
 total_users = 50
 total_resources = 400
 grouping_limit = 5
 trials = 10
-constriant_counts = [5000, 10000, 20000, 40000, 60000, 80000, 100000, 120000, 140000, 160000, 180000, 200000]
-data_filename = "results/expr1/2024-10-9-16:40.csv"
+constriant_counts = [5000, 200000]
+data_filename = "results/expr1/2024-11-30-22:50.csv"
 
 # Initialize all possible attributes
 usernames_file = open("scripts/usernames.txt", "r")
@@ -30,11 +31,11 @@ PERMISSION_OPERATORS = ["in", "not in"]
 
 random.seed()
 data_file = open(data_filename, "w+")
-data_file.write("constraint_count,dtime0,dtime1,dtime2,dtime3,dtime4,dtime5,dtime6,dtime7,dtime8,dtime9,dtime_avg\n")
+data_file.write("constraint_count,ctime0,ctime1,ctime2,ctime3,ctime4,ctime5,ctime6,ctime7,ctime8,ctime9,ctime_mean,ctime_std\n")
 
-for count in constriant_counts:
+for count in range(10000, 210000, 10000):
     data_line = str(count)
-    dtimes = []
+    ctimes = []
     for _ in range(trials):
         # Generate Action Constraints
         # Use sets and tuples during generation for efficiency
@@ -75,15 +76,30 @@ for count in constriant_counts:
         
         print("detecting")
         t0 = datetime.now()
-        result = detectmain([], parsed_constraints)
+        engine = ConflictDetectionEngine(constraints)
         t1 = datetime.now()
 
-        detection_time = t1 - t0
-        detection_time_ms = detection_time.seconds * 1000 + (detection_time.microseconds / 1000) # Ignore "days" property
-        data_line += "," + str(detection_time_ms)
-        dtimes.append(detection_time_ms)
+        construction_time = t1 - t0
+        construction_time_ms = construction_time.seconds * 1000 + (construction_time.microseconds / 1000) # Ignore "days" property
+        data_line += "," + str(construction_time_ms)
+        ctimes.append(construction_time_ms)
 
-    data_line += "," + str(sum(dtimes) / len(dtimes))
+    for _ in range(2):
+        mindex = 0
+        for i, elem in enumerate(ctimes):
+            if elem < ctimes[mindex]:
+                mindex = i
+        ctimes.pop(mindex)
+        maxdex = 0
+        for i, elem in enumerate(ctimes):
+            if elem > ctimes[maxdex]:
+                maxdex = i
+        ctimes.pop(maxdex)
+ 
+    ctimes = np.array(ctimes)
+    cmean = ctimes.mean()
+    cstd = ctimes.std()
+    data_line += "," + str(cmean) + "," + str(cstd)
     data_file.write(data_line + "\n")
 
 data_file.close()

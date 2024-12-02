@@ -8,7 +8,7 @@ from scripts.expr_util import increase_selectivity, decrease_selectivity, action
 
 # Parameters
 log_file = "results/logs/activity-log_mock5freq40_2000actions_files4folders2_2024-10-19T02:26:54Z-2024-10-19T04:58:40Z.csv"
-constraints_filename = "results/expr4/constraints_2024-11-25-21:45.json"
+constraints_filename = "results/expr4/constraints_2024-11-26-21:45.json"
 selectivity_levels = 20
 activity_count = 4000
 num_constraints = 200

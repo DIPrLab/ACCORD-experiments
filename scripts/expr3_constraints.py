@@ -11,7 +11,7 @@ log_file = "results/logs/activity-log_mock5freq40_2000actions_files4folders2_202
 constraints_filename_prefix = "results/expr3/constraints_2024-11-26"
 selectivity_levels = [(.1, .11), (.2, .21), (.3, .31)]
 level_names = ["high", "medium", "low"]
-activity_counts = [1600]
+activity_counts = [4000]
 num_constraints = 200
 trials = 1
 
@@ -91,7 +91,9 @@ for activity_count in activity_counts:
                 r_len = len(all_resources)
                 u_len = len(users)
                 t_len = u_len
-                delta_per_constraint = 4 * selectivity * (((4 * (u_len + r_len) + 3 * (t_len * u_len + u_len * r_len + t_len * r_len))) / 3) / space_size
+                delta_per_constraint = 32 * selectivity * (((4 * (u_len + r_len) + 3 * (t_len * u_len + u_len * r_len + t_len * r_len))) / 3) / space_size
+                if range_floor == .3:
+                    delta_per_constraint *= 2
                 print(range_name, range_floor, range_ceil)
                 attempts = 0
                 while (selectivity < range_floor or selectivity > range_ceil) and attempts < 1000:
@@ -134,7 +136,7 @@ for activity_count in activity_counts:
                     r_len = len(all_resources)
                     u_len = len(users)
                     t_len = u_len
-                    delta_per_constraint = 3 * selectivity * ((4 * (u_len + r_len) + 3 * (t_len * u_len + u_len * r_len + t_len * r_len)) / 3) / space_size
+                    delta_per_constraint = 2 * selectivity * ((4 * (u_len + r_len) + 3 * (t_len * u_len + u_len * r_len + t_len * r_len)) / 3) / space_size
                 if attempts < 1000:
                     regenerate = False
 
